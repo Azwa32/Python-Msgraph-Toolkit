@@ -1,0 +1,15 @@
+sharepoint:
+  default_query_size: 1000
+
+api_settings:
+  drive_query_size: 1000
+  retry_attempts: 3
+  timeout_seconds: 30
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+cache:
+  ttl_seconds: 300
+  max_size: 1000
