@@ -149,3 +149,15 @@ You'll understand what needs mocking
 16. tests/test_client.py - Integration tests
 
 17. tests/init.py - Test package setup
+
+
+-----------------------------------------------
+api call sequence:
+
+Upon class initialisation:
+MSGRAPH_TENANT_ID
+MSGRAPH_CLIENT_ID
+
+
+Sharepoint
+msgraph.sharepoint.get_folders(MSGRAPH_DRIVE_ID, PARENT_FOLDER_PATH&NAME)

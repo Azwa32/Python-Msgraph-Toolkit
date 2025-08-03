@@ -1,0 +1,14 @@
+reason for project
+
+requirements for project 
+
+structure of project, seperates major concerns auth, pagination, retry logic, services
+
+desicions around how the api call would be made, 
+
+Requiremets:
+must be descriptive, 
+easy to call,
+never excessive,
+no more arguments than required,
+only one drive per instance
