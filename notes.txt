@@ -45,7 +45,7 @@ project-root/
 │       ├── client.py                   # Main GraphAPI class
 │       ├── config.py                   # Configuration management
 │       ├── exceptions.py               # Custom exception classes
-│       ├── models/
+│       ├── services/
 │       │   ├── __init__.py
 │       │   ├── sharepoint.py           # SharePoint-specific operations
 │       │   ├── outlook.py              # Email operations
