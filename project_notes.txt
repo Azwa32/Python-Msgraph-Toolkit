@@ -158,6 +158,113 @@ Upon class initialisation:
 MSGRAPH_TENANT_ID
 MSGRAPH_CLIENT_ID
 
+client = GraphAPI()
 
-Sharepoint
-msgraph.sharepoint.get_folders(MSGRAPH_DRIVE_ID, PARENT_FOLDER_PATH&NAME)
+--Sharepoint--
+# Folders
+client.sharepoint.folders.get_id_by_name(parent_id, name)
+client.sharepoint.folders.get_id_by_path(site_id, folder_path)
+client.sharepoint.folders.list(parent_id)
+client.sharepoint.folders.create(parent_id, name)
+client.sharepoint.folders.delete(folder_id)
+client.sharepoint.folders.move(folder_id, new_parent_id)
+client.sharepoint.folders.copy(folder_id, destination_id, new_name)
+
+# Files
+client.sharepoint.files.get_id_by_name(path, file_name)
+client.sharepoint.files.upload(parent_id, file_path, content)
+client.sharepoint.files.download(file_id)
+client.sharepoint.files.get_metadata(file_id)
+client.sharepoint.files.delete(file_id)
+client.sharepoint.files.move(file_id, new_parent_id)
+client.sharepoint.files.copy(file_id, destination_id)
+client.sharepoint.files.search(query, site_id)
+
+# Permissions
+client.sharepoint.permissions.grant_access(item_id, user_email, role)
+client.sharepoint.permissions.remove_access(item_id, user_email)
+client.sharepoint.permissions.list_permissions(item_id)
+client.sharepoint.sharing.create_share_link(item_id, link_type, scope)
+
+# Sites
+client.sharepoint.sites.get_id_by_url(site_url)
+client.sharepoint.sites.list_subsites(site_id)
+client.sharepoint.lists.get_all(site_id)
+client.sharepoint.lists.get_items(site_id, list_id)
+client.sharepoint.lists.create_item(site_id, list_id, data)
+
+--Outlook--
+# Sending
+client.outlook.emails.send(to, subject, body, cc=None, bcc=None)
+client.outlook.emails.send_with_attachments(to, subject, body, attachments)
+client.outlook.emails.reply(message_id, body)
+client.outlook.emails.forward(message_id, to, body)
+
+# Reading
+client.outlook.emails.get_inbox(user_id, limit=50)
+client.outlook.emails.get_sent_items(user_id)
+client.outlook.emails.get_message(message_id)
+client.outlook.emails.search(user_id, query)
+client.outlook.emails.mark_as_read(message_id)
+client.outlook.emails.delete(message_id)
+
+# Calender
+client.outlook.calendar.get_events(user_id, start_date, end_date)
+client.outlook.calendar.create_event(user_id, subject, start, end, attendees)
+client.outlook.calendar.update_event(event_id, updates)
+client.outlook.calendar.delete_event(event_id)
+client.outlook.calendar.get_free_busy(user_ids, start_time, end_time)
+
+# Contacts
+client.outlook.contacts.list(user_id)
+client.outlook.contacts.create(user_id, contact_data)
+client.outlook.contacts.search(user_id, query)
+
+--Teams--
+# Team Management
+client.teams.get_id_by_name(team_name)
+client.teams.list_user_teams(user_id)
+client.teams.get_team_info(team_id)
+client.teams.create_team(name, description, members)
+client.teams.add_member(team_id, user_id, role)
+client.teams.remove_member(team_id, user_id)
+
+# Channels
+client.teams.channels.list(team_id)
+client.teams.channels.create(team_id, name, description)
+client.teams.channels.get_messages(team_id, channel_id)
+client.teams.channels.send_message(team_id, channel_id, content)
+
+# Chat & Messaging
+client.teams.chats.list_user_chats(user_id)
+client.teams.chats.send_message(chat_id, content)
+client.teams.chats.create_chat(participants)
+
+# Meetings
+client.teams.meetings.create_online_meeting(subject, start_time, end_time)
+client.teams.meetings.get_meeting_info(meeting_id)
+client.teams.meetings.update_meeting(meeting_id, updates)
+
+--Users--
+# Basic User Info
+client.users.get_id_by_email(email)
+client.users.list_all()
+client.users.get_by_id(user_id)
+client.users.search(query)
+client.users.get_profile(user_id)
+
+# User Properties
+client.users.update_profile(user_id, updates)
+client.users.get_manager(user_id)
+client.users.get_direct_reports(user_id)
+
+# Groups & Roles
+client.users.groups.get_id_by_name(group_name)
+client.users.groups.list_user_groups(user_id)
+client.users.groups.add_to_group(user_id, group_id)
+client.users.groups.remove_from_group(user_id, group_id)
+client.users.roles.list_user_roles(user_id)
+
+# Authentication & Sessions
+client.users.auth.revoke_sessions(user_id)
+client.users.auth.get_sign_in_activity(user_id)

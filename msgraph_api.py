@@ -227,7 +227,7 @@ CLIENT_TEMPLATE_FOLDER_ID = "01CYM3L6TYUPRU5TZANZDII2Y3IO6MLBGY"
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()       # load secure keys to environment
-    graph = GraphAPI(config_file="config.yaml")
+    graph = GraphAPI()
     #asyncio.run(graph.copy_folder(TARGET_FOLDER_ID, NEW_LOCATION_ID, NEW_FOLDER_NAME))     # copy folder to new location and rename
     #asyncio.run(graph.create_folder(NEW_LOCATION_ID, NEW_FOLDER_NAME))                     # create new folder
     #asyncio.run(graph.delete_item(DELETE_TARGET))                                          # delete item
