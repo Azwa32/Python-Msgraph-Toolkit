@@ -86,7 +86,6 @@ class GraphAPI:
 
 
 
-
     async def create_folder(self, new_location_id, new_folder_name):
         request_body = DriveItem(
             name = new_folder_name,

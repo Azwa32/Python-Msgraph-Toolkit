@@ -14,3 +14,12 @@ no more arguments than required,
 only one drive per instance
 
 Coming up with the structure of the calls as this is the inteface for the project
+
+the approach used is dependancy injection
+the benefits are: 
+-All services use the same authentication context
+-No duplicate credential management
+-Consistent token handling across services
+
+initialise the main client first, allowing authentication.
+during this process the child services initialise with the graph_clint passed into them
