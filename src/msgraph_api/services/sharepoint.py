@@ -12,10 +12,13 @@ class SharepointService():
         if not graph_client:
             raise ValueError("msgraph client must be supplied")
         
+    async def _is_path(location : str):
+        return "/" in location
+        
+    async def create_folder(self, drive_id, location_id, folder_name=None):
+        """Creates a folder in a defined location."""
 
         
-    async def create_folder(self, location_id, folder_name=None):
-        """Creates a folder in a defined location."""
 
         confirmed_folder_name = folder_name if folder_name else "New Folder"
 
@@ -29,4 +32,5 @@ class SharepointService():
         )
         # where to create the new folder
         await self.graph_client.drives.by_drive_id(self.DRIVE_ID).items.by_drive_item_id(location_id).children.post(request_body)
+
 

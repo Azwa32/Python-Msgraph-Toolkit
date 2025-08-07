@@ -11,7 +11,8 @@ must be descriptive,
 easy to call,
 never excessive,
 no more arguments than required,
-only one drive per instance
+multiple sites per instance
+copying between site drives possible
 
 Coming up with the structure of the calls as this is the inteface for the project
 
@@ -23,3 +24,8 @@ the benefits are:
 
 initialise the main client first, allowing authentication.
 during this process the child services initialise with the graph_clint passed into them
+
+Sharepoint
+allowing folder path or folder id via / or \ detection, coupled with a sprinkling of error handling
+
+

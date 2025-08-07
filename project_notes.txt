@@ -161,9 +161,15 @@ MSGRAPH_CLIENT_ID
 client = GraphAPI()
 
 --Sharepoint--
+
+# Sites
+client.sharepoint.site.list()
+_client.sharepoint.site.get_id_by_url()
+client.sharepoint.site.create(site_name)
+
 # Folders
-client.sharepoint.folders.get_id_by_name(parent_id, name)
-client.sharepoint.folders.get_id_by_path(site_id, folder_path)
+_client.sharepoint.folders.get_id_by_name(site_id, parent_id, name)
+_client.sharepoint.folders.get_id_by_path(site_id, folder_path)
 client.sharepoint.folders.list(parent_id)
 client.sharepoint.folders.create(parent_id, name)
 client.sharepoint.folders.delete(folder_id)
@@ -171,7 +177,7 @@ client.sharepoint.folders.move(folder_id, new_parent_id)
 client.sharepoint.folders.copy(folder_id, destination_id, new_name)
 
 # Files
-client.sharepoint.files.get_id_by_name(path, file_name)
+_client.sharepoint.files.get_id_by_name(site_id, path, file_name)
 client.sharepoint.files.upload(parent_id, file_path, content)
 client.sharepoint.files.download(file_id)
 client.sharepoint.files.get_metadata(file_id)
