@@ -12,11 +12,11 @@ class SharepointService():
         if not graph_client:
             raise ValueError("msgraph client must be supplied")
         
-    def convert_path_to_id(self, loc):
+    def _convert_path_to_id(self, loc):
         # path to id conversion logic
         return loc
         
-    def location_type_convert(self, loc):
+    def _location_type_convert(self, loc):
         """
         Checks input and returns a converted (or unconverted) location id
         """
@@ -30,14 +30,30 @@ class SharepointService():
 
         # check and process as folder path
         if "/" in loc:
-            self.convert_path_to_loc(loc)
-
-
-
+            return self._convert_path_to_id(loc)
         
-        
-    async def create_folder(self, drive_id, location_id, folder_name=None):
-        """Creates a folder in a pre-defined Sharepoint location."""
+        raise ValueError(f"Location does not match any pattern: {loc}")
+
+
+    async def create_folder(self, drive_id : str, location_id : str, folder_name :str=None):
+        """
+        Create a folder under a parent location within a specific drive.
+
+        Args:
+            drive_id: The target drive identifier (e.g., a GUID/Graph drive ID) or site name. Accepts:
+                - a drive ID
+                - a site name
+            location_id: The parent folder location within the drive. Accepts:
+                - a folder/item ID (e.g., '01...') or the literal 'root'
+                - a folder path (e.g., '/Documents/Projects'), which will be resolved to an ID
+            folder_name: Name of the new folder. Defaults to "New Folder" if not provided.
+
+        Returns:
+            DriveItem: The created folder item returned by Microsoft Graph.
+
+        Raises:
+            ValueError: If drive_id or location_id cannot be interpreted as a valid ID or path.
+        """
 
         confirmed_folder_name = folder_name if folder_name else "New Folder"
 
@@ -49,8 +65,8 @@ class SharepointService():
                     "@microsoft_graph_conflict_behavior" : "fail",
             }
         )
-        drive_location = "function to return drive loc"
-        parent_location = "function to return parent loc"
+        drive_location = self._location_type_convert(drive_id)
+        parent_location = self._location_type_convert(location_id)
         # where to create the new folder
         await self.graph_client.drives.by_drive_id(drive_location).items.by_drive_item_id(parent_location).children.post(request_body)
 
