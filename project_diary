@@ -18,7 +18,7 @@ error handling so incorrect args cannot crash program
 
 Coming up with the structure of the calls as this is the inteface for the project
 
-the approach used is dependancy injection
+the approach used is "Service layer pattern" with "heiarachical service organization"
 the benefits are: 
 -All services use the same authentication context
 -No duplicate credential management

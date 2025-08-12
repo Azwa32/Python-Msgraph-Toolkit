@@ -1,5 +1,5 @@
-from ..src.msgraph_api.services.client import GraphClient
 import os
+from ..src.msgraph_api.client import GraphClient
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
@@ -17,5 +17,5 @@ if __name__ == "__main__":
     location_id = "01CYM3L6TXOA256KAH4ZFLRHLVPZQ4HNJD"
     folder_name = "New folder totally not AI"
     #client.sharepoint.create_folder(drive_id, location_id, folder_name)
- 
-    asyncio.run(client.sharepoint.get_all_sites())
+    
+    asyncio.run(client.sharepoint.sites.get_all_sites())

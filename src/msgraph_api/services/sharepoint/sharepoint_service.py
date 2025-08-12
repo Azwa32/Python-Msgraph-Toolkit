@@ -1,13 +1,23 @@
 from msgraph import GraphServiceClient
-from msgraph.generated.models.drive_item import DriveItem
-from msgraph.generated.models.folder import Folder
+from .sites_service import SitesService
+#from .folders_service import FoldersService
+#from .files_service import FilesService
 import re
+
 
 class SharepointService():
     def __init__(self, graph_client: GraphServiceClient):
         self.graph_client = graph_client
         if not graph_client:
             raise ValueError("msgraph client must be supplied")
+        
+        # Initialize sub-services
+        self.sites = SitesService(graph_client)
+        #self.folders = FoldersService(graph_client)
+        #self.files = FilesService(graph_client)
+        #self.permissions = PermissionsService(graph_client)
+        #self.sharing = SharingService(graph_client)
+
         
     def _convert_path_to_id(self, loc):
         # path to id conversion logic
@@ -69,12 +79,6 @@ class SharepointService():
         except Exception as e:
             print(f"failed to create folder: {e}")
 
-    #client.sharepoint.lists.get_all()
-    async def get_all_sites(self):
-        response = await self.graph_client.sites.get_all_sites.get()
-        children = response.value                                 # pulls values from the graph api response
-        for child in children:    
-            print(child.name)
         
 
 
