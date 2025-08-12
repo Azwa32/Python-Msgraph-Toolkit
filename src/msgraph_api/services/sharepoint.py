@@ -1,9 +1,6 @@
 from msgraph import GraphServiceClient
-from msgraph.generated.drives.item.items.item.copy.copy_post_request_body import CopyPostRequestBody
-from msgraph.generated.models.item_reference import ItemReference
 from msgraph.generated.models.drive_item import DriveItem
 from msgraph.generated.models.folder import Folder
-from ..utils.pattern_id import is_id_type
 import re
 
 class SharepointService():
@@ -67,7 +64,18 @@ class SharepointService():
         )
         drive_location = self._location_type_convert(drive_id)
         parent_location = self._location_type_convert(location_id)
-        # where to create the new folder
-        await self.graph_client.drives.by_drive_id(drive_location).items.by_drive_item_id(parent_location).children.post(request_body)
+        try:
+            return await self.graph_client.drives.by_drive_id(drive_location).items.by_drive_item_id(parent_location).children.post(request_body)
+        except Exception as e:
+            print(f"failed to create folder: {e}")
+
+    #client.sharepoint.lists.get_all()
+    async def get_all_sites(self):
+        response = await self.graph_client.sites.get_all_sites.get()
+        children = response.value                                 # pulls values from the graph api response
+        for child in children:    
+            print(child.name)
+        
+
 
 

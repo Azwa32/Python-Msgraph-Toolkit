@@ -13,6 +13,8 @@ never excessive,
 no more arguments than required,
 multiple sites per instance
 copying between site drives possible
+runs in application mode not personal mode
+error handling so incorrect args cannot crash program
 
 Coming up with the structure of the calls as this is the inteface for the project
 

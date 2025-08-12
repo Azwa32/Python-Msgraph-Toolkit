@@ -195,9 +195,9 @@ client.sharepoint.sharing.create_share_link(item_id, link_type, scope)
 # Sites
 client.sharepoint.sites.get_id_by_url(site_url)
 client.sharepoint.sites.list_subsites(site_id)
-client.sharepoint.lists.get_all(site_id)
-client.sharepoint.lists.get_items(site_id, list_id)
-client.sharepoint.lists.create_item(site_id, list_id, data)
+client.sharepoint.sites.get_all()
+client.sharepoint.sites.get_items(site_id, list_id)
+client.sharepoint.sites.create_item(site_id, list_id, data)
 
 --Outlook--
 # Sending
