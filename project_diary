@@ -16,6 +16,12 @@ copying between site drives possible
 runs in application mode not personal mode
 error handling so incorrect args cannot crash program
 
+Pre-Requesites
+Setup Azure web app with correct API permissions
+Azure>Entra ID>App Registrations>Your App>API Permissions>Add a permission>Microsoft Graph>Application Permissions(as opposed to delegate) 
+API Error code 403 means insufficient permissions
+
+
 Coming up with the structure of the calls as this is the inteface for the project
 
 the approach used is "Service layer pattern" with "heiarachical service organization"

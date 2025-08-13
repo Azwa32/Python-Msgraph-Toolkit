@@ -1,12 +1,11 @@
-import os
+
 from ..src.msgraph_api.client import GraphClient
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
     import asyncio
-    load_dotenv() 
-
-
+    import os
+    load_dotenv()
     client = GraphClient(
         os.getenv("MSGRAPH_TENANT_ID"),
         os.getenv("MSGRAPH_CLIENT_ID"),

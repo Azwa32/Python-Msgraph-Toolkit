@@ -1,4 +1,5 @@
 from msgraph import GraphServiceClient
+import asyncio
    
 
 class SitesService:
@@ -9,7 +10,17 @@ class SitesService:
 
 
     async def get_all_sites(self):
-        response = await self.graph_client.sites.get_all_sites.get()
-        children = response.value                                 # pulls values from the graph api response
-        for child in children:    
-            print(child.name)
+        return await self.graph_client.sites.get_all_sites.get()
+
+
+    async def get_site_by_id(self, site_id):
+        return await self.graph_client.sites.by_site_id(site_id).get()
+    
+    async def get_site_id_by_name(self, site_name):
+        all_sites = await self.graph_client.sites.get_all_sites.get()
+        site_values = all_sites.value        
+        for site in site_values:
+            if site.display_name == site_name:
+                return site.id
+        return None
+

@@ -164,10 +164,10 @@ client = GraphAPI()
 
 # Sites
 client.sharepoint.site.list()
-_client.sharepoint.site.get_id_by_url()
+_client.sharepoint.site.get_site_by_id(site_id)
 client.sharepoint.site.create(site_name)
 
-# Folders
+# Folders (sharepoint or drives?)
 _client.sharepoint.folders.get_id_by_name(site_id, parent_id, name)
 _client.sharepoint.folders.get_id_by_path(site_id, folder_path)
 client.sharepoint.folders.list(parent_id)
@@ -193,7 +193,7 @@ client.sharepoint.permissions.list_permissions(item_id)
 client.sharepoint.sharing.create_share_link(item_id, link_type, scope)
 
 # Sites
-client.sharepoint.sites.get_id_by_url(site_url)
+client.sharepoint.sites.get_id_by_name(site_url)
 client.sharepoint.sites.list_subsites(site_id)
 client.sharepoint.sites.get_all()
 client.sharepoint.sites.get_items(site_id, list_id)
