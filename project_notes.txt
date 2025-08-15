@@ -163,14 +163,16 @@ client = GraphAPI()
 --Sharepoint--
 
 # Sites
-client.sharepoint.site.list()
-_client.sharepoint.site.get_site_by_id(site_id)
+*client.sharepoint.site.get_all_sites()
+*client.sharepoint.site.get_site_by_name(site_id)
+*client.sharepoint.site.get_site_by_id(site_id)
 client.sharepoint.site.create(site_name)
+*client.sharepoint.site.get_subsites(parent)
 
 # Folders (sharepoint or drives?)
-_client.sharepoint.folders.get_id_by_name(site_id, parent_id, name)
-_client.sharepoint.folders.get_id_by_path(site_id, folder_path)
-client.sharepoint.folders.list(parent_id)
+client.sharepoint.folders.get_folder_by_name(site_id, parent_id, name)
+client.sharepoint.folders.get_folder_by_path(site_id, folder_path)
+client.sharepoint.folders.get_all_folders(parent_id)
 client.sharepoint.folders.create(parent_id, name)
 client.sharepoint.folders.delete(folder_id)
 client.sharepoint.folders.move(folder_id, new_parent_id)
@@ -250,6 +252,10 @@ client.teams.chats.create_chat(participants)
 client.teams.meetings.create_online_meeting(subject, start_time, end_time)
 client.teams.meetings.get_meeting_info(meeting_id)
 client.teams.meetings.update_meeting(meeting_id, updates)
+
+# Tasks
+client.teams.task.create(name, other setings)
+client.teams.task.complete(name)
 
 --Users--
 # Basic User Info

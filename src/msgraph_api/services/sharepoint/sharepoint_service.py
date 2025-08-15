@@ -1,22 +1,20 @@
 from msgraph import GraphServiceClient
-from .sites_service import SitesService
-#from .folders_service import FoldersService
-#from .files_service import FilesService
+from .sites import SitesService
+from .drives import DriveService
+from .files import FileService
 import re
 
 
 class SharepointService():
-    def __init__(self, graph_client: GraphServiceClient):
-        self.graph_client = graph_client
-        if not graph_client:
+    def __init__(self, msgraph_client: GraphServiceClient):
+        self._msgraph_client = msgraph_client
+        if not msgraph_client:
             raise ValueError("msgraph client must be supplied")
         
         # Initialize sub-services
-        self.sites = SitesService(graph_client)
-        #self.folders = FoldersService(graph_client)
-        #self.files = FilesService(graph_client)
-        #self.permissions = PermissionsService(graph_client)
-        #self.sharing = SharingService(graph_client)
+        self.sites = SitesService(self._msgraph_client)
+        self.files = FileService(self._msgraph_client)
+        self.drives = DriveService(self._msgraph_client)
 
         
     def _convert_path_to_id(self, loc):
