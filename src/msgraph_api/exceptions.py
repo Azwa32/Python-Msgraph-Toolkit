@@ -47,3 +47,5 @@ class RateLimitError(GraphAPIError):
 
 class ValidationError(GraphAPIError):
     """Input validation failed."""
+
+# error handling https://learn.microsoft.com/en-us/graph/errors

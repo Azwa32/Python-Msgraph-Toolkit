@@ -1,5 +1,6 @@
 from msgraph import GraphServiceClient
-from msgraph.generated.users.item.messages.messages_request_builder import MessagesRequestBuilder   
+from msgraph.generated.drives.item.items.items_request_builder import ItemsRequestBuilder 
+from msgraph.generated.drives.item.items.item.children.children_request_builder import ChildrenRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 
 class FileService:
@@ -11,7 +12,7 @@ class FileService:
         # for exceeding the return limit of the graph api without using pagenation
     def _exceed_drive_query(self):
         drive_query_size = 1000     # this would be the most amount of customers FocusAv expects to have
-        query_params = MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters(
+        query_params = ItemsRequestBuilder .ItemsRequestBuilderGetQueryParameters(
 		    top = drive_query_size          
             )
         request_configuration = RequestConfiguration(
@@ -26,13 +27,24 @@ class FileService:
         if not parent_folder_id:
             print("No parent folder ID entered, please enter parent folder ID")
             return
-        return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id).children.get(request_configuration = self._exceed_drive_query())
+        try:
+            return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id)\
+                .children.get(request_configuration = self._exceed_drive_query())
+        except Exception as e:
+            print(f"Exception list_folders: {e}") 
+
     
-    async def get_folder_id_by_name(self, drive_id : str=None, parent_folder_id : str=None, child_folder_name : str=None):
-        response = await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id).children.get(request_configuration = self._exceed_drive_query())
-        values = response.value                                 # pulls values from the graph api response
-        for child in values:    
-            if child.name == child_folder_name:                 # finds id of a folder that matches the child folder name  
-                folder_id = child.id
-                return folder_id
-        return response.value
+
+
+    async def get_folder_by_name(self, drive_id : str=None, parent_folder_id : str=None, child_folder_name : str=None):
+        query_params = ChildrenRequestBuilder.ChildrenRequestBuilderGetQueryParameters(
+            filter=f"name eq '{child_folder_name}'"
+            #top=100,
+        )
+        request_config = RequestConfiguration(query_parameters=query_params)                
+        try:
+            response = await self._msgraph_client.drives.by_drive_id(drive_id)\
+                .items.by_drive_item_id(parent_folder_id).children.get(request_config)            
+            return response.value            
+        except Exception as e:
+            print(f"Exception get_folder_by_name: {e}")
