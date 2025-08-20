@@ -47,13 +47,15 @@ if __name__ == "__main__":
         #########################
         #folders = await client.sharepoint.files.list_folders(drive.id, root_folder.id)
         #for folder in folders.value:
-            #print(folder.name)
+        #    print(folder.name)
         ########################
-        items = await client.sharepoint.files.get_folder_by_name(drive.id, root_folder.id, "Clients")
-        for item in items:
-            print(item.name)
+        #folder = await client.sharepoint.files.get_folder_by_name(drive.id, root_folder.id, "")
+        #if folder:
+            #print(folder.web_url)
         ########################
-
+        # get_folder_by_path
+        folder = await client.sharepoint.files.get_item_by_path(drive.id, "Clients")
+        print(folder.name)
 
     asyncio.run(main())
 

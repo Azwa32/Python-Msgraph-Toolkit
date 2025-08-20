@@ -44,7 +44,25 @@ class FileService:
         request_config = RequestConfiguration(query_parameters=query_params)                
         try:
             response = await self._msgraph_client.drives.by_drive_id(drive_id)\
-                .items.by_drive_item_id(parent_folder_id).children.get(request_config)            
-            return response.value            
+                .items.by_drive_item_id(parent_folder_id).children.get(request_config) 
+            if response:           
+                return response.value[0]
+            return None            
         except Exception as e:
             print(f"Exception get_folder_by_name: {e}")
+
+
+
+    async def get_item_by_path(self, drive_id: str, item_path: str):
+        """Get folder or file by path"""
+        try:           
+            # Direct path access
+            item = await self._msgraph_client.drives.by_drive_id(drive_id).root \
+            .with_url(f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{item_path}") \
+            .get()
+            
+            return item
+            
+        except Exception as e:
+            print(f"Error getting item at path '{item_path}': {e}")
+            return None
