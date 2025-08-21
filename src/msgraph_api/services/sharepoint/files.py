@@ -20,7 +20,7 @@ class FileService:
             )
         return request_configuration
         
-    async def list_folders(self, drive_id : str=None, parent_folder_id : str=None):
+    async def list_contents(self, drive_id : str=None, parent_folder_id : str=None):
         if not drive_id:
             print("No Drive ID entered, please enter Drive ID")
             return
