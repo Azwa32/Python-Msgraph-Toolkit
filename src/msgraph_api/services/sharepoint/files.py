@@ -9,8 +9,8 @@ class FileService:
         if not msgraph_client:
             raise ValueError("msgraph client must be supplied")
         
-        # for exceeding the return limit of the graph api without using pagenation
     def _exceed_drive_query(self):
+        """For exceeding the return limit of the graph api without using pagenation"""
         drive_query_size = 1000     # this would be the most amount of customers FocusAv expects to have
         query_params = ItemsRequestBuilder .ItemsRequestBuilderGetQueryParameters(
 		    top = drive_query_size          
@@ -20,7 +20,9 @@ class FileService:
             )
         return request_configuration
         
-    async def list_contents(self, drive_id : str=None, parent_folder_id : str=None):
+        
+    async def list_folder_contents(self, drive_id : str=None, parent_folder_id : str=None):
+        """Returns a list of contents objects in parent_folder"""
         if not drive_id:
             print("No Drive ID entered, please enter Drive ID")
             return
@@ -34,9 +36,10 @@ class FileService:
             print(f"Exception list_folders: {e}")     
 
 
-    async def get_folder_by_name(self, drive_id : str=None, parent_folder_id : str=None, child_folder_name : str=None):
+    async def get_item_by_name(self, drive_id : str=None, parent_folder_id : str=None, item_name : str=None):
+        """Returns the object with matching item_name in parent_folder"""
         query_params = ChildrenRequestBuilder.ChildrenRequestBuilderGetQueryParameters(
-            filter=f"name eq '{child_folder_name}'"
+            filter=f"name eq '{item_name}'"
             #top=100,
         )
         request_config = RequestConfiguration(query_parameters=query_params)                
@@ -51,7 +54,7 @@ class FileService:
 
 
     async def get_item_by_path(self, drive_id: str, item_path: str):
-        """Get folder or file by path"""
+        """Returns the object with matching item_path"""
         try:           
             # Direct path access
             item = await self._msgraph_client.drives.by_drive_id(drive_id).root \
@@ -63,6 +66,10 @@ class FileService:
             print(f"Error getting item at path '{item_path}': {e}")
             return None
         
-    async def get_folder_by_id(self, drive_id : str, folder_id : str):
-        return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(folder_id).get()
+    async def get_item_by_id(self, drive_id : str, item_id : str):
+        """Returns the object with matching item_id"""
+        try:
+            return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).get()
+        except Exception as e:
+            print(f"Error getting item id: '{item_id}': {e}")
 
