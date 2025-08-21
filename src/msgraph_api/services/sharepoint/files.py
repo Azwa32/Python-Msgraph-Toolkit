@@ -31,9 +31,7 @@ class FileService:
             return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id)\
                 .children.get(request_configuration = self._exceed_drive_query())
         except Exception as e:
-            print(f"Exception list_folders: {e}") 
-
-    
+            print(f"Exception list_folders: {e}")     
 
 
     async def get_folder_by_name(self, drive_id : str=None, parent_folder_id : str=None, child_folder_name : str=None):
@@ -52,7 +50,6 @@ class FileService:
             print(f"Exception get_folder_by_name: {e}")
 
 
-
     async def get_item_by_path(self, drive_id: str, item_path: str):
         """Get folder or file by path"""
         try:           
@@ -61,8 +58,11 @@ class FileService:
             .with_url(f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{item_path}") \
             .get()
             
-            return item
-            
+            return item            
         except Exception as e:
             print(f"Error getting item at path '{item_path}': {e}")
             return None
+        
+    async def get_folder_by_id(self, drive_id : str, folder_id : str):
+        return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(folder_id).get()
+
