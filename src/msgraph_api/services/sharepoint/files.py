@@ -1,7 +1,24 @@
 from msgraph import GraphServiceClient
+from msgraph.generated.models.drive_item import DriveItem
+from msgraph.generated.models.folder import Folder
+from msgraph.generated.models.item_reference import ItemReference
+from msgraph.generated.models.drive_item import DriveItem
 from msgraph.generated.drives.item.items.items_request_builder import ItemsRequestBuilder 
 from msgraph.generated.drives.item.items.item.children.children_request_builder import ChildrenRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
+from typing import Optional, List, Dict, Any
+import logging
+
+# Import your existing exceptions
+from ...exceptions import (
+    SharePointError, 
+    ValidationError, 
+    GraphAPIError,
+    AuthenticationError,
+    RateLimitError
+)
+
+logger = logging.getLogger(__name__)
 
 class FileService:
     def __init__(self, msgraph_client: GraphServiceClient):
@@ -20,7 +37,7 @@ class FileService:
             )
         return request_configuration
         
-        
+
     async def list_folder_contents(self, drive_id : str=None, parent_folder_id : str=None):
         """Returns a list of contents objects in parent_folder"""
         if not drive_id:
@@ -72,4 +89,50 @@ class FileService:
             return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).get()
         except Exception as e:
             print(f"Error getting item id: '{item_id}': {e}")
+
+
+    async def create_folder(self, drive_id : str, parent_folder_id : str, new_folder_name : str):
+        request_body = DriveItem(
+            name = new_folder_name,
+            folder = Folder(
+            ),
+            additional_data = {
+                    "@microsoft_graph_conflict_behavior" : "fail",
+            }
+        )
+        try:
+            await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id).children.post(request_body)
+        except Exception as e:
+            print(f"Error creating folder: {e}")
+
+    async def delete_item(self, drive_id : str, item_id : str):
+        try:
+            await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).delete()
+        except Exception as e:
+            print(f"Error deleting item id: '{item_id}': {e}")
+
+
+    async def move_item(self, drive_id : str,  item_id : str, new_location_id):
+        request_body = DriveItem(
+            parent_reference = ItemReference(
+                id = new_location_id,
+            ),
+            additional_data = {
+                    "@microsoft_graph_conflict_behavior" : "fail",
+            }
+        )
+        try:
+            await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).patch(request_body)
+        except Exception as e:
+            print(f"Error moving item id: '{item_id}': {e}")
+
+#######################################################
+    async def find_item(self, drive_id : str, parent_folder : str, search_term : str ):
+        try: 
+            return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder).search_with_q(search_term).get()
+        except Exception as e:
+            print(f"Error searching item id: '{search_term}': {e}")
+
+
+
 

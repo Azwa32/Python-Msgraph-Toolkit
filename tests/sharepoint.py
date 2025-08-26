@@ -58,8 +58,12 @@ if __name__ == "__main__":
             #print(item.name)
         ########################
         # get item by id
-        item = await client.sharepoint.files.get_item_by_id(drive.id, "01CYM3L6WTDWTOTVO7LJFIWF7PZKHWK7UF")
-        print(item.name)
+        #item = await client.sharepoint.files.get_item_by_id(drive.id, "01CYM3L6WTDWTOTVO7LJFIWF7PZKHWK7UF")
+        #print(item.name)
+        ########################
+        search_result = await client.sharepoint.files.find_item(drive.id, "01CYM3L6UNFXI2DU5DZJBYGQRRMAO3RSB2", "ESCO")
+        for item in search_result.value:
+            print(item.name)
 
     asyncio.run(main())
 

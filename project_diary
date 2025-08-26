@@ -37,4 +37,9 @@ during this process the child services initialise with the graph_clint passed in
 Sharepoint
 allowing folder path or folder id via / or \ detection, coupled with a sprinkling of error handling
 
+Adding error handling & exceptions
+
+
+
+
 
