@@ -9,8 +9,25 @@ class SitesService:
 
 
     async def get_all_sites(self):
+        """
+        #### Retreive all Sharepoint sites accessable to the authenticated user.
+        
+        Returns a list of all SharePoint sites available with the current access within the MS 365 tenant.This includes team, communication and other SharePoint sites. 
+        Requires read permissions.
+
+        Returns list or None: Each object in the list contains attributes such as name, id, url etc, Returns None if there is an error in the request
+        
+        Useage example:
+        >>> sites = await sites_service.get_all_sites()
+        >>> if sites:
+        ...     for site in sites:
+        ...         print(f"Site: {site.display_name}")
+        ...         print(f"URL: {site.web_url}")
+        ...         print(f"ID: {site.id}")
+        """
         try:
-            return await self._msgraph_client.sites.get_all_sites.get()
+            response =  await self._msgraph_client.sites.get_all_sites.get()
+            return response.value
         except Exception as e:
             print(f"Error get_all_sites: {e}")
 
@@ -34,7 +51,8 @@ class SitesService:
     
     async def get_sub_sites(self, parent_site_id : str):
         try:
-            return await self._msgraph_client.sites.by_site_id(parent_site_id).sites.get()
+            response =  await self._msgraph_client.sites.by_site_id(parent_site_id).sites.get()
+            return response.value
         except Exception as e:
             print(f"Error get_sub_sites: {e}")
 

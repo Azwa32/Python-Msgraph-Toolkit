@@ -25,33 +25,32 @@ if __name__ == "__main__":
         #client.sharepoint.create_folder(drive_id, location_id, folder_name) 
         #########################   
         #all_sites = await client.sharepoint.sites.get_all_sites()
-        #for entry in all_sites.value:    
+        #for entry in all_sites:    
         #   print(f"{entry.name} | {entry.web_url} | {entry.id}")
         ###########################    
         site = await client.sharepoint.sites.get_site_by_displayname("FocusAV")
         #print(site.id)
         #########################
-        #site_id = "focusav.sharepoint.com,3580de04-1622-4f4c-967d-c221f6e18144,d6842c6f-b7a9-4ea6-aa4c-15901a4ad95b"
         #site = await client.sharepoint.sites.get_site_by_id(site.id)
         #print(site.display_name)
         #########################
         #children = await client.sharepoint.sites.get_sub_sites(site.id)
-        #for child in children.value:
-        #    print(child.display_name)
+        #for child in children:
+            #print(child.display_name)
         #########################
         drive = await client.sharepoint.sites.get_site_drive(site.id)
-        #print(drive.id)
+        #print(drive.name)
         #########################
         root_folder = await client.sharepoint.drives.get_drive_root_folder(drive.id)
-        #print(root_folder.id)
+        #print(root_folder.name)
         #########################
-        items = await client.sharepoint.files.list_folder_contents(drive.id, "01CYM3L6UNFXI2DU5DZJBYGQRRMAO3RSB2")
-        #for item in items.value:
-        #    print(item.name, item.id)
+        items = await client.sharepoint.files.list_folder_contents(drive.id, root_folder.id)
+        #for item in items:
+            #print(item.name, item.id, item.web_url)
         ########################
-        item = await client.sharepoint.files.get_item_by_name(drive.id, "01CYM3L6UNFXI2DU5DZJBYGQRRMAO3RSB2", "Everett Smith EQ6 HUB Equipment Register.xlsx")
+        #item = await client.sharepoint.files.get_item_by_name(drive.id, "01CYM3L6UNFXI2DU5DZJBYGQRRMAO3RSB2", "Everett Smith EQ6 HUB Equipment Register.xlsx")
         #if item:
-        #    print(item.id)
+            #print(item.name)
         ########################
         #item = await client.sharepoint.files.get_item_by_path(drive.id, "Clients/1- Current Projects/ESCO - EQ6 [9TE] - The Hub - Master Folder/Everett Smith EQ6 HUB Equipment Register.xlsx")
         #if item:
@@ -61,9 +60,6 @@ if __name__ == "__main__":
         #item = await client.sharepoint.files.get_item_by_id(drive.id, "01CYM3L6WTDWTOTVO7LJFIWF7PZKHWK7UF")
         #print(item.name)
         ########################
-        search_result = await client.sharepoint.files.find_item(drive.id, "01CYM3L6UNFXI2DU5DZJBYGQRRMAO3RSB2", "ESCO")
-        for item in search_result.value:
-            print(item.name)
 
     asyncio.run(main())
 

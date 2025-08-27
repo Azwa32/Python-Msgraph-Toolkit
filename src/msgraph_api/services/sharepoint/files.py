@@ -5,6 +5,7 @@ from msgraph.generated.models.item_reference import ItemReference
 from msgraph.generated.models.drive_item import DriveItem
 from msgraph.generated.drives.item.items.items_request_builder import ItemsRequestBuilder 
 from msgraph.generated.drives.item.items.item.children.children_request_builder import ChildrenRequestBuilder
+from msgraph.generated.drives.item.search_with_q.search_with_q_request_builder import SearchWithQRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 from typing import Optional, List, Dict, Any
 import logging
@@ -28,7 +29,7 @@ class FileService:
         
     def _exceed_drive_query(self):
         """For exceeding the return limit of the graph api without using pagenation"""
-        drive_query_size = 1000     # this would be the most amount of customers FocusAv expects to have
+        drive_query_size = 1000
         query_params = ItemsRequestBuilder .ItemsRequestBuilderGetQueryParameters(
 		    top = drive_query_size          
             )
@@ -47,8 +48,9 @@ class FileService:
             print("No parent folder ID entered, please enter parent folder ID")
             return
         try:
-            return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id)\
+            response =  await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id)\
                 .children.get(request_configuration = self._exceed_drive_query())
+            return response.value
         except Exception as e:
             print(f"Exception list_folders: {e}")     
 
@@ -126,12 +128,7 @@ class FileService:
         except Exception as e:
             print(f"Error moving item id: '{item_id}': {e}")
 
-#######################################################
-    async def find_item(self, drive_id : str, parent_folder : str, search_term : str ):
-        try: 
-            return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder).search_with_q(search_term).get()
-        except Exception as e:
-            print(f"Error searching item id: '{search_term}': {e}")
+        
 
 
 
