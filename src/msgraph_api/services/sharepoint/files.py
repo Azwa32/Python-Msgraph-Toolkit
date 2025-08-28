@@ -10,7 +10,7 @@ from kiota_abstractions.base_request_configuration import RequestConfiguration
 from typing import Optional, List, Dict, Any
 import logging
 
-# Import your existing exceptions
+# Import existing exceptions
 from ...exceptions import (
     SharePointError, 
     ValidationError, 
@@ -40,7 +40,26 @@ class FileService:
         
 
     async def list_folder_contents(self, drive_id : str=None, parent_folder_id : str=None):
-        """Returns a list of contents objects in parent_folder"""
+        """
+        #### Retrieve all items (files and folders) within a specified folder.
+        
+        Returns a comprehensive list of all contents in the target folder including files, 
+        subfolders, and their metadata. Uses pagination to handle large directories efficiently.
+        
+        ##### Args:
+            drive_id (str): The unique identifier for the SharePoint drive
+            parent_folder_id (str): The unique identifier for the parent folder ('root' for root directory)
+            
+        ##### Returns:
+            List[Dict[str, Any]] or None: List of item objects with attributes such as name, id, size, 
+            created_date, etc. Returns None if error occurs
+            
+        Usage example:
+        >>> contents = await file_service.list_folder_contents(drive_id, folder_id)
+        >>> if contents:
+        ...     for item in contents:
+        ...         print(f"Item: {item.name} ({item.size} bytes)")
+        """
         if not drive_id:
             print("No Drive ID entered, please enter Drive ID")
             return
@@ -56,7 +75,26 @@ class FileService:
 
 
     async def get_item_by_name(self, drive_id : str=None, parent_folder_id : str=None, item_name : str=None):
-        """Returns the object with matching item_name in parent_folder"""
+        """
+        #### Retrieve a specific file or folder by its exact name within a parent folder.
+        
+        Searches for an item with the exact name match within the specified parent folder.
+        Case-sensitive search that returns the first matching item found.
+        
+        ##### Args:
+            drive_id (str): The unique identifier for the SharePoint drive
+            parent_folder_id (str): The unique identifier for the parent folder to search within
+            item_name (str): The exact name of the file or folder to find
+            
+        ##### Returns:
+            Dict[str, Any] or None: Item object with attributes such as name, id, size, type, etc.
+            Returns None if item not found or error occurs
+            
+        Usage example:
+        >>> item = await file_service.get_item_by_name(drive_id, folder_id, "report.pdf")
+        >>> if item:
+        ...     print(f"Found: {item.name} (Size: {item.size})")
+        """
         query_params = ChildrenRequestBuilder.ChildrenRequestBuilderGetQueryParameters(
             filter=f"name eq '{item_name}'"
             #top=100,
@@ -73,7 +111,24 @@ class FileService:
 
 
     async def get_item_by_path(self, drive_id: str, item_path: str):
-        """Returns the object with matching item_path"""
+        """
+        #### Retrieve a file or folder by its full path within the drive.
+        
+        Direct access to an item using its complete path from the drive root.
+        More efficient than searching by name when you know the full path structure.
+        
+        ##### Args:
+            drive_id (str): The unique identifier for the SharePoint drive
+            item_path (str): The full path to the item (e.g., '/Documents/Projects/file.pdf')
+            
+        ##### Returns:
+            Dict[str, Any] or None: Item object with full metadata, or None if not found
+            
+        Usage example:
+        >>> item = await file_service.get_item_by_path(drive_id, "/Documents/report.pdf")
+        >>> if item:
+        ...     print(f"Found at path: {item.name}")
+        """
         try:           
             # Direct path access
             item = await self._msgraph_client.drives.by_drive_id(drive_id).root \
@@ -86,7 +141,24 @@ class FileService:
             return None
         
     async def get_item_by_id(self, drive_id : str, item_id : str):
-        """Returns the object with matching item_id"""
+        """
+        #### Retrieve a specific file or folder by its unique identifier.
+        
+        Direct access to an item using its Microsoft Graph item ID. Most efficient method
+        when you have the item's unique identifier.
+        
+        ##### Args:
+            drive_id (str): The unique identifier for the SharePoint drive
+            item_id (str): The unique identifier for the specific item
+            
+        ##### Returns:
+            Dict[str, Any] or None: Item object with complete metadata, or None if error occurs
+            
+        Usage example:
+        >>> item = await file_service.get_item_by_id(drive_id, "01ABCDEF123456789")
+        >>> if item:
+        ...     print(f"Item: {item.name} (Modified: {item.last_modified_date_time})")
+        """
         try:
             return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).get()
         except Exception as e:
@@ -94,6 +166,24 @@ class FileService:
 
 
     async def create_folder(self, drive_id : str, parent_folder_id : str, new_folder_name : str):
+        """
+        #### Create a new folder within a specified parent directory.
+        
+        Creates a new folder with the specified name in the target parent folder.
+        Operation will fail if a folder with the same name already exists.
+        
+        ##### Args:
+            drive_id (str): The unique identifier for the SharePoint drive
+            parent_folder_id (str): The unique identifier for the parent folder ('root' for root directory)
+            new_folder_name (str): The name for the new folder to create
+            
+        ##### Returns:
+            None: Operation succeeds silently or prints error message
+            
+        Usage example:
+        >>> await file_service.create_folder(drive_id, parent_folder_id, "New Project Folder")
+        >>> print("Folder created successfully")
+        """
         request_body = DriveItem(
             name = new_folder_name,
             folder = Folder(
@@ -108,6 +198,25 @@ class FileService:
             print(f"Error creating folder: {e}")
 
     async def delete_item(self, drive_id : str, item_id : str):
+        """
+        #### Permanently delete a file or folder from the drive.
+        
+        Removes the specified item from SharePoint. For folders, this will delete
+        all contained files and subfolders. This action cannot be undone.
+        
+        ##### Args:
+            drive_id (str): The unique identifier for the SharePoint drive
+            item_id (str): The unique identifier for the item to delete
+            
+        ##### Returns:
+            None: Operation succeeds silently or prints error message
+            
+        ⚠️ Warning: This permanently deletes the item and all its contents
+            
+        Usage example:
+        >>> await file_service.delete_item(drive_id, item_id)
+        >>> print("Item deleted successfully")
+        """
         try:
             await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).delete()
         except Exception as e:
@@ -115,6 +224,24 @@ class FileService:
 
 
     async def move_item(self, drive_id : str,  item_id : str, new_location_id):
+        """
+        #### Move a file or folder to a different location within the same drive.
+        
+        Relocates the specified item to a new parent folder. The item retains its
+        name and properties but changes its location in the folder hierarchy.
+        
+        ##### Args:
+            drive_id (str): The unique identifier for the SharePoint drive
+            item_id (str): The unique identifier for the item to move
+            new_location_id (str): The unique identifier for the destination parent folder
+            
+        ##### Returns:
+            None: Operation succeeds silently or prints error message
+            
+        Usage example:
+        >>> await file_service.move_item(drive_id, item_id, new_parent_folder_id)
+        >>> print("Item moved successfully")
+        """
         request_body = DriveItem(
             parent_reference = ItemReference(
                 id = new_location_id,

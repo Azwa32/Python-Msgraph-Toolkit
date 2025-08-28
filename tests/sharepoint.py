@@ -45,8 +45,8 @@ if __name__ == "__main__":
         #print(root_folder.name)
         #########################
         items = await client.sharepoint.files.list_folder_contents(drive.id, root_folder.id)
-        #for item in items:
-            #print(item.name, item.id, item.web_url)
+        for item in items:
+            print(item.name, item.id, item.web_url)
         ########################
         #item = await client.sharepoint.files.get_item_by_name(drive.id, "01CYM3L6UNFXI2DU5DZJBYGQRRMAO3RSB2", "Everett Smith EQ6 HUB Equipment Register.xlsx")
         #if item:
