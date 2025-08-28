@@ -61,11 +61,9 @@ class FileService:
         ...         print(f"Item: {item.name} ({item.size} bytes)")
         """
         if not drive_id:
-            print("No Drive ID entered, please enter Drive ID")
-            return
+            raise ValidationError("Drive ID is required")
         if not parent_folder_id:
-            print("No parent folder ID entered, please enter parent folder ID")
-            return
+            raise ValidationError("Parent folder ID is required")
         try:
             response =  await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id)\
                 .children.get(request_configuration = self._exceed_drive_query())
@@ -129,6 +127,10 @@ class FileService:
         >>> if item:
         ...     print(f"Found at path: {item.name}")
         """
+        if not drive_id:
+            raise ValidationError("Drive ID is required")
+        if not item_path:
+            raise ValidationError("Item path is required")
         try:           
             # Direct path access
             item = await self._msgraph_client.drives.by_drive_id(drive_id).root \
@@ -159,6 +161,10 @@ class FileService:
         >>> if item:
         ...     print(f"Item: {item.name} (Modified: {item.last_modified_date_time})")
         """
+        if not drive_id:
+            raise ValidationError("Drive ID is required")
+        if not item_id:
+            raise ValidationError("Item ID is required")
         try:
             return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).get()
         except Exception as e:
@@ -184,6 +190,12 @@ class FileService:
         >>> await file_service.create_folder(drive_id, parent_folder_id, "New Project Folder")
         >>> print("Folder created successfully")
         """
+        if not drive_id:
+            raise ValidationError("Drive ID is required")
+        if not parent_folder_id:
+            raise ValidationError("Parent folder ID is required")
+        if not new_folder_name:
+            raise ValidationError("New folder name is required")
         request_body = DriveItem(
             name = new_folder_name,
             folder = Folder(
@@ -217,6 +229,10 @@ class FileService:
         >>> await file_service.delete_item(drive_id, item_id)
         >>> print("Item deleted successfully")
         """
+        if not drive_id:
+            raise ValidationError("Drive ID is required")
+        if not item_id:
+            raise ValidationError("Item ID is required")
         try:
             await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).delete()
         except Exception as e:
@@ -250,6 +266,12 @@ class FileService:
                     "@microsoft_graph_conflict_behavior" : "fail",
             }
         )
+        if not drive_id:
+            raise ValidationError("Drive ID is required")
+        if not item_id:
+            raise ValidationError("Item ID is required")
+        if not new_location_id:
+            raise ValidationError("New location ID is required")
         try:
             await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).patch(request_body)
         except Exception as e:

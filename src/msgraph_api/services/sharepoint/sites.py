@@ -1,4 +1,12 @@
 from msgraph import GraphServiceClient
+
+from ...exceptions import (
+    SharePointError, 
+    ValidationError, 
+    GraphAPIError,
+    AuthenticationError,
+    RateLimitError
+)
    
 
 class SitesService:
@@ -51,6 +59,8 @@ class SitesService:
             >>> site = await sites_service.get_site_by_id("my_site_id")
             >>> print(f"Site name: {site.display_name}")
         """
+        if not site_id:
+            raise ValidationError("Site ID is required")
         try:
             return await self._msgraph_client.sites.by_site_id(site_id).get()
         except Exception as e:
@@ -71,6 +81,8 @@ class SitesService:
             >>> if site:
             ...     print(f"Found site: {site.web_url}")
         """
+        if not site_name:
+            raise ValidationError("Site ID is required")
         try:
             all_sites = await self._msgraph_client.sites.get_all_sites.get()
             site_values = all_sites.value        
@@ -95,6 +107,8 @@ class SitesService:
             >>> subsites = await sites_service.get_sub_sites(parent_site_id)
             >>> print(f"Found {len(subsites)} subsites")
         """
+        if not parent_site_id:
+            raise ValidationError("Parent site ID is required")
         try:
             response =  await self._msgraph_client.sites.by_site_id(parent_site_id).sites.get()
             return response.value
@@ -111,5 +125,7 @@ class SitesService:
         ##### Returns: 
             Dict[str, str] or None if not foud
         """
+        if not site_id:
+            raise ValidationError("Site ID is required")
         return await self._msgraph_client.sites.by_site_id(site_id).drive.get()
 
