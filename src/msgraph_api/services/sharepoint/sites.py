@@ -5,7 +5,8 @@ from ...exceptions import (
     ValidationError, 
     GraphAPIError,
     AuthenticationError,
-    RateLimitError
+    RateLimitError,
+    Graph
 )
    
 
@@ -127,5 +128,7 @@ class SitesService:
         """
         if not site_id:
             raise ValidationError("Site ID is required")
-        return await self._msgraph_client.sites.by_site_id(site_id).drive.get()
-
+        try:
+            return await self._msgraph_client.sites.by_site_id(site_id).drive.get()
+        except Exception as e:
+            print(f"Error get_drives: {e}")

@@ -22,6 +22,24 @@ Setup Azure web app with correct API permissions
 Azure>Entra ID>App Registrations>Your App>API Permissions>Add a permission>Microsoft Graph>Application Permissions(as opposed to delegate) 
 API Error code 403 means insufficient permissions
 
+used msgraph python sdk instead of http calls, SDKs handle authentication, serialization, error handling automatically,The SDK handles OAuth2, token refresh, app registrations correctly
+"I chose the Microsoft Graph SDK because it handles authentication 
+token refresh, provides type safety, and reduces boilerplate. 
+However, I still needed to create a service layer abstraction 
+because the SDK is quite verbose for common operations."
+
+## Error Handling Strategy
+
+Implemented custom exception hierarchy on top of Microsoft Graph SDK because:
+
+1. **SDK provides generic HTTP errors** - not business-contextual
+2. **Custom exceptions provide meaningful context** for client applications
+3. **Consistent error interface** across all services (SharePoint, Outlook, Teams)
+4. **Better developer experience** - specific exception types for specific error handling
+
+Pattern: Catch SDK exceptions → Transform to business exceptions → Preserve original context
+
+This follows industry patterns used by AWS SDK, Stripe SDK, and other enterprise libraries.
 
 Coming up with the structure of the calls as this is the inteface for the project
 
@@ -40,6 +58,15 @@ allowing folder path or folder id via / or \ detection, coupled with a sprinklin
 adding verbose tooltips
 
 Adding error handling & exceptions
+wanted no tracebacks for incorrect method args for best user experience
+encountered an issue where exceptions were in place but tracebacks were still occouring. 
+The traceback shows the exception is being raised in the SDK's HTTP layer:
+"File "kiota_http/httpx_request_adapter.py", line 573, in throw_failed_responses"
+This suggests the SDK is configured to throw exceptions immediately, bypassing your exception handling.
+
+
+
+
 
 
 

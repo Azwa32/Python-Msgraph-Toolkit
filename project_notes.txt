@@ -150,6 +150,9 @@ You'll understand what needs mocking
 
 17. tests/init.py - Test package setup
 
+https://learn.microsoft.com/en-us/graph/errors
+
+https://realpython.com/python-exceptions/
 
 -----------------------------------------------
 api call sequence:

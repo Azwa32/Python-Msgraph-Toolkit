@@ -7,16 +7,18 @@ from msgraph.generated.drives.item.items.items_request_builder import ItemsReque
 from msgraph.generated.drives.item.items.item.children.children_request_builder import ChildrenRequestBuilder
 from msgraph.generated.drives.item.search_with_q.search_with_q_request_builder import SearchWithQRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
+from requests.exceptions import HTTPError
 from typing import Optional, List, Dict, Any
 import logging
+import sys
 
-# Import existing exceptions
 from ...exceptions import (
     SharePointError, 
     ValidationError, 
     GraphAPIError,
     AuthenticationError,
-    RateLimitError
+    RateLimitError,
+    Graph
 )
 
 logger = logging.getLogger(__name__)
@@ -38,7 +40,7 @@ class FileService:
             )
         return request_configuration
         
-
+################ WIP
     async def list_folder_contents(self, drive_id : str=None, parent_folder_id : str=None):
         """
         #### Retrieve all items (files and folders) within a specified folder.
@@ -61,16 +63,56 @@ class FileService:
         ...         print(f"Item: {item.name} ({item.size} bytes)")
         """
         if not drive_id:
-            raise ValidationError("Drive ID is required")
+            raise ValidationError("Drive ID is required, Enter the correct drive ID and try again")
         if not parent_folder_id:
-            raise ValidationError("Parent folder ID is required")
+            raise ValidationError("Parent folder ID is required, Enter the correct parent folder & try again")
+        
         try:
             response =  await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id)\
                 .children.get(request_configuration = self._exceed_drive_query())
-            return response.value
+            return response.value if response.value else []
+            
         except Exception as e:
-            print(f"Exception list_folders: {e}")     
+            #logger.error(f"Failed to list folder contents for drive {drive_id}, folder {parent_folder_id}: {e}", exc_info=True)
+        
+            error_str = str(e).lower()
+        
+            # Handle authentication errors
+            if any(auth_indicator in error_str for auth_indicator in [
+                'aadsts', 'invalid_client', 'unauthorized', 'authentication', 
+                'token', 'credential', 'auth', '401'
+            ]):
+                raise AuthenticationError(f"Authentication failed when accessing drive {drive_id}. Verify authorisation is correct and try again") from e
+                
+            # Handle validation errors (malformed IDs, etc.)
+            elif any(validation_indicator in error_str for validation_indicator in [
+                'malformed', 'invalid', 'invalidrequest', 'bad request', 
+                'does not represent a valid drive', 'drive id appears to be malformed', '400'
+            ]):
+                raise ValidationError(f"Invalid drive ID format: '{drive_id}'. Verify the drive ID is correct and try again.") from e
 
+            # Handle not found errors
+            elif any(not_found_indicator in error_str for not_found_indicator in [
+                'not found', '404', 'does not exist', 'itemnotfound'
+            ]):
+                raise SharePointError(f"Drive {drive_id} or folder {parent_folder_id} not found. ")
+                
+            # Handle access denied
+            elif any(access_indicator in error_str for access_indicator in [
+                'forbidden', '403', 'access denied', 'insufficient privileges'
+            ]):
+                raise SharePointError(f"Access denied to drive {drive_id} or folder {parent_folder_id}") from e
+                
+            # Handle rate limiting
+            elif any(rate_indicator in error_str for rate_indicator in [
+                'rate limit', 'too many requests', '429', 'throttled'
+            ]):
+                raise RateLimitError(f"Rate limit exceeded when accessing drive {drive_id}") from e
+                
+            # Generic SharePoint error for anything else
+            else:
+                raise SharePointError(f"Unknown sharepoint error: {e}")
+        
 
     async def get_item_by_name(self, drive_id : str=None, parent_folder_id : str=None, item_name : str=None):
         """
@@ -93,19 +135,37 @@ class FileService:
         >>> if item:
         ...     print(f"Found: {item.name} (Size: {item.size})")
         """
+        if not drive_id:
+            raise ValidationError("Drive ID is required")
+        if not parent_folder_id:
+            raise ValidationError("Parent folder ID is required")
+        if not item_name:
+            raise ValidationError("Item name is required")
+            
         query_params = ChildrenRequestBuilder.ChildrenRequestBuilderGetQueryParameters(
             filter=f"name eq '{item_name}'"
-            #top=100,
         )
         request_config = RequestConfiguration(query_parameters=query_params)                
         try:
             response = await self._msgraph_client.drives.by_drive_id(drive_id)\
                 .items.by_drive_item_id(parent_folder_id).children.get(request_config) 
-            if response:           
+            if response and response.value and len(response.value) > 0:          
                 return response.value[0]
             return None            
         except Exception as e:
-            print(f"Exception get_folder_by_name: {e}")
+            logger.error(f"Failed to get item by name '{item_name}': {e}", exc_info=True)
+            error_str = str(e).lower()
+            
+            if any(auth_indicator in error_str for auth_indicator in [
+                'aadsts', 'invalid_client', 'unauthorized', 'authentication'
+            ]):
+                raise AuthenticationError(f"Authentication failed when searching for item '{item_name}'") from e
+            elif any(validation_indicator in error_str for validation_indicator in [
+                'malformed', 'invalid', 'invalidrequest', 'bad request'
+            ]):
+                raise ValidationError(f"Invalid parameters when searching for item '{item_name}'") from e
+            else:
+                raise SharePointError(f"Failed to get item '{item_name}': {str(e)}") from e
 
 
     async def get_item_by_path(self, drive_id: str, item_path: str):
