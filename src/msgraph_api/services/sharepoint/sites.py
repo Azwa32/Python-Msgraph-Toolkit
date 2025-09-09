@@ -1,4 +1,9 @@
 from msgraph import GraphServiceClient
+from functools import wraps
+import logging
+from typing import List, Optional
+from msgraph.generated.models.site import Site
+from msgraph.generated.models.drive import Drive
 
 from ...exceptions import (
     SharePointError, 
@@ -6,21 +11,59 @@ from ...exceptions import (
     GraphAPIError,
     AuthenticationError,
     RateLimitError,
-    Graph
 )
    
 
 class SitesService:
     """Service for managing SharePoint sites through Microsoft Graph API."""
-    def __init__(self, msgraph_client: GraphServiceClient):
+    def __init__(self, msgraph_client: GraphServiceClient) -> None:
         self._msgraph_client = msgraph_client
+        self.logger = logging.getLogger(__name__)
         if not msgraph_client:
-            raise ValueError("msgraph client must be supplied")
+            raise ValidationError("msgraph client must be supplied")
+        
+
+
+    def log_errors(self, func):
+        """Simple decorator to log errors for debugging"""
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                return await func(*args, **kwargs)
+            except Exception as e:
+                self.logger.error(f"Error in {func.__name__}: {e}", exc_info=True)
+                raise
+        return wrapper
 
 
 
+    def _exception_helper(self, exception : str = None):
+        error_str = str(exception).lower()
+        # Handle specific Azure AD errors
+        if '900023' in error_str or 'aadsts90002' in error_str:
+            raise AuthenticationError("Invalid Tenant ID. Verify MSGRAPH_TENANT_ID and try again") from exception
+        
+        elif '700016' in error_str or 'aadsts700016' in error_str:
+            raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again") from exception
+        
+        elif '7000215' in error_str or 'aadsts7000215' in error_str:
+            raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again") from exception
+        
+        elif 'not found' in error_str or '404' in error_str:
+            raise SharePointError("SharePoint resource not found") from exception
+        
+        elif 'forbidden' in error_str or '403' in error_str:
+            raise SharePointError("Access denied to SharePoint resource") from exception
+        
+        elif 'rate limit' in error_str or '429' in error_str:
+            raise RateLimitError("API rate limit exceeded") from exception
+        
+        else:
+            raise SharePointError(f"SharePoint operation failed: {exception}") from exception
+        
 
-    async def get_all_sites(self):
+
+    async def get_all_sites(self) -> List[Site]:
         """
         #### Retreive all Sharepoint sites accessable to the authenticated user.
         
@@ -31,7 +74,7 @@ class SitesService:
             None
 
         ##### Returns:
-             Dict[str, str] or None: Each object in the list contains attributes such as name, id, url etc, Returns None if there is an error in the request
+             Dict[str, str] or empty list: Each object in the list contains attributes such as name, id, url etc.
         
         Useage example:
         >>> sites = await sites_service.get_all_sites()
@@ -42,25 +85,15 @@ class SitesService:
         ...         print(f"ID: {site.id}")
         """
         try:
-            response =  await self._msgraph_client.sites.get_all_sites.get()
-            return response.value
+            response = await self._msgraph_client.sites.get_all_sites.get()
+            return response.value if response.value else []
         except Exception as e:
-            error_str = str(e).lower()
-            # Tenant ID incorrect
-            if '900023' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
-            # Client ID incorrect
-            if '700016' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
-            # Client Secret incorrect
-            if '7000215' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
-            return None
+            self._exception_helper(e)
     
 
 
 
-    async def get_site_by_id(self, site_id : str):
+    async def get_site_by_id(self, site_id : str = None) -> Optional[Site]:
         """
         #### Retrieve a specific SharePoint site by its ID.
         
@@ -68,7 +101,7 @@ class SitesService:
             site_id (str): The unique identifier for the SharePoint site
             
         ##### Returns:
-            Dict[str, str] if found, contains attributes such as name, id, url etc, None if error occurs
+            Dict[str, str] if found, contains attributes such as name, id, url etc or None if not found
             
         Example:
             >>> site = await sites_service.get_site_by_id("my_site_id")
@@ -77,23 +110,14 @@ class SitesService:
         if not site_id:
             raise ValidationError("Site ID is required")
         try:
-            return await self._msgraph_client.sites.by_site_id(site_id).get()
+            response = await self._msgraph_client.sites.by_site_id(site_id).get()
+            return response if response else None
         except Exception as e:
-            error_str = str(e).lower()
-            # Tenant ID incorrect
-            if '900023' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
-            # Client ID incorrect
-            if '700016' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
-            # Client Secret incorrect
-            if '7000215' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
-            return None
+            self._exception_helper(e)
     
 
     
-    async def get_site_by_displayname(self, site_name : str):
+    async def get_site_by_displayname(self, site_name : str = None):
         """
         #### Retrieve a SharePoint site by its display name.
         
@@ -109,29 +133,21 @@ class SitesService:
             ...     print(f"Found site: {site.web_url}")
         """
         if not site_name:
-            raise ValidationError("Site ID is required")
+            raise ValidationError("Site Name is required")
         try:
             all_sites = await self._msgraph_client.sites.get_all_sites.get()
-            site_values = all_sites.value        
-            for site in site_values:
-                if site.display_name == site_name:
+            if not all_sites.value:
+                return None        
+            for site in all_sites.value:
+                if site.display_name and site.display_name.lower() == site_name.lower():
                     return site
+            return None  # Explicit return when no match found
         except Exception as e:
-            error_str = str(e).lower()
-            # Tenant ID incorrect
-            if '900023' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
-            # Client ID incorrect
-            if '700016' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
-            # Client Secret incorrect
-            if '7000215' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
-            return None
+            self._exception_helper(e)
     
 
     
-    async def get_sub_sites(self, parent_site_id : str):
+    async def get_sub_sites(self, parent_site_id : str = None):
         """
         #### Retrieve all subsites of a parent SharePoint site.
         
@@ -149,22 +165,13 @@ class SitesService:
             raise ValidationError("Parent site ID is required")
         try:
             response =  await self._msgraph_client.sites.by_site_id(parent_site_id).sites.get()
-            return response.value
+            return response.value if response.value else []
         except Exception as e:
-            error_str = str(e).lower()
-            # Tenant ID incorrect
-            if '900023' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
-            # Client ID incorrect
-            if '700016' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
-            # Client Secret incorrect
-            if '7000215' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
-            return []
+            self._exception_helper(e)
+
     
 
-    async def get_site_drive(self, site_id : str):
+    async def get_site_drive(self, site_id : str = None) -> Optional[Drive]:
         """
         #### Returns the drive object for the site
 
@@ -179,14 +186,4 @@ class SitesService:
         try:
             return await self._msgraph_client.sites.by_site_id(site_id).drive.get()
         except Exception as e:
-            error_str = str(e).lower()
-            # Tenant ID incorrect
-            if '900023' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
-            # Client ID incorrect
-            if '700016' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
-            # Client Secret incorrect
-            if '7000215' in error_str:
-                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
-            return None
+            self._exception_helper(e)

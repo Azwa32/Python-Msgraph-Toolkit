@@ -40,7 +40,7 @@ class FileService:
             )
         return request_configuration
         
-################ WIP
+
     async def list_folder_contents(self, drive_id : str=None, parent_folder_id : str=None):
         """
         #### Retrieve all items (files and folders) within a specified folder.
