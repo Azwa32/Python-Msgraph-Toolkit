@@ -18,6 +18,8 @@ class SitesService:
             raise ValueError("msgraph client must be supplied")
 
 
+
+
     async def get_all_sites(self):
         """
         #### Retreive all Sharepoint sites accessable to the authenticated user.
@@ -43,7 +45,19 @@ class SitesService:
             response =  await self._msgraph_client.sites.get_all_sites.get()
             return response.value
         except Exception as e:
-            print(f"Error get_all_sites: {e}")
+            error_str = str(e).lower()
+            # Tenant ID incorrect
+            if '900023' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
+            # Client ID incorrect
+            if '700016' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
+            # Client Secret incorrect
+            if '7000215' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
+            return None
+    
+
 
 
     async def get_site_by_id(self, site_id : str):
@@ -65,7 +79,19 @@ class SitesService:
         try:
             return await self._msgraph_client.sites.by_site_id(site_id).get()
         except Exception as e:
-            print(f"Error get_site_by_id: {e}")
+            error_str = str(e).lower()
+            # Tenant ID incorrect
+            if '900023' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
+            # Client ID incorrect
+            if '700016' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
+            # Client Secret incorrect
+            if '7000215' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
+            return None
+    
+
     
     async def get_site_by_displayname(self, site_name : str):
         """
@@ -101,7 +127,9 @@ class SitesService:
             # Client Secret incorrect
             if '7000215' in error_str:
                 raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
-        return None
+            return None
+    
+
     
     async def get_sub_sites(self, parent_site_id : str):
         """
@@ -123,8 +151,18 @@ class SitesService:
             response =  await self._msgraph_client.sites.by_site_id(parent_site_id).sites.get()
             return response.value
         except Exception as e:
-            print(f"Error get_sub_sites: {e}")
+            error_str = str(e).lower()
+            # Tenant ID incorrect
+            if '900023' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
+            # Client ID incorrect
+            if '700016' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
+            # Client Secret incorrect
+            if '7000215' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
             return []
+    
 
     async def get_site_drive(self, site_id : str):
         """
@@ -141,5 +179,14 @@ class SitesService:
         try:
             return await self._msgraph_client.sites.by_site_id(site_id).drive.get()
         except Exception as e:
-            print(f"Error get_drives: {e}")
+            error_str = str(e).lower()
+            # Tenant ID incorrect
+            if '900023' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
+            # Client ID incorrect
+            if '700016' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
+            # Client Secret incorrect
+            if '7000215' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
             return None

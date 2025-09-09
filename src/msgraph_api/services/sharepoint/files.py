@@ -86,7 +86,7 @@ class FileService:
             elif any(not_found_indicator in error_str for not_found_indicator in [
                 'not found', 'does not exist', 'itemnotfound'
             ]):
-                raise SharePointError(f"Parent Folder ID string: '{parent_folder_id}' invalid, folder not found. Verify the Parent Folder ID and try again ") from e
+                raise ValidationError(f"Parent Folder ID string: '{parent_folder_id}' invalid, folder not found. Verify the Parent Folder ID and try again ") from e
                 
             # Handle access denied
             elif any(access_indicator in error_str for access_indicator in [
