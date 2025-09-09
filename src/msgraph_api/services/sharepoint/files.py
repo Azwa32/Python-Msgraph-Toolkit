@@ -73,29 +73,20 @@ class FileService:
             return response.value if response.value else []
             
         except Exception as e:
-            #logger.error(f"Failed to list folder contents for drive {drive_id}, folder {parent_folder_id}: {e}", exc_info=True)
-        
+            
             error_str = str(e).lower()
         
-            # Handle authentication errors
-            if any(auth_indicator in error_str for auth_indicator in [
-                'aadsts', 'invalid_client', 'unauthorized', 'authentication', 
-                'token', 'credential', 'auth', '401'
+            # Handle drive ID invalid
+            if any(validation_indicator in error_str for validation_indicator in [
+                'does not represent a valid drive', 'drive id appears to be malformed',
             ]):
-                raise AuthenticationError(f"Authentication failed when accessing drive {drive_id}. Verify authorisation is correct and try again") from e
-                
-            # Handle validation errors (malformed IDs, etc.)
-            elif any(validation_indicator in error_str for validation_indicator in [
-                'malformed', 'invalid', 'invalidrequest', 'bad request', 
-                'does not represent a valid drive', 'drive id appears to be malformed', '400'
-            ]):
-                raise ValidationError(f"Invalid drive ID format: '{drive_id}'. Verify the drive ID is correct and try again.") from e
-
-            # Handle not found errors
+                raise ValidationError(f"Invalid Drive ID string: '{drive_id}'. Verify the drive ID is correct and try again.") from e
+        
+            # Handle parent folder ID invalid
             elif any(not_found_indicator in error_str for not_found_indicator in [
-                'not found', '404', 'does not exist', 'itemnotfound'
+                'not found', 'does not exist', 'itemnotfound'
             ]):
-                raise SharePointError(f"Drive {drive_id} or folder {parent_folder_id} not found. ")
+                raise SharePointError(f"Parent Folder ID string: '{parent_folder_id}' invalid, folder not found. Verify the Parent Folder ID and try again ") from e
                 
             # Handle access denied
             elif any(access_indicator in error_str for access_indicator in [

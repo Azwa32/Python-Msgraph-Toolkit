@@ -91,7 +91,16 @@ class SitesService:
                 if site.display_name == site_name:
                     return site
         except Exception as e:
-            print(f"Error get_site_id_by_name: {e}")
+            error_str = str(e).lower()
+            # Tenant ID incorrect
+            if '900023' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Tenant ID. Verify Tenant ID and try again") from e
+            # Client ID incorrect
+            if '700016' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client ID. Verify Client ID and try again") from e
+            # Client Secret incorrect
+            if '7000215' in error_str:
+                raise AuthenticationError(f"Authentication failed when accessing drive due to incorrect Client Secret. Verify Client Secret and try again") from e
         return None
     
     async def get_sub_sites(self, parent_site_id : str):
@@ -102,7 +111,7 @@ class SitesService:
             parent_site_id (str): The unique identifier of the parent site
             
         ##### Returns:
-            List of subsite Dict[str, str]
+            List of subsite Dict[str, str] or an empty list if none found
             
         Example:
             >>> subsites = await sites_service.get_sub_sites(parent_site_id)
@@ -115,6 +124,7 @@ class SitesService:
             return response.value
         except Exception as e:
             print(f"Error get_sub_sites: {e}")
+            return []
 
     async def get_site_drive(self, site_id : str):
         """
@@ -124,7 +134,7 @@ class SitesService:
             site_id (str): The unique identifier for the parent site.
 
         ##### Returns: 
-            Dict[str, str] or None if not foud
+            Dict[str, str] or None if not found
         """
         if not site_id:
             raise ValidationError("Site ID is required")
@@ -132,3 +142,4 @@ class SitesService:
             return await self._msgraph_client.sites.by_site_id(site_id).drive.get()
         except Exception as e:
             print(f"Error get_drives: {e}")
+            return None

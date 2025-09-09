@@ -64,6 +64,10 @@ The traceback shows the exception is being raised in the SDK's HTTP layer:
 "File "kiota_http/httpx_request_adapter.py", line 573, in throw_failed_responses"
 This suggests the SDK is configured to throw exceptions immediately, bypassing your exception handling.
 
+May add logger for errors?
+
+# graph api has built in error handling for incorrect credentials
+
 
 
 

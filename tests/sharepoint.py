@@ -47,7 +47,8 @@ async def main():
         #all_sites = await client.sharepoint.sites.get_all_sites()
         #for entry in all_sites:    
         #   print(f"{entry.name} | {entry.web_url} | {entry.id}")
-        ###########################    
+        ###########################   
+        # graph api has built in error handling for incorrect credentials
         site = await client.sharepoint.sites.get_site_by_displayname("FocusAV")
         #print(site.id)
         #########################
@@ -58,14 +59,16 @@ async def main():
         #for child in children:
             #print(child.display_name)
         #########################
-        drive = await client.sharepoint.sites.get_site_drive(site.id)
+        if site.id:
+            drive = await client.sharepoint.sites.get_site_drive(site.id)
         #print(drive.name)
         #########################
-        root_folder = await client.sharepoint.drives.get_drive_root_folder(drive.id)
+        if drive.id:
+            root_folder = await client.sharepoint.drives.get_drive_root_folder(drive.id)
         #print(root_folder.name)
         #########################
-        if root_folder:
-            items = await client.sharepoint.files.list_folder_contents("!!drive.id", root_folder.id)
+        if root_folder and drive.id:
+            items = await client.sharepoint.files.list_folder_contents(drive.id, root_folder.id)
             if items:
                 for item in items:
                     print(item.name, item.id, item.web_url)
