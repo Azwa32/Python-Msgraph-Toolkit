@@ -12,7 +12,6 @@ from ...exceptions import (
     AuthenticationError,
     RateLimitError,
 )
-   
 
 class SitesService:
     """Service for managing SharePoint sites through Microsoft Graph API."""
@@ -21,23 +20,11 @@ class SitesService:
         self.logger = logging.getLogger(__name__)
         if not msgraph_client:
             raise ValidationError("msgraph client must be supplied")
-        
-
-
-    def log_errors(self, func):
-        """Simple decorator to log errors for debugging"""
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            try:
-                return await func(*args, **kwargs)
-            except Exception as e:
-                self.logger.error(f"Error in {func.__name__}: {e}", exc_info=True)
-                raise
-        return wrapper
 
 
 
     def _exception_helper(self, exception : str = None):
+        self.logger.error(f"SharePoint operation failed: {exception}", exc_info=True)
         error_str = str(exception).lower()
         # Handle specific Azure AD errors
         if '900023' in error_str or 'aadsts90002' in error_str:
@@ -61,7 +48,6 @@ class SitesService:
         else:
             raise SharePointError(f"SharePoint operation failed: {exception}") from exception
         
-
 
     async def get_all_sites(self) -> List[Site]:
         """
@@ -92,7 +78,6 @@ class SitesService:
     
 
 
-
     async def get_site_by_id(self, site_id : str = None) -> Optional[Site]:
         """
         #### Retrieve a specific SharePoint site by its ID.
@@ -116,8 +101,7 @@ class SitesService:
             self._exception_helper(e)
     
 
-    
-    async def get_site_by_displayname(self, site_name : str = None):
+    async def get_site_by_displayname(self, site_name : str = None) -> Optional[Site]:
         """
         #### Retrieve a SharePoint site by its display name.
         
@@ -146,8 +130,7 @@ class SitesService:
             self._exception_helper(e)
     
 
-    
-    async def get_sub_sites(self, parent_site_id : str = None):
+    async def get_sub_sites(self, parent_site_id : str = None) -> List[Site]:
         """
         #### Retrieve all subsites of a parent SharePoint site.
         
@@ -170,7 +153,6 @@ class SitesService:
             self._exception_helper(e)
 
     
-
     async def get_site_drive(self, site_id : str = None) -> Optional[Drive]:
         """
         #### Returns the drive object for the site
@@ -184,6 +166,7 @@ class SitesService:
         if not site_id:
             raise ValidationError("Site ID is required")
         try:
-            return await self._msgraph_client.sites.by_site_id(site_id).drive.get()
+            response = await self._msgraph_client.sites.by_site_id(site_id).drive.get()
+            return response if response else None
         except Exception as e:
             self._exception_helper(e)
