@@ -188,13 +188,6 @@ client.sharepoint.permissions.remove_access(item_id, user_email)
 client.sharepoint.permissions.list_permissions(item_id)
 client.sharepoint.sharing.create_share_link(item_id, link_type, scope)
 
-# Sites
-client.sharepoint.sites.get_id_by_name(site_url)
-client.sharepoint.sites.list_subsites(site_id)
-client.sharepoint.sites.get_all()
-client.sharepoint.sites.get_items(site_id, list_id)
-client.sharepoint.sites.create_item(site_id, list_id, data)
-
 --Outlook--
 # Sending
 client.outlook.emails.send(to, subject, body, cc=None, bcc=None)

@@ -260,6 +260,8 @@ class FileService:
         except Exception as e:
             print(f"Error creating folder: {e}")
 
+            
+
     async def delete_item(self, drive_id : str, item_id : str):
         """
         #### Permanently delete a file or folder from the drive.
