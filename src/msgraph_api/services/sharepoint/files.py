@@ -29,7 +29,7 @@ class FileService:
         if not msgraph_client:
             raise ValueError("msgraph client must be supplied")
         
-    def _exceed_drive_query(self):
+    def _exceed_drive_query(self) -> RequestConfiguration:
         """For exceeding the return limit of the graph api without using pagenation"""
         drive_query_size = 1000
         query_params = ItemsRequestBuilder .ItemsRequestBuilderGetQueryParameters(
@@ -41,7 +41,7 @@ class FileService:
         return request_configuration
         
 
-    async def list_folder_contents(self, drive_id : str=None, parent_folder_id : str=None):
+    async def list_folder_contents(self, drive_id : str, parent_folder_id : str):
         """
         #### Retrieve all items (files and folders) within a specified folder.
         
@@ -69,8 +69,8 @@ class FileService:
         
         try:
             response =  await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id)\
-                .children.get(request_configuration = self._exceed_drive_query())
-            return response.value if response.value else []
+                .children.get(request_configuration = self._exceed_drive_query()) 
+            return response.value if response and response.value else [] 
             
         except Exception as e:
             
@@ -105,7 +105,7 @@ class FileService:
                 raise SharePointError(f"Unknown sharepoint error: {e}")
         
 
-    async def get_item_by_name(self, drive_id : str=None, parent_folder_id : str=None, item_name : str=None):
+    async def get_item_by_name(self, drive_id : str, parent_folder_id : str, item_name : str):
         """
         #### Retrieve a specific file or folder by its exact name within a parent folder.
         

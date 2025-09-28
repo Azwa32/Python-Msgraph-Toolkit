@@ -1,4 +1,6 @@
 from msgraph import GraphServiceClient
+from msgraph.generated.models.drive_item import DriveItem
+from msgraph.generated.models.folder import Folder
 from .sites import SitesService
 from .drives import DriveService
 from .files import FileService
@@ -40,7 +42,7 @@ class SharepointService():
         raise ValueError(f"Location does not match any pattern: {loc}")
 
 
-    async def create_folder(self, drive_id : str, location_id : str, folder_name :str=None):
+    async def create_folder(self, drive_id : str, location_id : str, folder_name:str):
         """
         Create a folder under a parent location within a specific drive.
 
@@ -73,7 +75,7 @@ class SharepointService():
         drive_location = self._location_type_convert(drive_id)
         parent_location = self._location_type_convert(location_id)
         try:
-            return await self.graph_client.drives.by_drive_id(drive_location).items.by_drive_item_id(parent_location).children.post(request_body)
+            return await self._msgraph_client.drives.by_drive_id(drive_location).items.by_drive_item_id(parent_location).children.post(request_body)
         except Exception as e:
             print(f"failed to create folder: {e}")
 

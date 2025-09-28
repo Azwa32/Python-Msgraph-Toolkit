@@ -1,11 +1,10 @@
-
-
 from dotenv import load_dotenv
 from ..src.msgraph_api.client import GraphClient
 from pathlib import Path
 import sys
 import os
 import asyncio
+
 
 # Add src/ to sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -31,9 +30,9 @@ async def main():
     try:
         load_dotenv()
         client = GraphClient(
-            os.getenv("MSGRAPH_TENANT_ID"),
-            os.getenv("MSGRAPH_CLIENT_ID"),
-            os.getenv("MSGRAPH_API_KEY")
+            str(os.getenv("MSGRAPH_TENANT_ID")),
+            str(os.getenv("MSGRAPH_CLIENT_ID")),
+            str(os.getenv("MSGRAPH_API_KEY"))
             )
     
     #sites
@@ -59,16 +58,16 @@ async def main():
         #for child in children:
             #print(child.display_name)
         #########################
-        if site.id:
-            drive = await client.sharepoint.sites.get_site_drive(site.id)
+        if site.id: # type: ignore
+            drive = await client.sharepoint.sites.get_site_drive(site.id) # type: ignore
         #print(drive.name)
         #########################
-        if drive.id:
-            root_folder = await client.sharepoint.drives.get_drive_root_folder(drive.id)
+        if drive.id: # type: ignore
+            root_folder = await client.sharepoint.drives.get_drive_root_folder(drive.id) # type: ignore
         #print(root_folder.name)
         #########################
-        if root_folder and drive.id:
-            items = await client.sharepoint.files.list_folder_contents(drive.id, root_folder.id)
+        if root_folder and drive.id: # type: ignore
+            items = await client.sharepoint.files.list_folder_contents(drive.id, root_folder.id) # type: ignore
             if items:
                 for item in items:
                     print(item.name, item.id, item.web_url)

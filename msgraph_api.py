@@ -28,26 +28,29 @@ logger = logging.getLogger('azure')
 logger.setLevel(logging.WARNING)
 
 
-
 class GraphAPI:
 
-    def __init__(self, config_file=None):
+    def __init__(self, config_file):
         # Load configuration from file if provided
         if config_file:
             # For now, just ignore the config_file parameter
             # You can implement YAML loading later
             pass
-            
-        self.TENANT_ID = os.getenv("MSGRAPH_TENANT_ID")
-        self.CLIENT_ID = os.getenv("MSGRAPH_CLIENT_ID")
+
+        # Initialise graph client and authorise. Get keys from environment, asserted as strings 
+        self.TENANT_ID = str(os.getenv("MSGRAPH_TENANT_ID"))
+        self.CLIENT_ID = str(os.getenv("MSGRAPH_CLIENT_ID"))
         self.SCOPES = ['https://graph.microsoft.com/.default']
-        self.DRIVE_ID = os.getenv("MSGRAPH_DRIVE_ID")        
-        # Initialise graph client and authorise. Get keys from environment
-        self.CLIENT_SECRET = os.getenv("MSGRAPH_API_KEY")
+        self.DRIVE_ID = str(os.getenv("MSGRAPH_DRIVE_ID"))   
+        self.CLIENT_SECRET = str(os.getenv("MSGRAPH_API_KEY"))
+        if not self.TENANT_ID:
+            raise ValueError("Tenant ID not set. Please set the TENANT_ID environment variable.") 
+        if not self.CLIENT_ID:
+            raise ValueError("Client ID not set. Please set the CLIENT_ID environment variable.") 
         if not self.CLIENT_SECRET:
-            raise ValueError("API key not found. Please set the MSGRAPH_API_KEY environment variable.")        
-        if not all([self.TENANT_ID, self.CLIENT_ID, self.CLIENT_SECRET]):
-            raise ValueError("Required env variable not set")        
+            raise ValueError("API key not found. Please set the MSGRAPH_API_KEY environment variable.") 
+        if not self.DRIVE_ID:
+            raise ValueError("Drive ID not found. Please set the DRIVE_ID environment variable.")                  
         try: 
             credendial = ClientSecretCredential(self.TENANT_ID, self.CLIENT_ID, self.CLIENT_SECRET)
             self.graph_client = GraphServiceClient(credentials=credendial, scopes=self.SCOPES)
@@ -123,45 +126,52 @@ class GraphAPI:
 
 
     async def get_folder_id_by_name(self, parent_folder_id, child_folder_name):
-        response = await self.graph_client.drives.by_drive_id(self.DRIVE_ID).items.by_drive_item_id(parent_folder_id).children.get(request_configuration = self.exceed_drive_query())
-        values = response.value                                 # pulls values from the graph api response
-        for child in values:    
-            if child.name == child_folder_name:                 # finds id of a folder that matches the child folder name  
-                folder_id = child.id
-                return folder_id
-        return response.value
+        response = await self.graph_client.drives.by_drive_id(self.DRIVE_ID).items.by_drive_item_id(parent_folder_id).children.get(request_configuration = self.exceed_drive_query()) # type: ignore
+        if response and response.value:
+            values = response.value                                 # pulls values from the graph api response
+            for child in values:    
+                if child.name == child_folder_name:                 # finds id of a folder that matches the child folder name  
+                    folder_id = child.id
+                    return folder_id
+            return response.value
+        else:
+            print(f"Folder {child_folder_name} not found.")
             
 
 
 
-    async def get_folder_id_by_partial_name(self, parent_folder_id, job_number):
-        response = await self.graph_client.drives.by_drive_id(self.DRIVE_ID).items.by_drive_item_id(parent_folder_id).children.get(self.exceed_drive_query())
-        values = response.value                                 # pulls values from the graph api response
-        for child in values:    
-            if job_number in child.name:                        # if JN is found in the folder name  
-                folder_id = child.id
-                return folder_id
+    async def get_folder_id_by_partial_name(self, parent_folder_id, partial_name):
+        response = await self.graph_client.drives.by_drive_id(self.DRIVE_ID).items.by_drive_item_id(parent_folder_id).children.get(self.exceed_drive_query())   # type: ignore
+        if response and response.value:
+            values = response.value                                 # pulls values from the graph api response
+            for child in values:    
+                if partial_name in child.name:                        # if JN is found in the folder name  
+                    folder_id = child.id
+                    return folder_id
+        else:
+            print(f"Folder with {partial_name} in name not found or folder {parent_folder_id} does not exist.")
             
 
 
 
     async def list_folders(self, parent_folder_id):
-        response = await self.graph_client.drives.by_drive_id(self.DRIVE_ID).items.by_drive_item_id(parent_folder_id).children.get(request_configuration = self.exceed_drive_query())
-        children = response.value                                 # pulls values from the graph api response
-        for child in children:    
-            print(child.name)
-
-
-
+        response = await self.graph_client.drives.by_drive_id(self.DRIVE_ID).items.by_drive_item_id(parent_folder_id).children.get(request_configuration = self.exceed_drive_query()) # type: ignore
+        if response and response.value:
+            children = response.value                                 # pulls values from the graph api response
+            for child in children:    
+                print(child.name)
+        else:
+            print(f"No children found in folder {parent_folder_id} or folder {parent_folder_id} does not exist.")
 
     async def folder_exists(self, parent_folder_id, child_folder_name):
-        response = await self.graph_client.drives.by_drive_id(self.DRIVE_ID).items.by_drive_item_id(parent_folder_id).children.get(request_configuration = self.exceed_drive_query())
-        values = response.value                                 # pulls values from the graph api response
-        exists = False
-        for child in values: 
-            if child.name == child_folder_name:
-                exists = True
-        return exists
+        response = await self.graph_client.drives.by_drive_id(self.DRIVE_ID).items.by_drive_item_id(parent_folder_id).children.get(request_configuration = self.exceed_drive_query()) # type: ignore
+        if not response or not response.value:
+            values = response.value # type: ignore                             # pulls values from the graph api response
+            exists = False
+            for child in values:  # type: ignore
+                if child.name == child_folder_name:
+                    exists = True
+            return exists
     
 
     ##-- Outlook --##
@@ -192,9 +202,9 @@ class GraphAPI:
 
     async def get_all_users(self): 
         all_users = await self.graph_client.users.get()
-        users = all_users.value
+        users = all_users.value # type: ignore
         users_object = []
-        for user in users:
+        for user in users: # type: ignore
             user_info = [user.given_name, user.surname, user.mail]
             if all (user_info):
                 users_object.append(user_info)
@@ -226,7 +236,7 @@ CLIENT_TEMPLATE_FOLDER_ID = "01CYM3L6TYUPRU5TZANZDII2Y3IO6MLBGY"
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()       # load secure keys to environment
-    graph = GraphAPI()
+    graph = GraphAPI() # type: ignore
     #asyncio.run(graph.copy_folder(TARGET_FOLDER_ID, NEW_LOCATION_ID, NEW_FOLDER_NAME))     # copy folder to new location and rename
     #asyncio.run(graph.create_folder(NEW_LOCATION_ID, NEW_FOLDER_NAME))                     # create new folder
     #asyncio.run(graph.delete_item(DELETE_TARGET))                                          # delete item

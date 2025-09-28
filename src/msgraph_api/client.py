@@ -1,7 +1,7 @@
 # msgraph API documentation https://learn.microsoft.com/en-us/graph/api/overview?view=graph-rest-1.0&preserve-view=true
 
 from azure.identity.aio import ClientSecretCredential
-from msgraph import GraphServiceClient
+from msgraph.graph_service_client import GraphServiceClient
 
 #from users import UsersServices
 from .services.sharepoint.sharepoint_service import SharepointService
@@ -13,10 +13,9 @@ logger = logging.getLogger('azure')
 logger.setLevel(logging.WARNING)
 
 class GraphClient:
-    def __init__(self, tenant_id=None, client_id=None, secret=None):
+    def __init__(self, tenant_id: str, client_id: str, secret: str):
         self.scopes = ['https://graph.microsoft.com/.default']
         self.tenant_id = tenant_id
-        self._msgraph_client = None
         if not self.tenant_id:
             raise ValueError("Tenant ID must be supplied")
         
