@@ -178,23 +178,22 @@ class GraphAPI:
 
     async def send_email(self, subject_line, email_content, sender, email_address):
         request_body = SendMailPostRequestBody(
-        message = Message(
-            subject = subject_line,
-            body = ItemBody(
-                content_type = BodyType.Text,
-                content = email_content,
-            ),
-            to_recipients = [
-                Recipient(
-                    email_address = EmailAddress(
-                        address = email_address,
-                    ),
+            message = Message(
+                subject = subject_line,
+                body = ItemBody(
+                    content_type = BodyType.Text,
+                    content = email_content,
                 ),
-            ],
-        ),
-        
+                to_recipients = [
+                    Recipient(
+                        email_address = EmailAddress(
+                            address = email_address,
+                        ),
+                    ),
+                ],
+            ),        
         save_to_sent_items = False,
-)
+        )
         await self.graph_client.users.by_user_id(sender).send_mail.post(request_body)
 
 
