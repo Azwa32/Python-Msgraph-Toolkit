@@ -4,6 +4,7 @@ import logging
 from typing import List, Optional
 from msgraph.generated.users.item.send_mail.send_mail_post_request_body import SendMailPostRequestBody
 from msgraph.generated.models.message import Message
+from msgraph.generated.models.importance import Importance
 from msgraph.generated.models.item_body import ItemBody
 from msgraph.generated.models.body_type import BodyType
 from msgraph.generated.models.recipient import Recipient
@@ -49,13 +50,18 @@ class EmailsService:
         
         else:
             raise SharePointError(f"SharePoint operation failed: {exception}") from exception
-        
-    async def send(self, subject_line, email_content, sender, email_address):
+
+    async def send(self, subject_line: str, 
+                   email_content: str, 
+                   sender: str, 
+                   email_address: str, 
+                   save_to_sent_items: bool = False):
         """
         Send an email message through Microsoft Graph API (Application mode).
         
-        This method sends an email on behalf of a specified user using application permissions.
-        The email will not be saved to the sender's Sent Items folder by default.
+        This method simply sends sends an email on behalf of a specified user using application permissions.
+        The email will not be saved to the sender's Sent Items folder by default. For more detailed configuretion 
+        its reccomended to create a draft email and configure the email via its id before sending.
         
         Args:
             subject_line (str): The subject line of the email message
@@ -104,7 +110,33 @@ class EmailsService:
                     ),
                 ],
             ),        
-        save_to_sent_items = False,
+            save_to_sent_items = save_to_sent_items,
         )
         await self._msgraph_client.users.by_user_id(sender).send_mail.post(request_body)
+
+
+    async def create_draft(self, 
+                           subject_line: str, 
+                           email_content: str,
+                           sender: str,
+                           email_address: str,
+                           ):
+        request_body = Message(
+            subject = subject_line,
+            importance = Importance.Low,
+            body = ItemBody(
+                content_type = BodyType.Html,
+                content = email_content,
+            ),
+            to_recipients = [
+                Recipient(
+                    email_address = EmailAddress(
+                        address = email_address,
+                    ),
+                ),
+            ],
+        )
+
+        response = await self._msgraph_client.users.by_user_id(sender).messages.post(request_body)
+        return response
         
