@@ -75,6 +75,9 @@ Calendars.ReadWrite - Read and write calendars in all mailboxes
 Calendars.Read.Shared - Read shared calendars
 Calendars.ReadWrite.Shared - Read and write shared calendars
 
+deciding between a simple method for sending emails or one single all in one
+ended up going with teh all in one method, all options, one function, detailed tooltip
+
 
 
 

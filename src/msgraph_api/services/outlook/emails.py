@@ -26,7 +26,7 @@ class EmailsService:
         if not msgraph_client:
             raise ValidationError("msgraph client must be supplied")
         
-    def _exception_helper(self, exception : Exception):
+    def _exception_helper(self, exception : Exception) -> None:
         self.logger.error(f"SharePoint operation failed: {exception}", exc_info=True)
         error_str = str(exception).lower()
         # Handle specific Azure AD errors
@@ -51,92 +51,65 @@ class EmailsService:
         else:
             raise SharePointError(f"SharePoint operation failed: {exception}") from exception
 
-    async def send(self, subject_line: str, 
-                   email_content: str, 
-                   sender: str, 
-                   email_address: str, 
-                   save_to_sent_items: bool = False):
-        """
-        Send an email message through Microsoft Graph API (Application mode).
+    async def send(self, 
+                    subject: str,
+                    body: str,
+                    sender: str,
+                    to_recipients: List[str],
+                    cc_recipients: Optional[List[str]] = None,
+                    bcc_recipients: Optional[List[str]] = None,
+                    reply_to: Optional[List[str]] = None,
+                    priority: Importance = Importance.Normal,
+                    body_format: BodyType = BodyType.Text,
+                    request_read_receipt: bool = False,
+                    attachments: Optional[List[str]] = None,  # File paths
+                   ):
         
-        This method simply sends sends an email on behalf of a specified user using application permissions.
-        The email will not be saved to the sender's Sent Items folder by default. For more detailed configuretion 
-        its reccomended to create a draft email and configure the email via its id before sending.
-        
-        Args:
-            subject_line (str): The subject line of the email message
-            email_content (str): The body content of the email (plain text format)
-            sender (str): The user ID or email address of the person sending the email
-            email_address (str): The recipient's email address
-            
-        Returns:
-            None: This method doesn't return a value upon successful completion
-            
-        Raises:
-            ValidationError: If msgraph client is not supplied during initialization
-            AuthenticationError: If Azure AD authentication fails (invalid tenant, client ID, or secret)
-            GraphAPIError: If the email operation fails due to Graph API errors
-            RateLimitError: If API rate limits are exceeded
-            
-        Example:
-            >>> email_service = EmailsService(msgraph_client)
-            >>> await email_service.send_email(
-            ...     subject_line="Meeting Reminder",
-            ...     email_content="Don't forget about our meeting at 2 PM today.",
-            ...     sender="manager@company.com", 
-            ...     email_address="employee@company.com"
-            ... )
-            
-        Note:
-            - Requires Mail.Send application permission in Azure AD
-            - The sender must be a valid user in your organization
-            - Email is sent as plain text (BodyType.Text)
-            - Email is not saved to sender's Sent Items folder (save_to_sent_items = False)
-            - This method uses application permissions, not delegated permissions         
-        """
-        
-        request_body = SendMailPostRequestBody(
-            message = Message(
-                subject = subject_line,
-                body = ItemBody(
-                    content_type = BodyType.Text,
-                    content = email_content,
-                ),
-                to_recipients = [
-                    Recipient(
-                        email_address = EmailAddress(
-                            address = email_address,
-                        ),
-                    ),
-                ],
-            ),        
-            save_to_sent_items = save_to_sent_items,
-        )
-        await self._msgraph_client.users.by_user_id(sender).send_mail.post(request_body)
+        # build list of recipient objects
+        to_recipients_list = []
+        for recipient in to_recipients:
+            to_recipients_list.append(EmailAddress(address = recipient))
 
+        # build list of cc recipient objects
+        cc_recipients_list = []
+        if cc_recipients:
+            for recipient in cc_recipients:
+                cc_recipients_list.append(EmailAddress(address = recipient))
 
-    async def create_draft(self, 
-                           subject_line: str, 
-                           email_content: str,
-                           sender: str,
-                           email_address: str,
-                           ):
+        # build list of bcc recipient objects
+        bcc_recipients_list = []
+        if bcc_recipients:
+            for recipient in bcc_recipients:
+                bcc_recipients_list.append(EmailAddress(address = recipient))
+
+        # build list of reply_to recipient objects
+        reply_to_list = []
+        if reply_to:
+            for recipient in reply_to:
+                reply_to_list.append(EmailAddress(address = recipient))
+        
+        
         request_body = Message(
-            subject = subject_line,
-            importance = Importance.Low,
+            subject = subject,
+            importance = priority,
             body = ItemBody(
-                content_type = BodyType.Html,
-                content = email_content,
+                content_type = body_format,
+                content = body,
             ),
-            to_recipients = [
-                Recipient(
-                    email_address = EmailAddress(
-                        address = email_address,
-                    ),
+            from_ = Recipient(
+                email_address = EmailAddress(
+                    address = sender,
                 ),
-            ],
+            ),
+            to_recipients = to_recipients_list if to_recipients else None,
+            cc_recipients = cc_recipients_list if cc_recipients else None,
+            bcc_recipients = bcc_recipients_list if bcc_recipients else None,
+            reply_to = reply_to_list if reply_to else None,
+            is_read_receipt_requested = request_read_receipt,
         )
 
-        response = await self._msgraph_client.users.by_user_id(sender).messages.post(request_body)
-        return response
+        result = await self._msgraph_client.me.messages.post(request_body)
+
+
+
         
