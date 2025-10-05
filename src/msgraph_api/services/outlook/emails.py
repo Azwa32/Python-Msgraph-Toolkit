@@ -1,6 +1,9 @@
+import base64
 from msgraph import GraphServiceClient
 from functools import wraps
 import logging
+import os
+import mimetypes
 from typing import List, Optional
 from msgraph.generated.users.item.send_mail.send_mail_post_request_body import SendMailPostRequestBody
 from msgraph.generated.models.message import Message
@@ -9,6 +12,7 @@ from msgraph.generated.models.item_body import ItemBody
 from msgraph.generated.models.body_type import BodyType
 from msgraph.generated.models.recipient import Recipient
 from msgraph.generated.models.email_address import EmailAddress
+from msgraph.generated.models.file_attachment import FileAttachment
 
 from ...exceptions import (
     SharePointError, 
@@ -50,23 +54,44 @@ class EmailsService:
         
         else:
             raise SharePointError(f"SharePoint operation failed: {exception}") from exception
+        
+    async def _process_attachment(self, attachment: str, ) -> FileAttachment:
+        with open(attachment, "rb") as att:
+            attachment_bytes = att.read().decode("utf-8")
 
-    async def send(self, 
-                    subject: str,
-                    body: str,
-                    sender: str,
-                    to_recipients: List[str],
-                    cc_recipients: Optional[List[str]] = None,
-                    bcc_recipients: Optional[List[str]] = None,
-                    reply_to: Optional[List[str]] = None,
-                    priority: Importance = Importance.Normal,
-                    body_format: BodyType = BodyType.Text,
-                    request_read_receipt: bool = False,
-                    attachments: Optional[List[str]] = None,  # File paths
-                   ):
+
+        file_attachment = FileAttachment(
+            odata_type = "#microsoft.graph.fileAttachment",
+            name = os.path.basename(attachment),
+            content_type = mimetypes.guess_type(attachment, strict =False)[0],
+            content_bytes = base64.urlsafe_b64decode(attachment_bytes),
+        )
+        return file_attachment
+
+
+
+    async def send(self, **kwargs):
+        subject = kwargs.get("subject", "No Subject")
+        body = kwargs.get("body", "")
+        sender = kwargs.get("sender") # required
+        to_recipients = kwargs.get("to_recipients", []) # required
+        cc_recipients = kwargs.get("cc_recipients", [])
+        bcc_recipients = kwargs.get("bcc_recipients", [])
+        reply_to = kwargs.get("reply_to", [])
+        priority = kwargs.get("priority", Importance.Normal)
+        body_format = kwargs.get("body_format", BodyType.Text)
+        request_read_receipt = kwargs.get("request_read_receipt", False)
+        attachments = kwargs.get("attachments", []) # file paths
+
+        # Validate required parameters
+        if not sender:
+            raise ValidationError("Sender is required")
+        if not to_recipients or len(to_recipients) == 0:
+            raise ValidationError("At least one recipient is required")
+
         
         # build list of recipient objects
-        to_recipients_list = []
+        to_recipients_list = [] 
         for recipient in to_recipients:
             to_recipients_list.append(EmailAddress(address = recipient))
 
@@ -87,28 +112,37 @@ class EmailsService:
         if reply_to:
             for recipient in reply_to:
                 reply_to_list.append(EmailAddress(address = recipient))
+
+        # build list of attachment objects
+        attachments_list = []
+        if attachments:
+            for attachment in attachments:
+                processed_attachment = await self._process_attachment(attachment)
+                attachments_list.append(processed_attachment)
         
-        
-        request_body = Message(
-            subject = subject,
-            importance = priority,
-            body = ItemBody(
-                content_type = body_format,
-                content = body,
-            ),
-            from_ = Recipient(
-                email_address = EmailAddress(
-                    address = sender,
+        request_body = SendMailPostRequestBody(
+            message = Message(
+                subject = subject,
+                importance = priority,
+                body = ItemBody(
+                    content_type = body_format,
+                    content = body,
                 ),
-            ),
-            to_recipients = to_recipients_list if to_recipients else None,
-            cc_recipients = cc_recipients_list if cc_recipients else None,
-            bcc_recipients = bcc_recipients_list if bcc_recipients else None,
-            reply_to = reply_to_list if reply_to else None,
-            is_read_receipt_requested = request_read_receipt,
+                from_ = Recipient(
+                    email_address = EmailAddress(
+                        address = sender,
+                    ),
+                ),
+                to_recipients = to_recipients_list if to_recipients else None,
+                cc_recipients = cc_recipients_list if cc_recipients else None,
+                bcc_recipients = bcc_recipients_list if bcc_recipients else None,
+                reply_to = reply_to_list if reply_to else None,
+                is_read_receipt_requested = request_read_receipt,
+            )
         )
 
-        result = await self._msgraph_client.me.messages.post(request_body)
+        result = await self._msgraph_client.users.by_user_id(sender).send_mail.post(request_body)
+        return result
 
 
 
