@@ -7,7 +7,9 @@ class DriveService:
         if not msgraph_client:
             raise ValueError("msgraph client must be supplied") 
 
-    async def get_drive_root_folder(self, drive_id: str):
+    async def get_drive_root_folder(self, **kwargs):
+        drive_id = kwargs.get("drive_id", "")
+        
         if not drive_id:
             print("No Drive ID entered, please enter Drive ID")
             return

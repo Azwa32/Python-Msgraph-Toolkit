@@ -41,7 +41,7 @@ class FileService:
         return request_configuration
         
 
-    async def list_folder_contents(self, drive_id : str, parent_folder_id : str):
+    async def list_folder_contents(self, **kwargs):
         """
         #### Retrieve all items (files and folders) within a specified folder.
         
@@ -62,6 +62,9 @@ class FileService:
         ...     for item in contents:
         ...         print(f"Item: {item.name} ({item.size} bytes)")
         """
+        drive_id = kwargs.get("drive_id", None)
+        parent_folder_id = kwargs.get("parent_folder_id", None)
+
         if not drive_id:
             raise ValidationError("Drive ID is required, Enter the correct drive ID and try again")
         if not parent_folder_id:
@@ -105,7 +108,7 @@ class FileService:
                 raise SharePointError(f"Unknown sharepoint error: {e}")
         
 
-    async def get_item_by_name(self, drive_id : str, parent_folder_id : str, item_name : str):
+    async def get_item_by_name(self, **kwargs):
         """
         #### Retrieve a specific file or folder by its exact name within a parent folder.
         
@@ -126,6 +129,10 @@ class FileService:
         >>> if item:
         ...     print(f"Found: {item.name} (Size: {item.size})")
         """
+        drive_id = kwargs.get("drive_id", None)
+        parent_folder_id = kwargs.get("parent_folder_id", None)
+        item_name = kwargs.get("item_name", None)
+
         if not drive_id:
             raise ValidationError("Drive ID is required")
         if not parent_folder_id:
@@ -159,7 +166,7 @@ class FileService:
                 raise SharePointError(f"Failed to get item '{item_name}': {str(e)}") from e
 
 
-    async def get_item_by_path(self, drive_id: str, item_path: str):
+    async def get_item_by_path(self, **kwargs):
         """
         #### Retrieve a file or folder by its full path within the drive.
         
@@ -178,6 +185,9 @@ class FileService:
         >>> if item:
         ...     print(f"Found at path: {item.name}")
         """
+        drive_id = kwargs.get("drive_id", None)
+        item_path = kwargs.get("item_path", None)
+        
         if not drive_id:
             raise ValidationError("Drive ID is required")
         if not item_path:
@@ -193,7 +203,7 @@ class FileService:
             print(f"Error getting item at path '{item_path}': {e}")
             return None
         
-    async def get_item_by_id(self, drive_id : str, item_id : str):
+    async def get_item_by_id(self, **kwargs):
         """
         #### Retrieve a specific file or folder by its unique identifier.
         
@@ -212,6 +222,9 @@ class FileService:
         >>> if item:
         ...     print(f"Item: {item.name} (Modified: {item.last_modified_date_time})")
         """
+        drive_id = kwargs.get("drive_id", None)
+        item_id = kwargs.get("item_id", None)
+
         if not drive_id:
             raise ValidationError("Drive ID is required")
         if not item_id:
@@ -222,7 +235,7 @@ class FileService:
             print(f"Error getting item id: '{item_id}': {e}")
 
 
-    async def create_folder(self, drive_id : str, parent_folder_id : str, new_folder_name : str):
+    async def create_folder(self, **kwargs):
         """
         #### Create a new folder within a specified parent directory.
         
@@ -241,6 +254,10 @@ class FileService:
         >>> await file_service.create_folder(drive_id, parent_folder_id, "New Project Folder")
         >>> print("Folder created successfully")
         """
+        drive_id = kwargs.get("drive_id", None)
+        parent_folder_id = kwargs.get("parent_folder_id", None)
+        new_folder_name = kwargs.get("new_folder_name", None)
+
         if not drive_id:
             raise ValidationError("Drive ID is required")
         if not parent_folder_id:
@@ -262,7 +279,7 @@ class FileService:
 
             
 
-    async def delete_item(self, drive_id : str, item_id : str):
+    async def delete_item(self, **kwargs):
         """
         #### Permanently delete a file or folder from the drive.
         
@@ -282,6 +299,9 @@ class FileService:
         >>> await file_service.delete_item(drive_id, item_id)
         >>> print("Item deleted successfully")
         """
+        drive_id = kwargs.get("drive_id", None)
+        item_id = kwargs.get("item_id", None)
+
         if not drive_id:
             raise ValidationError("Drive ID is required")
         if not item_id:
@@ -292,7 +312,7 @@ class FileService:
             print(f"Error deleting item id: '{item_id}': {e}")
 
 
-    async def move_item(self, drive_id : str,  item_id : str, new_location_id):
+    async def move_item(self, **kwargs):
         """
         #### Move a file or folder to a different location within the same drive.
         
@@ -311,6 +331,10 @@ class FileService:
         >>> await file_service.move_item(drive_id, item_id, new_parent_folder_id)
         >>> print("Item moved successfully")
         """
+        drive_id = kwargs.get("drive_id", None)
+        item_id = kwargs.get("item_id", None)
+        new_location_id = kwargs.get("new_location_id", None)
+
         request_body = DriveItem(
             parent_reference = ItemReference(
                 id = new_location_id,

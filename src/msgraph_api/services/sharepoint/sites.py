@@ -78,7 +78,7 @@ class SitesService:
     
 
 
-    async def get_site_by_id(self, site_id: str) -> Optional[Site]:
+    async def get_site_by_id(self, **kwargs) -> Optional[Site]:
         """
         #### Retrieve a specific SharePoint site by its ID.
         
@@ -92,6 +92,8 @@ class SitesService:
             >>> site = await sites_service.get_site_by_id("my_site_id")
             >>> print(f"Site name: {site.display_name}")
         """
+        site_id = kwargs.get("site_id", None)
+
         if not site_id:
             raise ValidationError("Site ID is required")
         try:
@@ -101,7 +103,7 @@ class SitesService:
             self._exception_helper(e)
     
 
-    async def get_site_by_displayname(self, site_name: str) -> Optional[Site]:
+    async def get_site_by_displayname(self, **kwargs) -> Optional[Site]:
         """
         #### Retrieve a SharePoint site by its display name.
         
@@ -116,6 +118,8 @@ class SitesService:
             >>> if site:
             ...     print(f"Found site: {site.web_url}")
         """
+        site_name = kwargs.get("site_name", None)
+
         if not site_name:
             raise ValidationError("Site Name is required")
         try:
@@ -130,7 +134,7 @@ class SitesService:
             self._exception_helper(e)
     
 
-    async def get_sub_sites(self, parent_site_id: str) -> List[Site]:
+    async def get_sub_sites(self, **kwargs) -> List[Site]:
         """
         #### Retrieve all subsites of a parent SharePoint site.
         
@@ -144,6 +148,8 @@ class SitesService:
             >>> subsites = await sites_service.get_sub_sites(parent_site_id)
             >>> print(f"Found {len(subsites)} subsites")
         """
+        parent_site_id = kwargs.get("parent_site_id", None)
+
         if not parent_site_id:
             raise ValidationError("Parent site ID is required")
         try:
@@ -153,7 +159,7 @@ class SitesService:
             self._exception_helper(e)
 
     
-    async def get_site_drive(self, site_id: str) -> Optional[Drive]:
+    async def get_site_drive(self, **kwargs) -> Optional[Drive]:
         """
         #### Returns the drive object for the site
 
@@ -163,6 +169,8 @@ class SitesService:
         ##### Returns: 
             Dict[str, str] or None if not found
         """
+        site_id = kwargs.get("site_id", None)
+        
         if not site_id:
             raise ValidationError("Site ID is required")
         try:
