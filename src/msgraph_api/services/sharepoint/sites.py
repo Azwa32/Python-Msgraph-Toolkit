@@ -1,7 +1,7 @@
 from msgraph import GraphServiceClient
 from functools import wraps
 import logging
-from typing import List, Optional
+from typing import List, NoReturn, Optional
 from msgraph.generated.models.site import Site
 from msgraph.generated.models.drive import Drive
 
@@ -23,7 +23,7 @@ class SitesService:
 
 
 
-    def _exception_helper(self, exception : Exception):
+    def _exception_helper(self, exception: Exception) -> NoReturn:
         self.logger.error(f"SharePoint operation failed: {exception}", exc_info=True)
         error_str = str(exception).lower()
         # Handle specific Azure AD errors
@@ -51,15 +51,15 @@ class SitesService:
 
     async def get_all_sites(self) -> List[Site]:
         """
-        #### Retreive all Sharepoint sites accessable to the authenticated user.
+        Retreive all Sharepoint sites accessable to the authenticated user.
         
         Returns a list of all SharePoint sites available with the current access within the MS 365 tenant.This includes team, communication and other SharePoint sites. 
         Requires read permissions.
 
-        ##### Args:
+        #### Args:
             None
 
-        ##### Returns:
+        #### Returns:
              Dict[str, str] or empty list: Each object in the list contains attributes such as name, id, url etc.
         
         Useage example:

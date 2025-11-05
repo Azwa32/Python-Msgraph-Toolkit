@@ -5,7 +5,7 @@ from msgraph.graph_service_client import GraphServiceClient
 
 #from users import UsersServices
 from .services.sharepoint.sharepoint_service import SharepointService
-#from outlook import OutlookService
+from .services.outlook.outlook_service import OutlookService
 #from teams import TeamsService
 
 import logging
@@ -31,7 +31,7 @@ class GraphClient:
 
         # initialise child services
         self.sharepoint = SharepointService(self._msgraph_client)
-        #self.outlook = OutlookService(self.graph_client)
+        self.outlook = OutlookService(self._msgraph_client)
         #self.teams = TeamsService(self.graph_client)
         #self.users = UserService(self.graph_client)
         
