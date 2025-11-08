@@ -32,7 +32,7 @@ def initialize_client():
     return client
 
 @pytest.mark.asyncio
-async def test_files_getsite_by_displayname(initialize_client):
+async def test_sites_getsite_by_displayname(initialize_client):
     sites_name = "FocusAV"
     client = initialize_client
     site = await client.sharepoint.sites.get_site_by_displayname(site_name=sites_name)
@@ -41,7 +41,7 @@ async def test_files_getsite_by_displayname(initialize_client):
     assert site.display_name == sites_name 
 
 @pytest.mark.asyncio  
-async def test_files_get_site_drive(initialize_client):
+async def test_sites_get_site_drive(initialize_client):
     sites_id = "focusav.sharepoint.com,7d86397d-916d-4a16-80fa-8079c08ab0bd,5171c734-d45a-4ddf-832d-c9a99d024290"
     client = initialize_client
     drive = await client.sharepoint.sites.get_site_drive(site_id=sites_id)
@@ -50,7 +50,7 @@ async def test_files_get_site_drive(initialize_client):
     assert len(drive.id) > 10
 
 @pytest.mark.asyncio
-async def test_files_get_drive_root_folder(initialize_client):
+async def test_drives_get_drive_root_folder(initialize_client):
     test_drive_id = "b!fTmGfW2RFkqA-oB5wIqwvTTHcVFa1N9Ngy3JqZ0CQpBClq8sO9MhTrvf9AaXjBGa"
     client = initialize_client
     root_folder = await client.sharepoint.drives.get_drive_root_folder(drive_id=test_drive_id)
