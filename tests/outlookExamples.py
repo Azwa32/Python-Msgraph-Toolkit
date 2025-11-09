@@ -46,10 +46,12 @@ async def main():
         #        print(folder.display_name, folder.id)
 
         #list child folders ########################
-        folders = await client.outlook.emails.list_child_folders(user = user_email, folder_id = target_folder)
+        folders = await client.outlook.emails.list_child_folders(user=user_email, parent_folder_id=target_folder, )
         if folders:
             for folder in folders:
                 print(folder.display_name, folder.id)
+
+        #list_messages_in_folder ########################
         
 
     except (ValidationError, AuthenticationError, SharePointError, RateLimitError) as e:

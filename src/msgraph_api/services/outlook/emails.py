@@ -93,6 +93,26 @@ class EmailsService:
         if result:
             return result.value
         
+    async def get_folder_by_name(self, **kwargs):
+        user = kwargs.get("user") # required
+        target_folder_name = kwargs.get("target_folder_name") # required
+        parent_folder_id = kwargs.get("parent_folder_id")
+
+        if not user:
+            raise ValidationError("User is required")
+        if not target_folder_name:
+            raise ValidationError("Folder name is required")
+    
+
+        if parent_folder_id:
+            child_folders = await self.list_child_folders(user=user, folder_id=parent_folder_id)
+            if child_folders:
+                for folder in child_folders:
+                    if folder.display_name == target_folder_name:
+                        return folder.id
+
+            
+        
     
         
         
