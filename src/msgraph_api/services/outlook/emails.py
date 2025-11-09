@@ -67,6 +67,48 @@ class EmailsService:
             content_bytes = base64.urlsafe_b64decode(attachment_bytes),
         )
         return file_attachment
+    
+
+    async def list_root_mail_folders(self, **kwargs):
+        user = kwargs.get("user") # required
+
+        if not user:
+            raise ValidationError("User is required")
+
+        result = await self._msgraph_client.users.by_user_id(user).mail_folders.get()
+        if result:
+            return result.value
+        
+        
+    async def list_child_folders(self, **kwargs):
+        user = kwargs.get("user") # required
+        folder_id = kwargs.get("folder_id") # required
+
+        if not user:
+            raise ValidationError("User is required")
+        if not folder_id:
+            raise ValidationError("Mail folder ID is required")
+        
+        result = await self._msgraph_client.users.by_user_id(user).mail_folders.by_mail_folder_id(folder_id).child_folders.get()
+        if result:
+            return result.value
+        
+    
+        
+        
+    async def list_messages_in_folder(self, **kwargs):
+        user = kwargs.get("user") # required
+        mailFolderId = kwargs.get("mailFolderId") # required
+
+        if not user:
+            raise ValidationError("User is required")
+        if not mailFolderId:
+            raise ValidationError("Mail folder ID is required")
+        
+        result = await self._msgraph_client.users.by_user_id(user).mail_folders.by_mail_folder_id(mailFolderId).messages.get()
+        if result:
+            return result.value
+
 
 
 

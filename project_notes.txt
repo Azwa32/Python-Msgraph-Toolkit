@@ -191,8 +191,8 @@ client.sharepoint.sharing.create_share_link(item_id, link_type, scope)
 --Outlook--
 # Sending
 *client.outlook.emails.send(to, subject, body, cc=None, bcc=None)
-client.outlook.emails.send_with_attachments(to, subject, body, attachments)
 client.outlook.emails.reply(message_id, body)
+client.outlook.emails.reply_all(message_id, body)
 client.outlook.emails.forward(message_id, to, body)
 
 # Reading
