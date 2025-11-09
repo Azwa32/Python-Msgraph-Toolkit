@@ -36,7 +36,7 @@ async def main():
     
         # to run: python -m python-msgraph-toolkit.tests.outlookExamples
         user_email = "amitchell@focusav.com.au"
-        target_folder = "AAMkADVhZGM3NTVhLTAwNzMtNGU4ZS1hZThhLTMwOTUzMjMyNDJjOQAuAAAAAAAiJJiCJitKQJlJc53cBcgSAQBftRv1EbWpS7ZOQzh15ab7AAAAAAEMAAA="
+        target_folder = "AAMkADVhZGM3NTVhLTAwNzMtNGU4ZS1hZThhLTMwOTUzMjMyNDJjOQAuAAAAAAAiJJiCJitKQJlJc53cBcgSAQBftRv1EbWpS7ZOQzh15ab7AAAAAAEMAAA=" #Inbox
         
         #email
         #list root mail folders ########################
@@ -46,15 +46,22 @@ async def main():
         #        print(folder.display_name, folder.id)
 
         #list child folders ########################
-        folders = await client.outlook.emails.list_child_folders(user=user_email, parent_folder_id=target_folder, )
-        if folders:
-            for folder in folders:
-                print(folder.display_name, folder.id)
+        #folders = await client.outlook.emails.list_child_folders(user=user_email, parent_folder_id=target_folder, )
+        #if folders:
+        #    for folder in folders:
+        #        print(folder.display_name, folder.id)
 
         # get folder by name ########################
-        print(await client.outlook.emails.get_folder_by_name(user=user_email,))
+        #returned_folder = await client.outlook.emails.get_folder_by_name(user=user_email, target_folder_name = "Inbox")
+        #if returned_folder:
+        #    print(returned_folder.id)
 
         #list_messages_in_folder ########################
+        messages = await client.outlook.emails.get_messages_in_folder(user=user_email, parent_folder_id=target_folder)
+        if not messages:
+            return
+        for message in messages:
+            print(message.subject)
         
 
     except (ValidationError, AuthenticationError, SharePointError, RateLimitError) as e:

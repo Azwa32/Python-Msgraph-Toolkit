@@ -94,11 +94,13 @@ class EmailsService:
         if not result:
             return
         return result.value
+    
         
     async def get_folder_by_name(self, **kwargs):
         user = kwargs.get("user") # required
         target_folder_name = kwargs.get("target_folder_name") # required
         parent_folder_id = kwargs.get("parent_folder_id")
+        returned_folder = None
 
         if not user:
             raise ValidationError("User is required")
@@ -109,36 +111,32 @@ class EmailsService:
         if parent_folder_id:
             child_folders = await self.list_child_folders(user=user, folder_id=parent_folder_id)
             if not child_folders:
-                return
+                return None
             for folder in child_folders:
                 if folder.display_name == target_folder_name:
-                    return folder.id
-                    
+                    returned_folder = folder                    
         else:
             child_folders = await self.list_root_mail_folders(user=user)
             if not child_folders:
-                return
+                return None
             for folder in child_folders:
                 if folder.display_name == target_folder_name:
-                    return folder.id
+                    returned_folder = folder
 
-            
-
-            
-        
+        return returned_folder
     
+            
         
-        
-    async def list_messages_in_folder(self, **kwargs):
+    async def get_messages_in_folder(self, **kwargs):
         user = kwargs.get("user") # required
-        mailFolderId = kwargs.get("mailFolderId") # required
+        parent_folder_id = kwargs.get("parent_folder_id") # required
 
         if not user:
             raise ValidationError("User is required")
-        if not mailFolderId:
+        if not parent_folder_id:
             raise ValidationError("Mail folder ID is required")
         
-        result = await self._msgraph_client.users.by_user_id(user).mail_folders.by_mail_folder_id(mailFolderId).messages.get()
+        result = await self._msgraph_client.users.by_user_id(user).mail_folders.by_mail_folder_id(parent_folder_id).messages.get()
         if result:
             return result.value
 
