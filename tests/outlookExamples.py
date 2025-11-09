@@ -51,6 +51,9 @@ async def main():
             for folder in folders:
                 print(folder.display_name, folder.id)
 
+        # get folder by name ########################
+        print(await client.outlook.emails.get_folder_by_name(user=user_email,))
+
         #list_messages_in_folder ########################
         
 

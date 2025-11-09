@@ -76,8 +76,9 @@ class EmailsService:
             raise ValidationError("User is required")
 
         result = await self._msgraph_client.users.by_user_id(user).mail_folders.get()
-        if result:
-            return result.value
+        if not result:
+            return
+        return result.value
         
         
     async def list_child_folders(self, **kwargs):
@@ -90,8 +91,9 @@ class EmailsService:
             raise ValidationError("Mail folder ID is required")
         
         result = await self._msgraph_client.users.by_user_id(user).mail_folders.by_mail_folder_id(folder_id).child_folders.get()
-        if result:
-            return result.value
+        if not result:
+            return
+        return result.value
         
     async def get_folder_by_name(self, **kwargs):
         user = kwargs.get("user") # required
@@ -106,10 +108,21 @@ class EmailsService:
 
         if parent_folder_id:
             child_folders = await self.list_child_folders(user=user, folder_id=parent_folder_id)
-            if child_folders:
-                for folder in child_folders:
-                    if folder.display_name == target_folder_name:
-                        return folder.id
+            if not child_folders:
+                return
+            for folder in child_folders:
+                if folder.display_name == target_folder_name:
+                    return folder.id
+                    
+        else:
+            child_folders = await self.list_root_mail_folders(user=user)
+            if not child_folders:
+                return
+            for folder in child_folders:
+                if folder.display_name == target_folder_name:
+                    return folder.id
+
+            
 
             
         
