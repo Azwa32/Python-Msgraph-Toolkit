@@ -38,10 +38,6 @@ async def main():
 
     #sites
     #########################
-
-        drive_id = "b!fTmGfW2RFkqA-oB5wIqwvTTHcVFa1N9Ngy3JqZ0CQpBClq8sO9MhTrvf9AaXjBGa"
-        location_id = "01CYM3L6TXOA256KAH4ZFLRHLVPZQ4HNJD"
-        folder_name = "New folder totally not AI"
         #client.sharepoint.create_folder(drive_id, location_id, folder_name) 
         #########################   
         #all_sites = await client.sharepoint.sites.get_all_sites()
@@ -61,7 +57,7 @@ async def main():
         #########################
         if site.id: # type: ignore
             drive = await client.sharepoint.sites.get_site_drive(site_id=site.id) # type: ignore
-        #print(drive.name)
+            #print(drive.name)
         #########################
         if drive.id: # type: ignore
             root_folder = await client.sharepoint.drives.get_drive_root_folder(drive_id=drive.id) # type: ignore
@@ -73,16 +69,23 @@ async def main():
                 for item in items:
                     print(item.name, item.id, item.web_url)
         ########################
-        #item = await client.sharepoint.files.get_item_by_name(drive.id, "01CYM3L6UNFXI2DU5DZJBYGQRRMAO3RSB2", "Everett Smith EQ6 HUB Equipment Register.xlsx")
-        #if item:
-            #print(item.name)
+        if root_folder and drive: # type: ignore
+            item = await client.sharepoint.files.get_item_by_name(drive_id=drive.id, 
+                                                                  parent_folder_id=str(os.getenv("TEST_SHAREPOINT_PARENT_FOLDER_ID")), 
+                                                                  item_name=str(os.getenv("TEST_SHAREPOINT_ITEM_NAME")))
+            #if item:
+                #print(item.name)
         ########################
-        #item = await client.sharepoint.files.get_item_by_path(drive.id, "Clients/1- Current Projects/ESCO - EQ6 [9TE] - The Hub - Master Folder/Everett Smith EQ6 HUB Equipment Register.xlsx")
+        if root_folder and drive: # type: ignore
+            item = await client.sharepoint.files.get_item_by_path(drive_id=drive.id,
+                                                                item_name=str(os.getenv("TEST_SHAREPOINT_ITEM_PATH")))
         #if item:
             #print(item.name)
         ########################
         # get item by id
-        #item = await client.sharepoint.files.get_item_by_id(drive.id, "01CYM3L6WTDWTOTVO7LJFIWF7PZKHWK7UF")
+        if root_folder and drive: # type: ignore
+            item = await client.sharepoint.files.get_item_by_id(drive_id=drive.id, 
+                                                                item_id=str(os.getenv("TEST_SHAREPOINT_ITEM_ID")))
         #print(item.name)
         ########################
     except (ValidationError, AuthenticationError, SharePointError, RateLimitError) as e:

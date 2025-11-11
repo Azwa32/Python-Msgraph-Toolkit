@@ -31,7 +31,6 @@ async def test_sites_getsite_by_displayname(initialize_client):
     sites_name = str(os.getenv("TEST_SHAREPOINT_SITE_NAME"))
     client = initialize_client
     site = await client.sharepoint.sites.get_site_by_displayname(site_name=sites_name)
-    test_site_id = site.id
     assert site is not None
     assert site.display_name == sites_name 
 
