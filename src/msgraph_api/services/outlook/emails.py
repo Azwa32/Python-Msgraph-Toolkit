@@ -6,6 +6,9 @@ import os
 import mimetypes
 from typing import List, Optional
 from msgraph.generated.users.item.send_mail.send_mail_post_request_body import SendMailPostRequestBody
+from msgraph.generated.users.item.messages.item.reply.reply_post_request_body import ReplyPostRequestBody
+from msgraph.generated.users.item.messages.item.reply_all.reply_all_post_request_body import ReplyAllPostRequestBody
+from msgraph.generated.users.item.messages.item.forward.forward_post_request_body import ForwardPostRequestBody
 from msgraph.generated.models.message import Message
 from msgraph.generated.models.importance import Importance
 from msgraph.generated.models.item_body import ItemBody
@@ -141,8 +144,6 @@ class EmailsService:
             return result.value
 
 
-
-
     async def send(self, **kwargs):
         subject = kwargs.get("subject", "No Subject")
         body = kwargs.get("body", "")
@@ -218,5 +219,83 @@ class EmailsService:
         return result
 
 
+    async def reply(self, **kwargs):
+        sender = kwargs.get("sender") # required
+        message_id = kwargs.get("message_id") # required
+        comment = kwargs.get("comment")
+        reply_to_recipients = kwargs.get("reply_to", [])
 
+        # Validate required parameters
+        if not sender:
+            raise ValidationError("Sender is required")
+        if not message_id:
+            raise ValidationError("Message Id is required")
+        
+        # build list of recipient objects
+        if reply_to_recipients or len(reply_to_recipients) > 0:
+            reply_to_list = [] 
+            for recipient in reply_to_recipients:
+                reply_to_list.append(EmailAddress(address = recipient))
+
+        request_body = ReplyPostRequestBody(
+            message = Message(
+                to_recipients = reply_to_list if reply_to_recipients else None,
+            ),
+            comment = comment if comment else None,        
+        )
+        await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).reply.post(request_body)
+
+
+    async def reply_all(self, **kwargs):
+        sender = kwargs.get("sender") # required
+        message_id = kwargs.get("message_id") # required
+        comment = kwargs.get("comment")
+        reply_to_recipients = kwargs.get("reply_to", [])
+
+        # Validate required parameters
+        if not sender:
+            raise ValidationError("Sender is required")
+        if not message_id:
+            raise ValidationError("Message Id is required")
+        
+        # build list of recipient objects
+        if reply_to_recipients or len(reply_to_recipients) > 0:
+            reply_to_list = [] 
+            for recipient in reply_to_recipients:
+                reply_to_list.append(EmailAddress(address = recipient))
+        
+        request_body = ReplyAllPostRequestBody(
+            message = Message(
+                to_recipients = reply_to_list if reply_to_recipients else None,
+            ),
+            comment = comment if comment else None,        
+        )
+        await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).reply_all.post(request_body)
+
+
+    async def forward(self, **kwargs):
+        sender = kwargs.get("sender") # required
+        message_id = kwargs.get("message_id") # required
+        comment = kwargs.get("comment")
+        to_recipients = kwargs.get("to_recipients", []) # required
+
+        # Validate required parameters
+        if not sender:
+            raise ValidationError("Sender is required")
+        if not message_id:
+            raise ValidationError("Message Id is required")
+        if not to_recipients or len(to_recipients) == 0:
+            raise ValidationError("At least one recipient is required")
+
+        # build list of recipient objects
+        to_recipients_list = [] 
+        for recipient in to_recipients:
+            to_recipients_list.append(EmailAddress(address = recipient))
+
+        request_body = ForwardPostRequestBody(
+            to_recipients = to_recipients_list if to_recipients else None,
+            comment = comment if comment else None, 
+        )
+
+        await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).forward.post(request_body)
         
