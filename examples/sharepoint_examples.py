@@ -49,7 +49,7 @@ async def main():
         #   print(f"{entry.name} | {entry.web_url} | {entry.id}")
         ###########################   
         # graph api has built in error handling for incorrect credentials
-        site = await client.sharepoint.sites.get_site_by_displayname(site_name="FocusAV")
+        site = await client.sharepoint.sites.get_site_by_displayname(site_name=str(os.getenv("TEST_SHAREPOINT_SITE_NAME")))
         #print(site.id)
         #########################
         #site = await client.sharepoint.sites.get_site_by_id(site.id)
