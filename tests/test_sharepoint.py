@@ -13,7 +13,7 @@ if str(SRC_PATH) not in sys.path:
 # Now import after sys.path is configured
 from msgraph_api.client import GraphClient
 
-# to run tests: pytest sharepoint.py -W ignore::DeprecationWarning
+# to run tests: pytest test_sharepoint.py -W ignore::DeprecationWarning
 
 @pytest.fixture
 def initialize_client():
