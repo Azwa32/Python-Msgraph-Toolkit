@@ -196,18 +196,15 @@ client.sharepoint.sharing.create_share_link(item_id, link_type, scope)
 *client.outlook.emails.forward(message_id, to, body)
 
 # Reading
-client.outlook.emails.get_inbox(user_id, limit=50)
-client.outlook.emails.get_sent_items(user_id)
-client.outlook.emails.get_message(message_id)
-client.outlook.emails.search(user_id, query)
-client.outlook.emails.mark_as_read(message_id)
-client.outlook.emails.delete(message_id)
+*client.outlook.emails.get_inbox(user_id, limit=50)
+*client.outlook.emails.get_message(message_id)
+*client.outlook.emails.delete(message_id)
 
 # Calender
-client.outlook.calendar.get_events(user_id, start_date, end_date)
-client.outlook.calendar.create_event(user_id, subject, start, end, attendees)
+*client.outlook.calendar.get_events(user_id, start_date, end_date)
+*client.outlook.calendar.create_event(user_id, subject, start, end, attendees)
 client.outlook.calendar.update_event(event_id, updates)
-client.outlook.calendar.delete_event(event_id)
+*client.outlook.calendar.delete_event(event_id)
 client.outlook.calendar.get_free_busy(user_ids, start_time, end_time)
 
 # Contacts

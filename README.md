@@ -1,8 +1,8 @@
 python-msgraph-toolkit
 
-needed to use the msgraph api for work but found msgraph-sdk-python to be too verbose, auto generated and complex to use.
+I needed to use the msgraph api but found msgraph-sdk-python to be too verbose, auto generated and complex to use.
 
-Wanted to make something more business focused and easier to drop in to a project. also wanted to take advantage of modern technologies such as async
+I wanted to make something more business focused and easier to drop in to a project. also wanted to take advantage of modern technologies such as async
 
 "Simple, production-ready Microsoft Graph API client for Python"
 "Transform complex Graph API operations into simple function calls"
@@ -16,3 +16,4 @@ Features, - Simple, business-focused API
 
 
 Using a src layout (as opposed to flat) to help avoid problems with imports
+

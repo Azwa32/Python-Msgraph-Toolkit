@@ -14,7 +14,7 @@ if str(SRC_PATH) not in sys.path:
 # Now import after sys.path is configured
 from msgraph_api.client import GraphClient
 
-# to run tests: pytest sharepoint.py -W ignore::DeprecationWarning
+# to run tests: pytest test_outlook.py -W ignore::DeprecationWarning
 
 @pytest.fixture
 def initialize_client():
@@ -44,3 +44,36 @@ async def test_list_child_folders(initialize_client):
     assert child_folders is not None
     assert isinstance(child_folders, list)
     assert len(child_folders) > 0
+
+@pytest.mark.asyncio
+async def test_get_folder_by_name(initialize_client):
+    user_email = str(os.getenv("TEST_OUTLOOK_USER_EMAIL"))
+    target_folder_name = str(os.getenv("TEST_OUTLOOK_FOLDER_NAME"))
+    client = initialize_client
+    folder = await client.outlook.emails.get_folder_by_name(user=user_email, target_folder_name=target_folder_name)
+    assert folder is not None
+    assert folder.display_name == target_folder_name
+
+@pytest.mark.asyncio
+async def test_get_folder_by_name_with_parent(initialize_client):
+    user_email = str(os.getenv("TEST_OUTLOOK_USER_EMAIL"))
+    parent_folder_id = str(os.getenv("TEST_OUTLOOK_PARENT_FOLDER_ID"))
+    target_folder_name = str(os.getenv("TEST_OUTLOOK_CHILD_FOLDER_NAME"))
+    client = initialize_client
+    folder = await client.outlook.emails.get_folder_by_name(
+        user=user_email, 
+        target_folder_name=target_folder_name,
+        parent_folder_id=parent_folder_id
+    )
+    assert folder is not None
+    assert folder.display_name == target_folder_name
+
+@pytest.mark.asyncio
+async def test_get_messages_in_folder(initialize_client):
+    user_email = str(os.getenv("TEST_OUTLOOK_USER_EMAIL"))
+    parent_folder_id = str(os.getenv("TEST_OUTLOOK_MESSAGES_FOLDER_ID"))
+    client = initialize_client
+    messages = await client.outlook.emails.get_messages_in_folder(user=user_email, parent_folder_id=parent_folder_id)
+    assert messages is not None
+    assert isinstance(messages, list)
+    # Note: folder might be empty, so we don't assert len(messages) > 0

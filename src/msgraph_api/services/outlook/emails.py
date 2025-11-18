@@ -214,9 +214,12 @@ class EmailsService:
                 is_read_receipt_requested = request_read_receipt,
             )
         )
-
-        result = await self._msgraph_client.users.by_user_id(sender).send_mail.post(request_body)
-        return result
+        try:
+            await self._msgraph_client.users.by_user_id(sender).send_mail.post(request_body)
+            return True
+        except Exception as e:
+            self._exception_helper(e)
+            return False
 
 
     async def reply(self, **kwargs):
@@ -243,7 +246,12 @@ class EmailsService:
             ),
             comment = comment if comment else None,        
         )
-        await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).reply.post(request_body)
+        try:
+            await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).reply.post(request_body)
+            return True
+        except Exception as e:
+            self._exception_helper(e)
+            return False
 
 
     async def reply_all(self, **kwargs):
@@ -270,7 +278,12 @@ class EmailsService:
             ),
             comment = comment if comment else None,        
         )
-        await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).reply_all.post(request_body)
+        try:
+            await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).reply_all.post(request_body)
+            return True
+        except Exception as e:
+            self._exception_helper(e)
+            return False
 
 
     async def forward(self, **kwargs):
@@ -296,6 +309,25 @@ class EmailsService:
             to_recipients = to_recipients_list if to_recipients else None,
             comment = comment if comment else None, 
         )
+        try:
+            await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).forward.post(request_body)
+            return True
+        except Exception as e:
+            self._exception_helper(e)
+            return False
 
-        await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).forward.post(request_body)
-        
+    
+    async def delete(self, **kwargs):
+        user = kwargs.get("user") # required
+        message_id = kwargs.get("message_id") # required
+        # Validate required parameters
+        if not user:
+            raise ValidationError("User is required")
+        if not message_id:
+            raise ValidationError("Message Id is required")
+        try:        
+            await self._msgraph_client.users.by_user_id(user).messages.by_message_id(message_id).delete()
+            return True
+        except Exception as e:
+            self._exception_helper(e)
+            return False
