@@ -50,8 +50,8 @@ async def main():
             print(site.id)
         #########################
         if site is not None:
-        site = await client.sharepoint.sites.get_site_by_id(site_id=site.id)
-        print(site.display_name)
+            site = await client.sharepoint.sites.get_site_by_id(site_id=site.id)
+            print(site.display_name if site else "No site found")
         #########################
         #children = await client.sharepoint.sites.get_sub_sites(site.id)
         #for child in children:
@@ -59,7 +59,7 @@ async def main():
         #########################
         if site.id: # type: ignore
             drive = await client.sharepoint.sites.get_site_drive(site_id=site.id) # type: ignore
-            print(drive.name)
+            print(drive.name if drive else "No drive found")
         #########################
         #if drive.id: # type: ignore
             #root_folder = await client.sharepoint.drives.get_drive_root_folder(drive_id=drive.id) # type: ignore

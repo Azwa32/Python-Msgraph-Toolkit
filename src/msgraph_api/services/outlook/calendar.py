@@ -113,6 +113,7 @@ class CalendarService:
         location = kwargs.get("location")
         body = kwargs.get("body")
         attendees = kwargs.get("attendees", [])
+        pre_event_reminder = kwargs.get("pre_event_reminder")
 
         if not user:
             raise ValidationError("User is required")
@@ -150,6 +151,7 @@ class CalendarService:
                 display_name = location,
             ),
             attendees = attendees_list if attendees_list else None,
+            reminder_minutes_before_start = pre_event_reminder if pre_event_reminder else None,
         )
         try:
             created_event = await self._msgraph_client.users.by_user_id(user).calendars.by_calendar_id('calendar-id').events.post(request_body)
@@ -168,12 +170,13 @@ class CalendarService:
         """
         user = kwargs.get("user") # required
         event_id = kwargs.get("event_id") # required
-        subject = kwargs.get("subject") # required
-        start = kwargs.get("start") # required
-        end = kwargs.get("end") # required
+        subject = kwargs.get("subject")
+        start = kwargs.get("start")
+        end = kwargs.get("end")
         location = kwargs.get("location")
         body = kwargs.get("body")
         attendees = kwargs.get("attendees", [])
+        pre_event_reminder = kwargs.get("pre_event_reminder")
 
         if not user:
             raise ValidationError("User is required")
@@ -184,11 +187,10 @@ class CalendarService:
             original_start_time_zone = "originalStartTimeZone-value",
             original_end_time_zone = "originalEndTimeZone-value",
             response_status = ResponseStatus(
-                response = ResponseType.None,
-                time = "datetime-value",
+                response = ResponseType.None_,
             ),
             recurrence = None,
-            reminder_minutes_before_start = 99,
+            reminder_minutes_before_start = pre_event_reminder if pre_event_reminder else None,
             is_online_meeting = True,
             online_meeting_provider = OnlineMeetingProviderType.TeamsForBusiness,
             is_reminder_on = True,
@@ -199,7 +201,7 @@ class CalendarService:
         )
 
         try:
-            await self._msgraph_client.users.by_user_id(event_id).events.by_event_id('event-id').patch(updates)
+            await self._msgraph_client.users.by_user_id(user).events.by_event_id(event_id).patch(request_body)
             return True
         except Exception as e:
             self._exception_helper(e)
