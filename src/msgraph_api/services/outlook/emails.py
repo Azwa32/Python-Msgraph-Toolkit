@@ -1,5 +1,5 @@
 import base64
-from msgraph import GraphServiceClient
+from msgraph.graph_service_client import GraphServiceClient
 from functools import wraps
 import logging
 import os
