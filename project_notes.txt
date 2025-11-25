@@ -203,9 +203,8 @@ client.sharepoint.sharing.create_share_link(item_id, link_type, scope)
 # Calender
 *client.outlook.calendar.get_events(user_id, start_date, end_date)
 *client.outlook.calendar.create_event(user_id, subject, start, end, attendees)
-client.outlook.calendar.update_event(event_id, updates)
+*client.outlook.calendar.update_event(event_id, updates)
 *client.outlook.calendar.delete_event(event_id)
-client.outlook.calendar.get_free_busy(user_ids, start_time, end_time)
 
 # Contacts
 client.outlook.contacts.list(user_id)

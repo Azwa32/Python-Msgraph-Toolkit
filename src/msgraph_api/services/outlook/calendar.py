@@ -65,9 +65,9 @@ class CalendarService:
 
         Args:
             user (str): The user ID or email address.
-            start_date (str): Optional, The start date in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
-            end_date (str): Optional, The end date in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
-
+            start_date (str, optional): The start date in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
+            end_date (str, optional): The end date in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
+            
         Returns:
             Optional[List[dict]]: A list of calendar events or None if an error occurs.
         """
@@ -101,10 +101,16 @@ class CalendarService:
         Args:
             user (str): The user ID or email address.
             subject (str): The subject of the event.
-            body (str): The body content of the event.
+            body (str, optional): The body content of the event.
             start (str): The start date and time in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
             end (str): The end date and time in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
-            attendees (List[str], optional): A list of attendee email addresses."""
+            location (str, optional): The location of the event.
+            attendees (List[str], optional): A list of attendee email addresses.
+            pre_event_reminder (int, optional): Reminder time in minutes before the event.
+
+        Returns:
+            Event object if successful, None otherwise.
+        """
 
         user = kwargs.get("user") # required
         subject = kwargs.get("subject") # required
@@ -154,19 +160,29 @@ class CalendarService:
             reminder_minutes_before_start = pre_event_reminder if pre_event_reminder else None,
         )
         try:
-            created_event = await self._msgraph_client.users.by_user_id(user).calendars.by_calendar_id('calendar-id').events.post(request_body)
-            return created_event
+            event = await self._msgraph_client.users.by_user_id(user).calendars.by_calendar_id('calendar-id').events.post(request_body)
+            return event
         except Exception as e:
             self._exception_helper(e)
             return None
         
 
     async def update_event(self, **kwargs):
-        """Update a calendar event.
+        """Update an existing calendar event.
 
         Args:
             user (str): The user ID or email address.
-            event_id (str): The ID of the event to update.            
+            event_id (str): The ID of the event to update.
+            subject (str, optional): New subject for the event.
+            body (str, optional): New body content for the event.
+            start (str, optional): New start date and time in ISO 8601 format.
+            end (str, optional): New end date and time in ISO 8601 format.
+            location (str, optional): New location for the event.
+            attendees (List[str], optional): New list of attendee email addresses.
+            pre_event_reminder (int, optional): New reminder time in minutes before the event.
+            
+        Returns:
+            Updated event object if successful, None otherwise.
         """
         user = kwargs.get("user") # required
         event_id = kwargs.get("event_id") # required
@@ -183,29 +199,50 @@ class CalendarService:
         if not event_id:
             raise ValidationError("Event ID is required")
         
-        request_body = Event(
-            original_start_time_zone = "originalStartTimeZone-value",
-            original_end_time_zone = "originalEndTimeZone-value",
-            response_status = ResponseStatus(
-                response = ResponseType.None_,
-            ),
-            recurrence = None,
-            reminder_minutes_before_start = pre_event_reminder if pre_event_reminder else None,
-            is_online_meeting = True,
-            online_meeting_provider = OnlineMeetingProviderType.TeamsForBusiness,
-            is_reminder_on = True,
-            hide_attendees = False,
-            categories = [
-                "Red category",
-            ],
-        )
+        request_body = Event()
+        if subject is not None:
+            request_body.subject = subject
+        
+        if start is not None:
+            request_body.start = DateTimeTimeZone(
+                date_time = start,
+                time_zone = "Pacific Standard Time",
+            )
+
+        if end is not None:
+            request_body.end = DateTimeTimeZone(
+                date_time = end,
+                time_zone = "Pacific Standard Time",
+            )
+
+        if location is not None:
+            request_body.location = Location(
+                display_name = location,
+            )
+        
+        if body is not None:
+            request_body.body = ItemBody(
+                content_type = BodyType.Html,
+                content = body,
+            )
+
+        if attendees is not None:
+            attendees_list = []
+            for attendee in attendees:
+                attendees_list.append(Attendee(email_address = EmailAddress(
+                                                address = attendee,                      
+                )))
+            request_body.attendees = attendees_list
+
+        if pre_event_reminder is not None:
+            request_body.reminder_minutes_before_start = pre_event_reminder
 
         try:
-            await self._msgraph_client.users.by_user_id(user).events.by_event_id(event_id).patch(request_body)
-            return True
+            event = await self._msgraph_client.users.by_user_id(user).events.by_event_id(event_id).patch(request_body)
+            return event
         except Exception as e:
             self._exception_helper(e)
-            return False
+            return None
         
 
     async def delete_event(self, **kwargs):
@@ -214,6 +251,9 @@ class CalendarService:
         Args:
             user (str): The user ID or email address.
             event_id (str): The ID of the event to delete.
+            
+        Returns:
+            bool: True if deletion successful, False otherwise.
         """
         user = kwargs.get("user") # required
         event_id = kwargs.get("event_id") # required
