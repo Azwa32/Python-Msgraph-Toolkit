@@ -228,8 +228,9 @@ client.teams.channels.send_message(team_id, channel_id, content)
 
 # Chat & Messaging
 client.teams.chats.list_user_chats(user_id)
-client.teams.chats.send_message(chat_id, content)
 client.teams.chats.create_chat(participants)
+client.teams.chats.send_message(chat_id, content)
+
 
 # Meetings
 client.teams.meetings.create_online_meeting(subject, start_time, end_time)
