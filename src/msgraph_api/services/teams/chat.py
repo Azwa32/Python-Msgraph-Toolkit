@@ -53,17 +53,13 @@ class ChatService:
             raise SharePointError(f"SharePoint operation failed: {exception}") from exception
         
     async def create_chat(self, **kwargs):
-        """
-        Create a new chat with specified participants.
-        #### Args:
-            participants (list): List of participant user IDs
-        #### Returns:
-            Chat: The created chat object, or None if creation failed
-        #### Usage example:
-            >>> new_chat = await chat_service.create_chat(participants=["user1_id", "user2_id"])
-            >>> if new_chat:
-            ...     print(f"Chat ID: {new_chat.id}")
-            ...     print(f"Chat topic: {new_chat.topic}")
+        """Create a new chat with specified participants.
+
+        Args:
+            members (List[str]): List of participant user IDs (minimum 2 required).
+            
+        Returns:
+            Chat: The created chat object, or None if creation failed.
         """
         members = kwargs.get("members", []) # min 2 members required        
 
@@ -101,18 +97,14 @@ class ChatService:
             return None
         
     async def list_messages_in_chat(self, **kwargs):
-        """
-        List messages in a specified chat.
-        #### Args:
-            chat_id (str): The ID of the chat to list messages from
-        #### Returns:
-            list: List of messages in the chat, or None if retrieval failed
-        #### Usage example:
-            >>> messages = await chat_service.list_messages_in_chat(chat_id="chat_id_here")
-            >>> if messages:
-            ...     for message in messages:
-            ...         print(f"Message ID: {message.id}")
-            ...         print(f"Message content: {message.body.content}")
+        """List messages in a specified chat.
+
+        Args:
+            chat_id (str): The ID of the chat to list messages from.
+            top (int, optional): Maximum number of messages to return (default: 10).
+            
+        Returns:
+            List[ChatMessage]: List of messages in the chat, or None if retrieval failed.
         """
         chat_id = kwargs.get("chat_id", None) # Required
         top = kwargs.get("top", 10)
@@ -139,17 +131,14 @@ class ChatService:
             return None
         
     async def send_message_in_chat(self, **kwargs):
-        """
-        Send a message in a specified chat.
-        #### Args:
-            chat_id (str): The ID of the chat to send the message to
-            content (str): The content of the message to send
-        #### Returns:
-            bool: True if the message was sent successfully, False otherwise
-        #### Usage example:
-            >>> success = await chat_service.send_message_in_chat(chat_id="chat_id_here", content="Hello, World!")
-            >>> if success:
-            ...     print("Message sent successfully")
+        """Send a message in a specified chat.
+
+        Args:
+            chat_id (str): The ID of the chat to send the message to.
+            content (str): The content of the message to send.
+            
+        Returns:
+            ChatMessage: The sent message object, or False if sending failed.
         """
         chat_id = kwargs.get("chat_id", None) # Required
         content = kwargs.get("content", None) # Required
