@@ -3,10 +3,10 @@
 from azure.identity.aio import ClientSecretCredential
 from msgraph.graph_service_client import GraphServiceClient
 
-#from users import UsersServices
+from .services.teams.teams_service import TeamsService
+from .services.users.users_service import UsersService
 from .services.sharepoint.sharepoint_service import SharepointService
 from .services.outlook.outlook_service import OutlookService
-#from teams import TeamsService
 
 import logging
 logger = logging.getLogger('azure')
@@ -32,8 +32,8 @@ class GraphClient:
         # initialise child services
         self.sharepoint = SharepointService(self._msgraph_client)
         self.outlook = OutlookService(self._msgraph_client)
-        #self.teams = TeamsService(self.graph_client)
-        #self.users = UserService(self.graph_client)
+        self.teams = TeamsService(self._msgraph_client)
+        self.users = UsersService(self._msgraph_client)
         
     def _initialise_graph_client(self):
         """Initialize the authenticated Graph client"""

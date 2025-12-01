@@ -42,65 +42,65 @@ class UserService:
         else:
             raise SharePointError(f"SharePoint operation failed: {exception}") from exception
         
-async def get_user(self, **kwargs):
-        """Retrieve a user by their ID.
+    async def get_user(self, **kwargs):
+            """Retrieve a user by their ID.
 
-        Args:
-            user_id (str): The ID of the user to retrieve.
+            Args:
+                user_id (str): The ID of the user to retrieve.
+                
+            Returns:
+                User: The retrieved user object, or None if not found.
+            """
+            user_id = kwargs.get("user_id") # required
+            if not user_id:
+                raise ValidationError("user_id is required")
+
+            try:
+                user = await self._msgraph_client.users.by_user_id(user_id).get()
+                if user:
+                    return user
+                else:
+                    return None
+            except Exception as e:
+                self._exception_helper(e)
+                return None
             
-        Returns:
-            User: The retrieved user object, or None if not found.
-        """
-        user_id = kwargs.get("user_id") # required
-        if not user_id:
-            raise ValidationError("user_id is required")
-
-        try:
-            user = await self._msgraph_client.users.by_user_id(user_id).get()
-            if user:
-                return user
-            else:
-                return None
-        except Exception as e:
-            self._exception_helper(e)
-            return None
-        
-        
-async def list_users(self):
-        """List all users in the organization.
-
-        Returns:
-            List[User]: A list of user objects.
-        """
-        try:
-            users_list = await self._msgraph_client.users.get()
-            if users_list and users_list.value:
-                return users_list.value
-            else:
-                return None
-        except Exception as e:
-            self._exception_helper(e)
-            return None
-        
-async def get_user_by_email(self, **kwargs):
-        """Retrieve a user by their email address.
-
-        Args:
-            email (str): The email address of the user to retrieve.
             
-        Returns:
-            User: The retrieved user object, or None if not found.
-        """
-        email = kwargs.get("email") # required
-        if not email:
-            raise ValidationError("email is required")
+    async def list_users(self):
+            """List all users in the organization.
 
-        try:
-            user = await self._msgraph_client.users.by_user_id(email).get()
-            if user:
-                return user
-            else:
+            Returns:
+                List[User]: A list of user objects.
+            """
+            try:
+                users_list = await self._msgraph_client.users.get()
+                if users_list and users_list.value:
+                    return users_list.value
+                else:
+                    return None
+            except Exception as e:
+                self._exception_helper(e)
                 return None
-        except Exception as e:
-            self._exception_helper(e)
-            return None
+            
+    async def get_user_by_email(self, **kwargs):
+            """Retrieve a user by their email address.
+
+            Args:
+                email (str): The email address of the user to retrieve.
+                
+            Returns:
+                User: The retrieved user object, or None if not found.
+            """
+            email = kwargs.get("email") # required
+            if not email:
+                raise ValidationError("email is required")
+
+            try:
+                user = await self._msgraph_client.users.by_user_id(email).get()
+                if user:
+                    return user
+                else:
+                    return None
+            except Exception as e:
+                self._exception_helper(e)
+                return None

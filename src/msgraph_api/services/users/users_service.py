@@ -10,4 +10,4 @@ class UsersService():
             raise ValueError("msgraph client must be supplied")
         
         # Initialize sub-services
-        self.chat = UserService(self._msgraph_client)
+        self.users = UserService(self._msgraph_client)
