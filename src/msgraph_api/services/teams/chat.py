@@ -52,6 +52,22 @@ class ChatService:
         else:
             raise SharePointError(f"SharePoint operation failed: {exception}") from exception
         
+    async def list_chats(self, **kwargs):
+        """List chats for the authenticated user.
+
+        Args:
+            user (str): The ID of the user whose chats to list."""
+        user = kwargs.get("user") # Required
+        
+        if not user:
+            raise ValueError("user is required to list chats")
+        
+        result = await self._msgraph_client.users.by_user_id(user).chats.get()
+        if result and result.value:
+            return result.value
+        return None
+    
+        
     async def create_chat(self, **kwargs):
         """Create a new chat with specified participants.
 

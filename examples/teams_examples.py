@@ -32,21 +32,21 @@ async def main():
             str(os.getenv("MSGRAPH_CLIENT_ID")),
             str(os.getenv("MSGRAPH_API_KEY"))
             )
-    
-        # to run: python -m python-msgraph-toolkit.tests.user_examples
-        test_email = os.getenv("TEST_USER_EMAIL")
+        
+    # Example: List Teams chats for a user
+        user_id = os.getenv("TEST_USER_ID")
+        chats = await client.teams.chat.list_chats(user=user_id)
+        if chats:
+            for chat in chats:
+                print(f"Chat ID: {chat.id}, Topic: {chat.topic}")   
 
-        # get all users ########################
-        users =  await client.users.users.list_users()
-        if users:
-           for user in users:
-               print(user.display_name, user.id)
-
-        # get user by id ########################
-        user = await client.users.users.get_user_by_email(email=test_email) 
-        if user:
-            print(user.display_name, user.id)
-            
+    # Example: List messages in chat
+        chat_id = os.getenv("TEST_CHAT_ID")
+        messages = await client.teams.chat.list_messages_in_chat(chat_id=chat_id) 
+        if messages:
+            for message in messages:
+                print(f"Message ID: {message.id}, Content: {message.body.content if message.body else 'No Content'}")
+        
 
     except (ValidationError, AuthenticationError, RateLimitError) as e:
         print(f"❌Test Error: {e}")  # Just print the clean error message, no traceback
