@@ -77,3 +77,26 @@ async def test_get_messages_in_folder(initialize_client):
     assert messages is not None
     assert isinstance(messages, list)
     # Note: folder might be empty, so we don't assert len(messages) > 0
+
+@pytest.mark.asyncio
+async def test_send(initialize_client):
+    subject="Test Email",
+    body="This is a test email",
+    sender=str(os.getenv("TEST_OUTLOOK_USER_EMAIL")),
+    to_recipients=[str(os.getenv("TEST_OUTLOOK_TO_RECIPIENT"))],
+    cc_recipients=[str(os.getenv("TEST_OUTLOOK_TO_RECIPIENT"))],
+    bcc_recipients=[str(os.getenv("TEST_OUTLOOK_BCC_RECIPIENT"))],
+    reply_to=(str(os.getenv("TEST_OUTLOOK_REPLY_TO_RECIPIENT"))),
+    priority="Normal",
+    client = initialize_client
+    result = await client.outlook.emails.send(
+        subject=subject,
+        body=body,
+        sender=sender,
+        to_recipients=to_recipients,
+        cc_recipients=cc_recipients,
+        bcc_recipients=bcc_recipients,
+        reply_to=reply_to,
+        priority=priority
+    )
+    assert result is True
