@@ -130,3 +130,18 @@ async def test_reply_all(initialize_client):
         reply_to_recipients=reply_to_recipients
     )
     assert result is True
+
+@pytest.mark.asyncio
+async def test_forward(initialize_client):
+    sender = str(os.getenv("TEST_USER_EMAIL"))
+    message_id = str(os.getenv("TEST_OUTLOOK_MESSAGE_ID"))
+    comment = "This is a test forward"
+    to_recipients = [str(os.getenv("TEST_OUTLOOK_TO_RECIPIENT"))]
+    client = initialize_client
+    result = await client.outlook.emails.forward(
+        sender=sender,
+        message_id=message_id,
+        comment=comment,
+        to_recipients=to_recipients
+    )
+    assert result is True
