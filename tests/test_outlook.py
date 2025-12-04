@@ -145,3 +145,11 @@ async def test_forward(initialize_client):
         to_recipients=to_recipients
     )
     assert result is True
+
+@pytest.mark.asyncio
+async def test_delete(initialize_client):
+    user_email = str(os.getenv("TEST_OUTLOOK_USER_EMAIL"))
+    message_id = str(os.getenv("TEST_OUTLOOK_MESSAGE_ID_TO_DELETE"))
+    client = initialize_client
+    result = await client.outlook.emails.delete(user=user_email, message_id=message_id)
+    assert result is True
