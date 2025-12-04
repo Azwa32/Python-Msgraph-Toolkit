@@ -106,12 +106,27 @@ async def test_reply(initialize_client):
     sender = str(os.getenv("TEST_USER_EMAIL"))
     message_id = str(os.getenv("TEST_OUTLOOK_MESSAGE_ID"))
     comment = "This is a test reply"
-    reply_to_recipient = str(os.getenv("TEST_OUTLOOK_REPLY_TO_RECIPIENT"))
+    reply_to_recipients = [str(os.getenv("TEST_OUTLOOK_REPLY_TO_RECIPIENT"))]
     client = initialize_client
     result = await client.outlook.emails.reply(
         sender=sender,
         message_id=message_id,
         comment=comment,
-        reply_to_recipient=reply_to_recipient
+        reply_to_recipients=reply_to_recipients
+    )
+    assert result is True
+
+@pytest.mark.asyncio
+async def test_reply_all(initialize_client):
+    sender = str(os.getenv("TEST_USER_EMAIL"))
+    message_id = str(os.getenv("TEST_OUTLOOK_MESSAGE_ID"))
+    comment = "This is a test reply all"
+    reply_to_recipients = [str(os.getenv("TEST_OUTLOOK_REPLY_TO_RECIPIENT"))]
+    client = initialize_client
+    result = await client.outlook.emails.reply_all(
+        sender=sender,
+        message_id=message_id,
+        comment=comment,
+        reply_to_recipients=reply_to_recipients
     )
     assert result is True
