@@ -1,5 +1,5 @@
 from msgraph import GraphServiceClient
-from .user import UserService
+from .users import UserService
 import re
 
 
