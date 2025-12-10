@@ -112,7 +112,7 @@ class ChatService:
             self._exception_helper(e)
             return None
         
-    async def list_messages_in_chat(self, **kwargs):
+    async def list_messages(self, **kwargs):
         """List messages in a specified chat.
 
         Args:
@@ -146,7 +146,7 @@ class ChatService:
             self._exception_helper(e)
             return None
         
-    async def send_message_in_chat(self, **kwargs):
+    async def send_message(self, **kwargs):
         """Send a message in a specified chat.
 
         Args:
