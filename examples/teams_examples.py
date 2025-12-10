@@ -42,7 +42,7 @@ async def main():
 
     # Example: List messages in chat
         chat_id = os.getenv("TEST_CHAT_ID")
-        messages = await client.teams.chat.list_messages_in_chat(chat_id=chat_id) 
+        messages = await client.teams.chat.list_messages(chat_id=chat_id) 
         if messages:
             for message in messages:
                 print(f"Message ID: {message.id}, Content: {message.body.content if message.body else 'No Content'}")
