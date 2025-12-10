@@ -37,10 +37,8 @@ A modern, developer-friendly Python client for Microsoft Graph API that simplifi
 The official `msgraph-sdk-python` is powerful but comes with significant challenges:
 - **Auto-generated code** that's verbose and difficult to navigate
 - **Complex API** with steep learning curve
-- **Poor documentation** for common business workflows
 - **Inconsistent patterns** across different Microsoft 365 services
 - **No built-in error handling** for common scenarios
-- **Synchronous-only design** limiting performance in modern applications
 
 ### The Solution
 
@@ -49,7 +47,7 @@ Python Microsoft Graph Toolkit provides a clean, intuitive wrapper around the Mi
 - **Business-focused API** - Methods designed for real-world workflows
 - **Async-first architecture** - Built for modern Python applications
 - **Comprehensive error handling** - Meaningful exceptions with clear messages
-- **Production-ready patterns** - Retry logic, configuration management, logging
+- **Production-ready patterns** - Configuration management, logging
 - **Domain-organized services** - Logical grouping (SharePoint, Outlook, Teams, Users)
 
 ### Key Features
@@ -186,7 +184,7 @@ async def main():
     client = GraphClient(
         tenant_id="your-tenant-id",
         client_id="your-client-id",
-        api_key="your-client-secret"
+        secret="your-client-secret"
     )
     
     # Use the services
@@ -259,7 +257,10 @@ from src.msgraph_api.exceptions import (
     ValidationError,
     AuthenticationError,
     SharePointError,
-    RateLimitError
+    OutlookError,
+    TeamsError,
+    RateLimitError,
+    GraphAPIError
 )
 
 try:
