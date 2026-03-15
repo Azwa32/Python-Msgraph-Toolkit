@@ -20,8 +20,6 @@ from ..src.msgraph_api.exceptions import (
 )
 
 # create new graph instance
-
-
 # await must be run within asyncio function. 
 # If calls are to be run sequentially all await functions need to be inside the same await function
 async def main():
@@ -34,7 +32,7 @@ async def main():
             str(os.getenv("MSGRAPH_API_KEY"))
             )
     
-        # to run: python -m python-msgraph-toolkit.tests.outlookExamples
+        # to run: python -m Python-Msgraph-Toolkit.examples.outlook_examples
         user_email = str(os.getenv("TEST_USER_EMAIL"))
         target_folder = str(os.getenv("TEST_SHAREPOINT_PARENT_FOLDER_ID"))
         

@@ -19,8 +19,6 @@ from ..src.msgraph_api.exceptions import (
 )
 
 # create new graph instance
-
-
 # await must be run within asyncio function. 
 # If calls are to be run sequentially all await functions need to be inside the same await function
 async def main():
@@ -33,7 +31,7 @@ async def main():
             str(os.getenv("MSGRAPH_API_KEY"))
             )
     
-        # to run: python -m python-msgraph-toolkit.tests.user_examples
+        # to run: python -m Python-Msgraph-Toolkit.examples.user_examples
         test_email = os.getenv("TEST_USER_EMAIL")
 
         # get all users ########################

@@ -20,8 +20,6 @@ from ..src.msgraph_api.exceptions import (
 )
 
 # create new graph instance
-
-
 # await must be run within asyncio function. 
 # If calls are to be run sequentially all await functions need to be inside the same await function
 async def main():
@@ -34,17 +32,15 @@ async def main():
             str(os.getenv("MSGRAPH_API_KEY"))
             )
         
-    # to run: python -m python-msgraph-toolkit.tests.sharepointExamples
+    # to run: python -m Python-Msgraph-Toolkit.examples.sharepoint_examples
 
     #sites
     #########################
-        #client.sharepoint.create_folder(drive_id, location_id, folder_name) 
         #########################   
         all_sites = await client.sharepoint.sites.get_all_sites()
         for entry in all_sites:    
           print(f"{entry.name} | {entry.web_url} | {entry.id}")
         ###########################   
-        # graph api has built in error handling for incorrect credentials
         site = await client.sharepoint.sites.get_site_by_displayname(site_name=str(os.getenv("TEST_SHAREPOINT_SITE_NAME")))
         if site is not None:
             print(site.id)
@@ -88,7 +84,8 @@ async def main():
         if root_folder and drive: # type: ignore
             item = await client.sharepoint.files.get_item_by_id(drive_id=drive.id, 
                                                                 item_id=str(os.getenv("TEST_SHAREPOINT_ITEM_ID")))
-        #print(item.name)
+            if item:
+                print(item.name)
         ########################
     except (ValidationError, AuthenticationError, SharePointError, RateLimitError) as e:
         print(f"❌Test Error: {e}")  # Just print the clean error message, no traceback
