@@ -7,6 +7,7 @@ logger.setLevel(logging.WARNING)
 
 class Auth:
     def __init__(self, tenant_id: str, client_id: str, secret: str):
+        self.authorised = False
         self.scopes = ['https://graph.microsoft.com/.default']
         if not tenant_id:
             raise ValueError("Tenant ID must be supplied")
@@ -24,6 +25,7 @@ class Auth:
         try: 
             credendial = ClientSecretCredential(self.tenant_id, self.client_id, self.secret)
             self._msgraph_client = GraphServiceClient(credentials=credendial, scopes=self.scopes)
+            self.authorised = True
         except Exception as e:
             logger.error(f"Failed to initialise GraphAPI: {e}")
             raise

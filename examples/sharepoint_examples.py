@@ -23,7 +23,6 @@ from ..src.msgraph_api.exceptions import (
 # await must be run within asyncio function. 
 # If calls are to be run sequentially all await functions need to be inside the same await function
 async def main():
-
     try:
         load_dotenv()
         client = GraphClient(
