@@ -8,41 +8,24 @@ from .services.users.users_service import UsersService
 from .services.sharepoint.sharepoint_service import SharepointService
 from .services.outlook.outlook_service import OutlookService
 
+from utils.auth import Auth
+
 import logging
 logger = logging.getLogger('azure')
 logger.setLevel(logging.WARNING)
 
 class GraphClient:
     def __init__(self, tenant_id: str, client_id: str, secret: str):
-        self.scopes = ['https://graph.microsoft.com/.default']
-        self.tenant_id = tenant_id
-        if not self.tenant_id:
-            raise ValueError("Tenant ID must be supplied")
-        
-        self.client_id = client_id
-        if not self.client_id:
-            raise ValueError("Client ID must be supplied")
-        
-        self.secret = secret
-        if not self.secret:
-            raise ValueError("Secret must be supplied")
-        
-        self._initialise_graph_client()
+        authorised_msgraph = Auth(tenant_id, client_id, secret)
 
         # initialise child services
-        self.sharepoint = SharepointService(self._msgraph_client)
-        self.outlook = OutlookService(self._msgraph_client)
-        self.teams = TeamsService(self._msgraph_client)
-        self.users = UsersService(self._msgraph_client)
+        if authorised_msgraph:
+            self.sharepoint = SharepointService(authorised_msgraph._msgraph_client)
+            self.outlook = OutlookService(authorised_msgraph._msgraph_client)
+            self.teams = TeamsService(authorised_msgraph._msgraph_client)
+            self.users = UsersService(authorised_msgraph._msgraph_client)
         
-    def _initialise_graph_client(self):
-        """Initialize the authenticated Graph client"""
-        try: 
-            credendial = ClientSecretCredential(self.tenant_id, self.client_id, self.secret)
-            self._msgraph_client = GraphServiceClient(credentials=credendial, scopes=self.scopes)
-        except Exception as e:
-            logger.error(f"Failed to initialise GraphAPI: {e}")
-            raise
+
 
 
         
