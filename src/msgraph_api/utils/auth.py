@@ -1,9 +1,5 @@
 from azure.identity.aio import ClientSecretCredential
 from msgraph.graph_service_client import GraphServiceClient
-from ..services.teams.teams_service import TeamsService
-from ..services.users.users_service import UsersService
-from ..services.sharepoint.sharepoint_service import SharepointService
-from ..services.outlook.outlook_service import OutlookService
 import logging
 
 logger = logging.getLogger('azure')

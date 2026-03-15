@@ -1,8 +1,5 @@
 # msgraph API documentation https://learn.microsoft.com/en-us/graph/api/overview?view=graph-rest-1.0&preserve-view=true
 
-from azure.identity.aio import ClientSecretCredential
-from msgraph.graph_service_client import GraphServiceClient
-
 from .services.teams.teams_service import TeamsService
 from .services.users.users_service import UsersService
 from .services.sharepoint.sharepoint_service import SharepointService
