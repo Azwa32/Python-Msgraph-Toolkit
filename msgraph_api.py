@@ -1,7 +1,7 @@
 # msgraph API documentation https://learn.microsoft.com/en-us/graph/api/overview?view=graph-rest-1.0&preserve-view=true
 
 from azure.identity.aio import ClientSecretCredential
-from msgraph import GraphServiceClient
+from msgraph.graph_service_client import GraphServiceClient
 
 from msgraph.generated.drives.item.items.item.copy.copy_post_request_body import CopyPostRequestBody
 from msgraph.generated.models.item_reference import ItemReference
