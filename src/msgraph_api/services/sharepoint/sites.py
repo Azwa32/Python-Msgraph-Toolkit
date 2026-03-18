@@ -28,25 +28,25 @@ class SitesService:
         error_str = str(exception).lower()
         # Handle specific Azure AD errors
         if '900023' in error_str or 'aadsts90002' in error_str:
-            raise AuthenticationError("Invalid Tenant ID. Verify MSGRAPH_TENANT_ID and try again") from exception
+            raise AuthenticationError("Invalid Tenant ID. Verify MSGRAPH_TENANT_ID and try again")
         
         elif '700016' in error_str or 'aadsts700016' in error_str:
-            raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again") from exception
+            raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again")
         
         elif '7000215' in error_str or 'aadsts7000215' in error_str:
-            raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again") from exception
+            raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again")
         
         elif 'not found' in error_str or '404' in error_str:
-            raise SharePointError("SharePoint resource not found") from exception
+            raise SharePointError("SharePoint resource not found")
         
         elif 'forbidden' in error_str or '403' in error_str:
-            raise SharePointError("Access denied to SharePoint resource") from exception
+            raise SharePointError("Access denied to SharePoint resource")
         
         elif 'rate limit' in error_str or '429' in error_str:
-            raise RateLimitError("API rate limit exceeded") from exception
+            raise RateLimitError("API rate limit exceeded")
         
         else:
-            raise SharePointError(f"SharePoint operation failed: {exception}") from exception
+            raise SharePointError(f"SharePoint operation failed: {exception}")
         
 
     async def get_all_sites(self) -> List[Site]:
