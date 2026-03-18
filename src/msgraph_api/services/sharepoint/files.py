@@ -1,6 +1,6 @@
 from msgraph import GraphServiceClient
 from msgraph.generated.models.drive_item import DriveItem
-from msgraph.generated.models.folder import Folder
+from msgraph.generated.models.folder import Folder, Optional
 from msgraph.generated.models.item_reference import ItemReference
 from msgraph.generated.models.drive_item import DriveItem
 from msgraph.generated.drives.item.items.items_request_builder import ItemsRequestBuilder 
@@ -8,6 +8,7 @@ from msgraph.generated.drives.item.items.item.children.children_request_builder 
 from msgraph.generated.drives.item.search_with_q.search_with_q_request_builder import SearchWithQRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 import logging
+from ...exceptions import handle_graph_exception
 
 from ...exceptions import (
     SharePointError, 
@@ -38,7 +39,7 @@ class FileService:
         return request_configuration
         
 
-    async def list_folder_contents(self, **kwargs):
+    async def list_folder_contents(self, **kwargs) -> list[DriveItem]:
         """
         Retrieve all items (files and folders) within a specified folder.
             
@@ -73,42 +74,13 @@ class FileService:
         try:
             response =  await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id)\
                 .children.get(request_configuration = self._exceed_drive_query()) 
-            return response.value if response and response.value else [] 
-            
+            return response.value if response and response.value else []             
         except Exception as e:
-            
-            error_str = str(e).lower()
-        
-            # Handle drive ID invalid
-            if any(validation_indicator in error_str for validation_indicator in [
-                'does not represent a valid drive', 'drive id appears to be malformed',
-            ]):
-                raise ValidationError(f"Invalid Drive ID string: '{drive_id}'. Verify the drive ID is correct and try again.") from e
-        
-            # Handle parent folder ID invalid
-            elif any(not_found_indicator in error_str for not_found_indicator in [
-                'not found', 'does not exist', 'itemnotfound'
-            ]):
-                raise ValidationError(f"Parent Folder ID string: '{parent_folder_id}' invalid, folder not found. Verify the Parent Folder ID and try again ") from e
-                
-            # Handle access denied
-            elif any(access_indicator in error_str for access_indicator in [
-                'forbidden', '403', 'access denied', 'insufficient privileges'
-            ]):
-                raise SharePointError(f"Access denied to drive {drive_id} or folder {parent_folder_id}") from e
-                
-            # Handle rate limiting
-            elif any(rate_indicator in error_str for rate_indicator in [
-                'rate limit', 'too many requests', '429', 'throttled'
-            ]):
-                raise RateLimitError(f"Rate limit exceeded when accessing drive {drive_id}") from e
-                
-            # Generic SharePoint error for anything else
-            else:
-                raise SharePointError(f"Unknown sharepoint error: {e}")
-        
+            handle_graph_exception(e, "SharePoint")
+            return [] # This line will never be reached due to exception being raised, but is here to satisfy return type
 
-    async def get_item_by_name(self, **kwargs):
+
+    async def get_item_by_name(self, **kwargs) -> Optional[DriveItem]:
         """
         Retrieve a specific file or folder by exact name within a parent folder.
 
@@ -171,7 +143,7 @@ class FileService:
                 raise SharePointError(f"Failed to get item '{item_name}': {str(e)}") from e
 
 
-    async def get_item_by_path(self, **kwargs):
+    async def get_item_by_path(self, **kwargs) -> Optional[DriveItem]:
         """
         Retrieve a file or folder by its full path within the drive.
         
@@ -183,7 +155,7 @@ class FileService:
             item_path (str): The full path to the item (e.g., '/Documents/Projects/file.pdf')
 
         #### Returns:
-            Dict[str, Any] or None: Item object with full metadata, or None if not found
+            Optional[DriveItem]: Item object with full metadata, or None if not found
 
         #### Example:
         >>> item = await file_service.get_item_by_path(drive_id, "/Documents/report.pdf")
@@ -208,7 +180,7 @@ class FileService:
             print(f"Error getting item at path '{item_path}': {e}")
             return None
         
-    async def get_item_by_id(self, **kwargs):
+    async def get_item_by_id(self, **kwargs) -> Optional[DriveItem]:
         """
         Retrieve a specific file or folder by its unique identifier.
         
@@ -220,7 +192,7 @@ class FileService:
             item_id (str): The unique identifier for the specific item
 
         #### Returns:
-            Dict[str, Any] or None: Item object with complete metadata, or None if error occurs
+            Optional[DriveItem]: Item object with complete metadata, or None if error occurs
 
         #### Example:
         >>> item = await file_service.get_item_by_id(drive_id, "01ABCDEF123456789")
@@ -238,9 +210,10 @@ class FileService:
             return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).get()
         except Exception as e:
             print(f"Error getting item id: '{item_id}': {e}")
+            return None
 
 
-    async def create_folder(self, **kwargs):
+    async def create_folder(self, **kwargs) -> Optional[DriveItem]:
         """
         Create a new folder within a specified parent directory.
         
@@ -278,10 +251,11 @@ class FileService:
             }
         )
         try:
-            await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id).children.post(request_body)
+            folder = await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id).children.post(request_body)
+            return folder
         except Exception as e:
             print(f"Error creating folder: {e}")
-
+            return None
             
 
     async def delete_item(self, **kwargs):

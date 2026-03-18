@@ -4,6 +4,7 @@ import logging
 from typing import List, NoReturn, Optional
 from msgraph.generated.models.site import Site
 from msgraph.generated.models.drive import Drive
+from ...exceptions import handle_graph_exception
 
 from ...exceptions import (
     SharePointError, 
@@ -20,33 +21,6 @@ class SitesService:
         self.logger = logging.getLogger(__name__)
         if not msgraph_client:
             raise ValidationError("msgraph client must be supplied")
-
-
-
-    def _exception_helper(self, exception: Exception) -> NoReturn:
-        self.logger.error(f"SharePoint operation failed: {exception}", exc_info=True)
-        error_str = str(exception).lower()
-        # Handle specific Azure AD errors
-        if '900023' in error_str or 'aadsts90002' in error_str:
-            raise AuthenticationError("Invalid Tenant ID. Verify MSGRAPH_TENANT_ID and try again")
-        
-        elif '700016' in error_str or 'aadsts700016' in error_str:
-            raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again")
-        
-        elif '7000215' in error_str or 'aadsts7000215' in error_str:
-            raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again")
-        
-        elif 'not found' in error_str or '404' in error_str:
-            raise SharePointError("SharePoint resource not found")
-        
-        elif 'forbidden' in error_str or '403' in error_str:
-            raise SharePointError("Access denied to SharePoint resource")
-        
-        elif 'rate limit' in error_str or '429' in error_str:
-            raise RateLimitError("API rate limit exceeded")
-        
-        else:
-            raise SharePointError(f"SharePoint operation failed: {exception}")
         
 
     async def get_all_sites(self) -> List[Site]:
@@ -74,7 +48,8 @@ class SitesService:
             response = await self._msgraph_client.sites.get_all_sites.get()
             return response.value if response.value else [] # type: ignore[attr-defined]
         except Exception as e:
-            self._exception_helper(e)
+            handle_graph_exception(e, "SharePoint")
+            return [] # This line will never be reached due to exception being raised, but is here to satisfy return type
     
 
 
@@ -100,7 +75,8 @@ class SitesService:
             response = await self._msgraph_client.sites.by_site_id(site_id).get()
             return response if response else None
         except Exception as e:
-            self._exception_helper(e)
+            handle_graph_exception(e, "SharePoint")
+            return None # This line will never be reached due to exception being raised, but is here to satisfy return type
     
 
     async def get_site_by_displayname(self, **kwargs) -> Optional[Site]:
@@ -131,7 +107,8 @@ class SitesService:
                     return site
             return None  # Explicit return when no match found
         except Exception as e:
-            self._exception_helper(e)
+            handle_graph_exception(e, "SharePoint")
+            return None # This line will never be reached due to exception being raised, but is here to satisfy return type
     
 
     async def get_sub_sites(self, **kwargs) -> List[Site]:
@@ -156,7 +133,8 @@ class SitesService:
             response =  await self._msgraph_client.sites.by_site_id(parent_site_id).sites.get()
             return response.value if response.value else [] # type: ignore[attr-defined]
         except Exception as e:
-            self._exception_helper(e)
+            handle_graph_exception(e, "SharePoint")
+            return [] # This line will never be reached due to exception being raised, but is here to satisfy return type
 
     
     async def get_site_drive(self, **kwargs) -> Optional[Drive]:
@@ -177,4 +155,5 @@ class SitesService:
             response = await self._msgraph_client.sites.by_site_id(site_id).drive.get()
             return response if response else None
         except Exception as e:
-            self._exception_helper(e)
+            handle_graph_exception(e, "SharePoint")
+            return None # This line will never be reached due to exception being raised, but is here to satisfy return type

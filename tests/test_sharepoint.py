@@ -27,7 +27,7 @@ def initialize_client():
         )
     return client
 @pytest.mark.asyncio
-async def test_sites_getsites(initialize_client):
+async def test_sites_get_sites(initialize_client):
     client = initialize_client
     sites = await client.sharepoint.sites.get_all_sites()
     if sites:

@@ -43,4 +43,32 @@ class Graph():
         "500" : "500's desc"
     }
 
+def handle_graph_exception(exception: Exception, service_name: str = "Graph API"):
+    """Centralized exception handler for Microsoft Graph API errors."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.error(f"{service_name} operation failed: {str(exception)}", exc_info=True)
+    error_str = str(exception).lower()
+    
+    # Authentication errors
+    if '900023' in error_str or 'aadsts90002' in error_str:
+        raise AuthenticationError("Invalid Tenant ID. Verify MSGRAPH_TENANT_ID and try again")
+    elif '700016' in error_str or 'aadsts700016' in error_str:
+        raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again")
+    elif '7000215' in error_str or 'aadsts7000215' in error_str:
+        raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again")
+    
+    # Resource errors
+    elif 'not found' in error_str or '404' in error_str:
+        raise GraphAPIError(f"{service_name} resource not found")
+    elif 'forbidden' in error_str or '403' in error_str:
+        raise GraphAPIError(f"Access denied to {service_name} resource")
+    elif 'rate limit' in error_str or '429' in error_str:
+        raise RateLimitError("API rate limit exceeded")
+    
+    # Default
+    else:
+        raise GraphAPIError(f"{service_name} operation failed: {str(exception)}")
+
 # error handling https://learn.microsoft.com/en-us/graph/errors

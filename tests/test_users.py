@@ -26,20 +26,24 @@ def initialize_client():
     return client
 
 @pytest.mark.asyncio
+async def test_list_users(initialize_client):
+    client = initialize_client
+    users = await client.users.users.list_users()
+    if users:
+        print("\n")
+        for user in users:
+            print(f"User Name: {user.display_name}, User Email {user.mail}")
+    assert users is not None
+    assert isinstance(users, list)
+    assert len(users) > 0
+
+@pytest.mark.asyncio
 async def test_get_user(initialize_client):
     test_user_id = str(os.getenv("TEST_USER_ID"))
     client = initialize_client
     user = await client.users.users.get_user(user_id=test_user_id)
     assert user is not None
     assert user.id == test_user_id
-
-@pytest.mark.asyncio
-async def test_list_users(initialize_client):
-    client = initialize_client
-    users = await client.users.users.list_users()
-    assert users is not None
-    assert isinstance(users, list)
-    assert len(users) > 0
 
 @pytest.mark.asyncio
 async def test_get_user_by_email(initialize_client):

@@ -18,7 +18,7 @@ from msgraph.generated.models.email_address import EmailAddress
 from msgraph.generated.models.file_attachment import FileAttachment
 
 from ...exceptions import (
-    SharePointError, 
+    OutlookError, 
     ValidationError, 
     GraphAPIError,
     AuthenticationError,
@@ -34,7 +34,7 @@ class EmailsService:
             raise ValidationError("msgraph client must be supplied")
         
     def _exception_helper(self, exception : Exception) -> None:
-        self.logger.error(f"SharePoint operation failed: {exception}", exc_info=True)
+        self.logger.error(f"Outlook operation failed: {str(exception)}", exc_info=True)
         error_str = str(exception).lower()
         # Handle specific Azure AD errors
         if '900023' in error_str or 'aadsts90002' in error_str:
@@ -47,16 +47,16 @@ class EmailsService:
             raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again") from exception
         
         elif 'not found' in error_str or '404' in error_str:
-            raise SharePointError("SharePoint resource not found") from exception
+            raise OutlookError("Outlook resource not found") from exception
         
         elif 'forbidden' in error_str or '403' in error_str:
-            raise SharePointError("Access denied to SharePoint resource") from exception
+            raise OutlookError("Access denied to Outlook resource") from exception
         
         elif 'rate limit' in error_str or '429' in error_str:
             raise RateLimitError("API rate limit exceeded") from exception
         
         else:
-            raise SharePointError(f"SharePoint operation failed: {exception}") from exception
+            raise OutlookError(f"Outlook operation failed: {exception}") from exception
         
     async def _process_attachment(self, attachment: str, ) -> FileAttachment:
         with open(attachment, "rb") as att:

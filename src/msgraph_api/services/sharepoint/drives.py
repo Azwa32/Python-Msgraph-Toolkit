@@ -1,4 +1,5 @@
 from msgraph import GraphServiceClient
+from ...exceptions import handle_graph_exception
 
 
 class DriveService:
@@ -25,10 +26,11 @@ class DriveService:
         
         if not drive_id:
             print("No Drive ID entered, please enter Drive ID")
-            return
+            return None
         try:
             return await self._msgraph_client.drives.by_drive_id(drive_id).root.get()
         except Exception as e:
-            print(f"Error get_all_folders: {e}")
+            handle_graph_exception(e, "SharePoint")
+            return None # This line will never be reached due to exception being raised, but is here to satisfy return type
 
 
