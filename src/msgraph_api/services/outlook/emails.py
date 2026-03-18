@@ -16,6 +16,7 @@ from msgraph.generated.models.body_type import BodyType
 from msgraph.generated.models.recipient import Recipient
 from msgraph.generated.models.email_address import EmailAddress
 from msgraph.generated.models.file_attachment import FileAttachment
+from ...exceptions import graph_exception_handler
 
 from ...exceptions import (
     OutlookError, 
@@ -31,32 +32,7 @@ class EmailsService:
         self._msgraph_client = msgraph_client
         self.logger = logging.getLogger(__name__)
         if not msgraph_client:
-            raise ValidationError("msgraph client must be supplied")
-        
-    def _exception_helper(self, exception : Exception) -> None:
-        self.logger.error(f"Outlook operation failed: {str(exception)}", exc_info=True)
-        error_str = str(exception).lower()
-        # Handle specific Azure AD errors
-        if '900023' in error_str or 'aadsts90002' in error_str:
-            raise AuthenticationError("Invalid Tenant ID. Verify MSGRAPH_TENANT_ID and try again") from exception
-        
-        elif '700016' in error_str or 'aadsts700016' in error_str:
-            raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again") from exception
-        
-        elif '7000215' in error_str or 'aadsts7000215' in error_str:
-            raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again") from exception
-        
-        elif 'not found' in error_str or '404' in error_str:
-            raise OutlookError("Outlook resource not found") from exception
-        
-        elif 'forbidden' in error_str or '403' in error_str:
-            raise OutlookError("Access denied to Outlook resource") from exception
-        
-        elif 'rate limit' in error_str or '429' in error_str:
-            raise RateLimitError("API rate limit exceeded") from exception
-        
-        else:
-            raise OutlookError(f"Outlook operation failed: {exception}") from exception
+            raise ValidationError("msgraph client must be supplied")        
         
     async def _process_attachment(self, attachment: str, ) -> FileAttachment:
         with open(attachment, "rb") as att:
@@ -72,7 +48,7 @@ class EmailsService:
         return file_attachment
     
 
-    async def list_root_mail_folders(self, **kwargs):
+    async def list_root_mail_folders(self, **kwargs) -> Optional[List]:
         user = kwargs.get("user") # required
 
         if not user:
@@ -84,11 +60,11 @@ class EmailsService:
                 return
             return result.value
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return None
         
         
-    async def list_child_folders(self, **kwargs):
+    async def list_child_folders(self, **kwargs) -> Optional[List]:
         user = kwargs.get("user") # required
         folder_id = kwargs.get("folder_id") # required
 
@@ -104,7 +80,7 @@ class EmailsService:
                 return
             return result.value
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return None
     
         
@@ -137,7 +113,7 @@ class EmailsService:
 
             return returned_folder
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return None
     
             
@@ -155,7 +131,7 @@ class EmailsService:
             if result:
                 return result.value
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return None
         
     async def send(self, **kwargs):
@@ -181,25 +157,25 @@ class EmailsService:
         # build list of recipient objects
         to_recipients_list = [] 
         for recipient in to_recipients:
-            to_recipients_list.append(EmailAddress(address = recipient))
+            to_recipients_list.append(Recipient(email_address=EmailAddress(address=recipient)))
 
         # build list of cc recipient objects
         cc_recipients_list = []
         if cc_recipients:
             for recipient in cc_recipients:
-                cc_recipients_list.append(EmailAddress(address = recipient))
+                cc_recipients_list.append(Recipient(email_address=EmailAddress(address=recipient)))
 
         # build list of bcc recipient objects
         bcc_recipients_list = []
         if bcc_recipients:
             for recipient in bcc_recipients:
-                bcc_recipients_list.append(EmailAddress(address = recipient))
+                bcc_recipients_list.append(Recipient(email_address=EmailAddress(address=recipient)))
 
         # build list of reply_to recipient objects
         reply_to_list = []
         if reply_to:
             for recipient in reply_to:
-                reply_to_list.append(EmailAddress(address = recipient))
+                reply_to_list.append(Recipient(email_address=EmailAddress(address=recipient)))
 
         # build list of attachment objects
         attachments_list = []
@@ -232,7 +208,7 @@ class EmailsService:
             await self._msgraph_client.users.by_user_id(sender).send_mail.post(request_body)
             return True
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return False
 
 
@@ -264,7 +240,7 @@ class EmailsService:
             await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).reply.post(request_body)
             return True
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return False
 
 
@@ -296,7 +272,7 @@ class EmailsService:
             await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).reply_all.post(request_body)
             return True
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return False
 
 
@@ -327,7 +303,7 @@ class EmailsService:
             await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).forward.post(request_body)
             return True
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return False
 
     
@@ -343,5 +319,5 @@ class EmailsService:
             await self._msgraph_client.users.by_user_id(user).messages.by_message_id(message_id).delete()
             return True
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return False

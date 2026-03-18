@@ -4,7 +4,7 @@ import logging
 from typing import List, NoReturn, Optional
 from msgraph.generated.models.site import Site
 from msgraph.generated.models.drive import Drive
-from ...exceptions import handle_graph_exception
+from ...exceptions import graph_exception_handler
 
 from ...exceptions import (
     SharePointError, 
@@ -48,7 +48,7 @@ class SitesService:
             response = await self._msgraph_client.sites.get_all_sites.get()
             return response.value if response.value else [] # type: ignore[attr-defined]
         except Exception as e:
-            handle_graph_exception(e, "SharePoint")
+            graph_exception_handler(e, "SharePoint")
             return [] # This line will never be reached due to exception being raised, but is here to satisfy return type
     
 
@@ -75,7 +75,7 @@ class SitesService:
             response = await self._msgraph_client.sites.by_site_id(site_id).get()
             return response if response else None
         except Exception as e:
-            handle_graph_exception(e, "SharePoint")
+            graph_exception_handler(e, "SharePoint")
             return None # This line will never be reached due to exception being raised, but is here to satisfy return type
     
 
@@ -107,7 +107,7 @@ class SitesService:
                     return site
             return None  # Explicit return when no match found
         except Exception as e:
-            handle_graph_exception(e, "SharePoint")
+            graph_exception_handler(e, "SharePoint")
             return None # This line will never be reached due to exception being raised, but is here to satisfy return type
     
 
@@ -133,7 +133,7 @@ class SitesService:
             response =  await self._msgraph_client.sites.by_site_id(parent_site_id).sites.get()
             return response.value if response.value else [] # type: ignore[attr-defined]
         except Exception as e:
-            handle_graph_exception(e, "SharePoint")
+            graph_exception_handler(e, "SharePoint")
             return [] # This line will never be reached due to exception being raised, but is here to satisfy return type
 
     
@@ -155,5 +155,5 @@ class SitesService:
             response = await self._msgraph_client.sites.by_site_id(site_id).drive.get()
             return response if response else None
         except Exception as e:
-            handle_graph_exception(e, "SharePoint")
+            graph_exception_handler(e, "SharePoint")
             return None # This line will never be reached due to exception being raised, but is here to satisfy return type

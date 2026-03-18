@@ -43,12 +43,12 @@ class Graph():
         "500" : "500's desc"
     }
 
-def handle_graph_exception(exception: Exception, service_name: str = "Graph API"):
+def graph_exception_handler(exception: Exception, service_name: str = "Graph API"):
     """Centralized exception handler for Microsoft Graph API errors."""
     import logging
     logger = logging.getLogger(__name__)
     
-    logger.error(f"{service_name} operation failed: {str(exception)}", exc_info=True)
+    logger.error(f"{service_name} operation failed: {exception}", exc_info=True)
     error_str = str(exception).lower()
     
     # Authentication errors
@@ -69,6 +69,6 @@ def handle_graph_exception(exception: Exception, service_name: str = "Graph API"
     
     # Default
     else:
-        raise GraphAPIError(f"{service_name} operation failed: {str(exception)}")
+        raise GraphAPIError(f"{service_name} operation failed: {exception}")
 
 # error handling https://learn.microsoft.com/en-us/graph/errors

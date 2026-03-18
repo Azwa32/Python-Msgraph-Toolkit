@@ -8,7 +8,7 @@ from msgraph.generated.drives.item.items.item.children.children_request_builder 
 from msgraph.generated.drives.item.search_with_q.search_with_q_request_builder import SearchWithQRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 import logging
-from ...exceptions import handle_graph_exception
+from ...exceptions import graph_exception_handler
 
 from ...exceptions import (
     SharePointError, 
@@ -76,7 +76,7 @@ class FileService:
                 .children.get(request_configuration = self._exceed_drive_query()) 
             return response.value if response and response.value else []             
         except Exception as e:
-            handle_graph_exception(e, "SharePoint")
+            graph_exception_handler(e, "SharePoint")
             return [] # This line will never be reached due to exception being raised, but is here to satisfy return type
 
 

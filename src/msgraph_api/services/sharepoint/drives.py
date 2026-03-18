@@ -1,5 +1,5 @@
 from msgraph import GraphServiceClient
-from ...exceptions import handle_graph_exception
+from ...exceptions import graph_exception_handler
 
 
 class DriveService:
@@ -30,7 +30,7 @@ class DriveService:
         try:
             return await self._msgraph_client.drives.by_drive_id(drive_id).root.get()
         except Exception as e:
-            handle_graph_exception(e, "SharePoint")
+            graph_exception_handler(e, "SharePoint")
             return None # This line will never be reached due to exception being raised, but is here to satisfy return type
 
 
