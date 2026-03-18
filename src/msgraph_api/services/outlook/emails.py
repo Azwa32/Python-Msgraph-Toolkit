@@ -93,9 +93,11 @@ class EmailsService:
         folder_id = kwargs.get("folder_id") # required
 
         if not user:
-            raise ValidationError("User is required")
+            self.logger.warning("User is required for list_child_folders")
+            return None
         if not folder_id:
-            raise ValidationError("Mail folder ID is required")
+            self.logger.warning("Mail folder ID is required for list_child_folders")
+            return None
         try:
             result = await self._msgraph_client.users.by_user_id(user).mail_folders.by_mail_folder_id(folder_id).child_folders.get()
             if not result:

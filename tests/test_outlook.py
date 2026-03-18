@@ -24,11 +24,19 @@ def initialize_client():
         )
     return client
 
+# to run tests from root folder: pytest test_sharepoint.py -W ignore::DeprecationWarning
+# to run a single test from root folder (with print -s) eg: 
+# pytest tests/test_outlook.py::test_sites_getsites -s -W ignore::DeprecationWarning
+
 @pytest.mark.asyncio
 async def test_list_root_mail_folders(initialize_client):
     user_email = str(os.getenv("TEST_OUTLOOK_USER_EMAIL"))
     client = initialize_client
     folders = await client.outlook.emails.list_root_mail_folders(user=user_email)
+    if folders:
+        print("\n")
+        for folder in folders:
+            print(f"Folder Name: {folder.display_name}, Folder ID: {folder.id}")
     assert folders is not None
     assert isinstance(folders, list)
     assert len(folders) > 0
@@ -39,6 +47,10 @@ async def test_list_child_folders(initialize_client):
     parent_folder_id = str(os.getenv("TEST_OUTLOOK_PARENT_FOLDER_ID"))
     client = initialize_client
     child_folders = await client.outlook.emails.list_child_folders(user=user_email, folder_id=parent_folder_id)
+    if child_folders:
+        print("\n")
+        for folder in child_folders:
+            print(f"Folder Name: {folder.display_name}, Folder ID: {folder.id}")
     assert child_folders is not None
     assert isinstance(child_folders, list)
     assert len(child_folders) > 0
@@ -49,6 +61,8 @@ async def test_get_folder_by_name(initialize_client):
     target_folder_name = str(os.getenv("TEST_OUTLOOK_FOLDER_NAME"))
     client = initialize_client
     folder = await client.outlook.emails.get_folder_by_name(user=user_email, target_folder_name=target_folder_name)
+    if folder:
+        print(f"Folder Name: {folder.display_name}, Folder ID: {folder.id}")
     assert folder is not None
     assert folder.display_name == target_folder_name
 
@@ -63,6 +77,8 @@ async def test_get_folder_by_name_with_parent(initialize_client):
         target_folder_name=target_folder_name,
         parent_folder_id=parent_folder_id
     )
+    if folder:
+        print(f"Folder Name: {folder.display_name}, Folder ID: {folder.id}")
     assert folder is not None
     assert folder.display_name == target_folder_name
 
@@ -72,6 +88,10 @@ async def test_get_messages_in_folder(initialize_client):
     parent_folder_id = str(os.getenv("TEST_OUTLOOK_MESSAGES_FOLDER_ID"))
     client = initialize_client
     messages = await client.outlook.emails.get_messages_in_folder(user=user_email, parent_folder_id=parent_folder_id)
+    if messages:
+        print("\n")
+        for message in messages:
+            print(f"Message Subject: {message.subject}, Message ID: {message.id}")
     assert messages is not None
     assert isinstance(messages, list)
     # Note: folder might be empty, so we don't assert len(messages) > 0
@@ -97,6 +117,8 @@ async def test_send(initialize_client):
         reply_to=reply_to,
         priority=priority
     )
+    if result:
+        print("Email sent successfully")
     assert result is True
 
 @pytest.mark.asyncio
@@ -112,6 +134,8 @@ async def test_reply(initialize_client):
         comment=comment,
         reply_to_recipients=reply_to_recipients
     )
+    if result:
+        print("Reply sent successfully")
     assert result is True
 
 @pytest.mark.asyncio
@@ -127,6 +151,8 @@ async def test_reply_all(initialize_client):
         comment=comment,
         reply_to_recipients=reply_to_recipients
     )
+    if result:
+        print("Reply All sent successfully")
     assert result is True
 
 @pytest.mark.asyncio
@@ -142,6 +168,8 @@ async def test_forward(initialize_client):
         comment=comment,
         to_recipients=to_recipients
     )
+    if result:
+        print("Forward sent successfully")
     assert result is True
 
 @pytest.mark.asyncio
@@ -150,6 +178,8 @@ async def test_delete(initialize_client):
     message_id = str(os.getenv("TEST_OUTLOOK_MESSAGE_ID_TO_DELETE"))
     client = initialize_client
     result = await client.outlook.emails.delete(user=user_email, message_id=message_id)
+    if result:
+        print("Email deleted successfully")
     assert result is True
 
 @pytest.mark.asyncio
@@ -157,6 +187,8 @@ async def test_get_events(initialize_client):
     user_id = str(os.getenv("TEST_USER_ID"))
     client = initialize_client
     events = await client.outlook.calendar.get_events(user=user_id)
+    if events:
+        print(f"Retrieved {len(events)} events")
     assert events is not None
     assert isinstance(events, list)
 
@@ -171,6 +203,8 @@ async def test_get_events_by_date_range(initialize_client):
         start_datetime=start_datetime,
         end_datetime=end_datetime
     )
+    if events:
+        print(f"Retrieved {len(events)} events between {start_datetime} and {end_datetime}")
     assert events is not None
     assert isinstance(events, list)
 
