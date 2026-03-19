@@ -62,7 +62,7 @@ async def test_get_folder_by_name(initialize_client):
     client = initialize_client
     folder = await client.outlook.emails.get_folder_by_name(user=user_email, target_folder_name=target_folder_name)
     if folder:
-        print(f"Folder Name: {folder.display_name}")
+        print(f"Folder Name: {folder.display_name}, Folder ID: {folder.id}")
     assert folder is not None
     assert folder.display_name == target_folder_name
 

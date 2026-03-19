@@ -1,4 +1,3 @@
-from msgraph.generated.models.calendar import Calendar
 from msgraph.graph_service_client import GraphServiceClient
 from msgraph.generated.users.item.calendar.events.events_request_builder import EventsRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
@@ -9,22 +8,10 @@ from msgraph.generated.models.date_time_time_zone import DateTimeTimeZone
 from msgraph.generated.models.location import Location
 from msgraph.generated.models.attendee import Attendee
 from msgraph.generated.models.email_address import EmailAddress
-from msgraph.generated.models.attendee_type import AttendeeType
 from msgraph.generated.models.event import Event
-from msgraph.generated.models.response_status import ResponseStatus
-from msgraph.generated.models.response_type import ResponseType
-from msgraph.generated.models.online_meeting_provider_type import OnlineMeetingProviderType
-from functools import wraps
 import logging
-from typing import List, Optional
-
-from ...exceptions import (
-    SharePointError, 
-    ValidationError, 
-    GraphAPIError,
-    AuthenticationError,
-    RateLimitError,
-)
+from ...exceptions import graph_exception_handler
+from ...exceptions import ValidationError
 
 class CalendarService:
     """Service for managing Email through Microsoft Graph API."""
@@ -32,33 +19,7 @@ class CalendarService:
         self._msgraph_client = msgraph_client
         self.logger = logging.getLogger(__name__)
         if not msgraph_client:
-            raise ValidationError("msgraph client must be supplied")
-        
-    def _exception_helper(self, exception : Exception):
-        self.logger.error(f"SharePoint operation failed: {exception}", exc_info=True)
-        error_str = str(exception).lower()
-        # Handle specific Azure AD errors
-        if '900023' in error_str or 'aadsts90002' in error_str:
-            raise AuthenticationError("Invalid Tenant ID. Verify MSGRAPH_TENANT_ID and try again") from exception
-        
-        elif '700016' in error_str or 'aadsts700016' in error_str:
-            raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again") from exception
-        
-        elif '7000215' in error_str or 'aadsts7000215' in error_str:
-            raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again") from exception
-        
-        elif 'not found' in error_str or '404' in error_str:
-            raise SharePointError("SharePoint resource not found") from exception
-        
-        elif 'forbidden' in error_str or '403' in error_str:
-            raise SharePointError("Access denied to SharePoint resource") from exception
-        
-        elif 'rate limit' in error_str or '429' in error_str:
-            raise RateLimitError("API rate limit exceeded") from exception
-        
-        else:
-            raise SharePointError(f"SharePoint operation failed: {exception}") from exception
-        
+            raise ValidationError("msgraph client must be supplied")       
 
     async def get_events(self, **kwargs):
         """Get calendar events for a user within a specified date range.
@@ -74,26 +35,30 @@ class CalendarService:
         user = kwargs.get("user") # required
         start_date = kwargs.get("start_date")
         end_date = kwargs.get("end_date")
-
-        if not user:
-            raise ValidationError("User is required")
-        
-        if not start_date or not end_date:
-            events = await self._msgraph_client.users.by_user_id(user).calendar.events.get()
+        try:   
+            events = None
+            if not user:
+                raise ValidationError("User is required")
             
-        else:        
-            query_params = EventsRequestBuilder.EventsRequestBuilderGetQueryParameters(
-                filter = f"start/dateTime ge '{start_date}' and end/dateTime le '{end_date}'",
-                orderby=["start/dateTime ASC"]
-            )
+            if not start_date or not end_date:
+                events = await self._msgraph_client.users.by_user_id(user).calendar.events.get()
+                
+            else:       
+                query_params = EventsRequestBuilder.EventsRequestBuilderGetQueryParameters(
+                    filter = f"start/dateTime ge '{start_date}' and end/dateTime le '{end_date}'",
+                    orderby=["start/dateTime ASC"]
+                )
 
-            request_configuration = RequestConfiguration(
-            query_parameters = query_params,
-            )
-            events = await self._msgraph_client.users.by_user_id(user).calendar.events.get(request_configuration = request_configuration)
-        
-        if events and events.value:
-            return events.value
+                request_configuration = RequestConfiguration(
+                query_parameters = query_params,
+                )
+                events = await self._msgraph_client.users.by_user_id(user).calendar.events.get(request_configuration = request_configuration)
+            if events and events.value:
+                return events.value
+                    
+        except Exception as e:
+            graph_exception_handler(e, "Outlook")
+            return None
         
     async def create_event(self, **kwargs):
         """Create a new calendar event for a user.
@@ -163,7 +128,7 @@ class CalendarService:
             event = await self._msgraph_client.users.by_user_id(user).calendars.by_calendar_id('calendar-id').events.post(request_body)
             return event
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return None
         
 
@@ -241,7 +206,7 @@ class CalendarService:
             event = await self._msgraph_client.users.by_user_id(user).events.by_event_id(event_id).patch(request_body)
             return event
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return None
         
 
@@ -266,7 +231,7 @@ class CalendarService:
             await self._msgraph_client.users.by_user_id(user).events.by_event_id(event_id).delete()
             return True
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Outlook")
             return False
         
         

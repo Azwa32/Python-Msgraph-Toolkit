@@ -13,7 +13,9 @@ if str(SRC_PATH) not in sys.path:
 # Now import after sys.path is configured
 from src.msgraph_api.client import GraphClient
 
-# to run tests: pytest test_teams.py -W ignore::DeprecationWarning
+# to run tests from root folder: pytest tests/test_teams.py -W ignore::DeprecationWarning
+# to run a single test from root folder (with print -s) eg: 
+# pytest tests/test_teams.py::test_list_chats -s -W ignore::DeprecationWarning
 
 @pytest.fixture
 def initialize_client():
@@ -26,19 +28,14 @@ def initialize_client():
     return client
 
 @pytest.mark.asyncio
-async def test_list_root_mail_folders(initialize_client):
-    user_email = str(os.getenv("TEST_OUTLOOK_USER_EMAIL"))
-    client = initialize_client
-    folders = await client.outlook.emails.list_root_mail_folders(user=user_email)
-    assert folders is not None
-    assert isinstance(folders, list)
-    assert len(folders) > 0
-
-@pytest.mark.asyncio
 async def test_list_chats(initialize_client):
     user_id = str(os.getenv("TEST_USER_ID"))
     client = initialize_client
     chats = await client.teams.chat.list_chats(user=user_id)
+    if chats:
+        print("\n")
+        for chat in chats:
+            print(f" Chat Topic: {chat.topic}, Chat ID: {chat.id}")
     assert chats is not None
     assert isinstance(chats, list)
 
@@ -48,6 +45,8 @@ async def test_create_chat(initialize_client):
     user_id_2 = str(os.getenv("TEST_USER_ID_2"))
     client = initialize_client
     chat = await client.teams.chat.create_chat(members=[user_id_1, user_id_2])
+    if chat:
+        print(f"\nCreated Chat ID: {chat.id}")
     assert chat is not None
     assert hasattr(chat, "id")
 
@@ -57,6 +56,10 @@ async def test_list_messages_in_chat(initialize_client):
     chat_id = str(os.getenv("TEST_CHAT_ID"))
     client = initialize_client
     messages = await client.teams.chat.list_messages(user=user_id, chat_id=chat_id)
+    if messages:
+        print("\n")
+        for message in messages:
+            print(f"Content: {message.body.content}")
     assert messages is not None
     assert isinstance(messages, list)
 
