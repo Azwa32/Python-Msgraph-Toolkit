@@ -8,15 +8,12 @@ from msgraph.generated.drives.item.items.item.children.children_request_builder 
 from msgraph.generated.drives.item.search_with_q.search_with_q_request_builder import SearchWithQRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 import logging
-from ...exceptions import graph_exception_handler
+from ..exceptions import graph_exception_handler
 
-from ...exceptions import (
+from ..exceptions import (
     SharePointError, 
     ValidationError, 
-    GraphAPIError,
     AuthenticationError,
-    RateLimitError,
-    Graph
 )
 
 logger = logging.getLogger(__name__)

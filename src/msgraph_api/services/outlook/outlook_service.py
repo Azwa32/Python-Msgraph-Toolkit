@@ -2,7 +2,6 @@ from msgraph import GraphServiceClient
 from msgraph.generated.users.item.send_mail.send_mail_post_request_body import SendMailPostRequestBody
 from .emails import EmailsService
 from .calendar import CalendarService
-import re
 
 
 class OutlookService():

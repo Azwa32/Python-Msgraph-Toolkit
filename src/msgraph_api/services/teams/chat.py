@@ -1,20 +1,16 @@
-from email import message
 import logging
 from msgraph.graph_service_client import GraphServiceClient
 from msgraph.generated.models.chat import Chat
 from msgraph.generated.models.chat_type import ChatType
-from msgraph.generated.models.conversation_member import ConversationMember
 from msgraph.generated.models.aad_user_conversation_member import AadUserConversationMember
 from msgraph.generated.chats.item.messages.messages_request_builder import MessagesRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 from msgraph.generated.models.chat_message import ChatMessage
 from msgraph.generated.models.item_body import ItemBody
-from msgraph.generated.models.body_type import BodyType
 
-from ...exceptions import (
+
+from ..exceptions import (
     SharePointError, 
-    ValidationError, 
-    GraphAPIError,
     AuthenticationError,
     RateLimitError,
 )

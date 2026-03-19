@@ -1,10 +1,9 @@
 import logging
 from msgraph.graph_service_client import GraphServiceClient
 
-from ...exceptions import (
+from ..exceptions import (
     SharePointError, 
     ValidationError, 
-    GraphAPIError,
     AuthenticationError,
     RateLimitError,
 )

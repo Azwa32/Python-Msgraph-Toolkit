@@ -10,8 +10,8 @@ from msgraph.generated.models.attendee import Attendee
 from msgraph.generated.models.email_address import EmailAddress
 from msgraph.generated.models.event import Event
 import logging
-from ...exceptions import graph_exception_handler
-from ...exceptions import ValidationError
+from ..exceptions import graph_exception_handler
+from ..exceptions import ValidationError
 
 class CalendarService:
     """Service for managing Email through Microsoft Graph API."""

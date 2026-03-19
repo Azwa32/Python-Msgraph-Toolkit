@@ -1,5 +1,5 @@
 from msgraph import GraphServiceClient
-from ...exceptions import graph_exception_handler
+from ..exceptions import graph_exception_handler
 
 
 class DriveService:
