@@ -50,17 +50,6 @@ Python Microsoft Graph Toolkit provides a clean, intuitive wrapper around the Mi
 - **Production-ready patterns** - Configuration management, logging
 - **Domain-organized services** - Logical grouping (SharePoint, Outlook, Teams, Users)
 
-### Key Features
-
-- ✅ **Simple API** - Clean, intuitive methods for common operations
-- ✅ **Async/Await** - Modern async patterns throughout
-- ✅ **Type Hints** - Full type safety for better IDE support
-- ✅ **Custom Exceptions** - Meaningful error hierarchy (ValidationError, AuthenticationError, RateLimitError, etc.)
-- ✅ **Service Layer** - Organized by domain (SharePoint, Outlook, Teams, Users)
-- ✅ **Configuration Management** - Environment-based setup with .env support
-- ✅ **Logging Integration** - Built-in logging for debugging and monitoring
-- ✅ **Comprehensive Coverage** - 44+ methods across multiple Microsoft 365 services
-
 ### Services Included
 
 **SharePoint**
@@ -98,64 +87,14 @@ Python Microsoft Graph Toolkit provides a clean, intuitive wrapper around the Mi
 
 ### Installation
 
-1. Clone the repository
    ```sh
-   git clone https://github.com/Azwa32/python-msgraph-toolkit.git
-   cd python-msgraph-toolkit
+   pip install "git+https://github.com/Azwa32/python-msgraph-toolkit.git"
    ```
 
-2. Install dependencies
-   ```sh
-   pip install -r requirements.txt
-   ```
 
-### Configuration
 
-1. Create a `.env` file in the project root:
-   ```env
-   # Azure Authentication
-   MSGRAPH_TENANT_ID=""
-   MSGRAPH_CLIENT_ID=""
-   MSGRAPH_API_KEY=""
-   
-   # SharePoint Test Variables
-   TEST_SHAREPOINT_SITE_NAME=""
-   TEST_SHAREPOINT_SITE_ID=""
-   TEST_SHAREPOINT_DRIVE_ID=""
-   TEST_SHAREPOINT_PARENT_FOLDER_ID=""
-   TEST_SHAREPOINT_ITEM_NAME=""
-   TEST_SHAREPOINT_ITEM_PATH=""
-   TEST_SHAREPOINT_ITEM_ID=""
-   
-   # Outlook Test Variables
-   TEST_OUTLOOK_PARENT_FOLDER_ID=""
-   TEST_OUTLOOK_TO_RECIPIENT=""
-   TEST_OUTLOOK_BCC_RECIPIENT=""
-   TEST_OUTLOOK_REPLY_TO_RECIPIENT=""
-   TEST_OUTLOOK_MESSAGE_ID=""
-   TEST_OUTLOOK_MESSAGE_ID_TO_DELETE=""
-   TEST_EVENT_START_DATETIME=""
-   TEST_EVENT_END_DATETIME=""
-   TEST_EVENT_ATTENDEE_EMAIL=""
-   TEST_EVENT_ID=""
-   TEST_EVENT_NEW_START_DATETIME=""
-   TEST_EVENT_NEW_END_DATETIME=""
-   TEST_EVENT_NEW_LOCATION=""
-   TEST_EVENT_NEW_ATTENDEE_EMAIL=""
-   TEST_EVENT_NEW_PRE_EVENT_REMINDER=""
-   TEST_EVENT_ID_TO_DELETE=""
-   
-   # User Test Variables
-   TEST_USER_ID=""
-   TEST_USER_ID_1=""
-   TEST_USER_ID_2=""
-   TEST_USER_EMAIL=""
-   
-   # Teams Test Variables
-   TEST_CHAT_ID=""
-   ```
 
-2. Set up Azure AD App Registration:
+Set up Azure AD App Registration:
    - Go to [Azure Portal](https://portal.azure.com/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/RegisteredApps)
    - Create a new App Registration
    - Configure API permissions:
@@ -177,19 +116,17 @@ Python Microsoft Graph Toolkit provides a clean, intuitive wrapper around the Mi
 
 ```python
 import asyncio
-from src.msgraph_api.client import GraphClient
+from python_msgraph_toolkit import GraphClient
+
+client = GraphClient(
+    "MSGRAPH_TENANT_ID",
+    "MSGRAPH_CLIENT_ID",
+    "MSGRAPH_SECRET"
+)
 
 async def main():
-    # Initialize the client
-    client = GraphClient(
-        tenant_id="your-tenant-id",
-        client_id="your-client-id",
-        secret="your-client-secret"
-    )
-    
-    # Use the services
-    sites = await client.sharepoint.sites.get_all_sites()
-    print(sites)
+    root = await client.sharepoint.drives.get_drive_root_folder()
+    print(f"Root folder: {root.name}")
 
 asyncio.run(main())
 ```
@@ -250,74 +187,51 @@ messages = await client.teams.chat.list_messages(
 )
 ```
 
-### Error Handling
+### Testing
 
-```python
-from src.msgraph_api.exceptions import (
-    ValidationError,
-    AuthenticationError,
-    SharePointError,
-    OutlookError,
-    TeamsError,
-    RateLimitError,
-    GraphAPIError
-)
-
-try:
-    sites = await client.sharepoint.sites.get_all_sites()
-except AuthenticationError as e:
-    print(f"Authentication failed: {e}")
-except SharePointError as e:
-    print(f"SharePoint operation failed: {e}")
-except RateLimitError as e:
-    print(f"Rate limit exceeded: {e}")
-except ValidationError as e:
-    print(f"Invalid parameters: {e}")
-```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- PROJECT STRUCTURE -->
-## Project Structure
-
-```
-python-msgraph-toolkit/
-├── src/
-│   └── msgraph_api/
-│       ├── client.py              # Main GraphClient entry point
-│       ├── exceptions.py          # Custom exception hierarchy
-│       ├── services/
-│       │   ├── outlook/           # Email & Calendar services
-│       │   │   ├── emails.py
-│       │   │   ├── calendar.py
-│       │   │   └── outlook_service.py
-│       │   ├── sharepoint/        # SharePoint services
-│       │   │   ├── sites.py
-│       │   │   ├── drives.py
-│       │   │   ├── files.py
-│       │   │   └── sharepoint_service.py
-│       │   ├── teams/             # Teams services
-│       │   │   ├── chat.py
-│       │   │   └── teams_service.py
-│       │   └── users/             # User services
-│       │       ├── users.py
-│       │       └── users_service.py
-│       └── utils/                 # Utility modules
-│           ├── auth.py
-│           ├── retry.py
-│           └── pattern_id.py
-├── examples/                      # Usage examples
-│   ├── sharepoint_examples.py
-│   ├── outlook_examples.py
-│   ├── teams_examples.py
-│   └── user_examples.py
-├── tests/                         # Test suite
-│   ├── test_sharepoint.py
-│   ├── test_outlook.py
-│   ├── test_teams.py
-│   └── test_users.py
-└── requirements.txt
-```
+1. Create a `.env` file in the project root:
+   ```env
+   # Azure Authentication
+   MSGRAPH_TENANT_ID=""
+   MSGRAPH_CLIENT_ID=""
+   MSGRAPH_SECRET=""
+   
+   # SharePoint Test Variables
+   TEST_SHAREPOINT_SITE_NAME=""
+   TEST_SHAREPOINT_SITE_ID=""
+   TEST_SHAREPOINT_DRIVE_ID=""
+   TEST_SHAREPOINT_PARENT_FOLDER_ID=""
+   TEST_SHAREPOINT_ITEM_NAME=""
+   TEST_SHAREPOINT_ITEM_PATH=""
+   TEST_SHAREPOINT_ITEM_ID=""
+   
+   # Outlook Test Variables
+   TEST_OUTLOOK_PARENT_FOLDER_ID=""
+   TEST_OUTLOOK_TO_RECIPIENT=""
+   TEST_OUTLOOK_BCC_RECIPIENT=""
+   TEST_OUTLOOK_REPLY_TO_RECIPIENT=""
+   TEST_OUTLOOK_MESSAGE_ID=""
+   TEST_OUTLOOK_MESSAGE_ID_TO_DELETE=""
+   TEST_EVENT_START_DATETIME=""
+   TEST_EVENT_END_DATETIME=""
+   TEST_EVENT_ATTENDEE_EMAIL=""
+   TEST_EVENT_ID=""
+   TEST_EVENT_NEW_START_DATETIME=""
+   TEST_EVENT_NEW_END_DATETIME=""
+   TEST_EVENT_NEW_LOCATION=""
+   TEST_EVENT_NEW_ATTENDEE_EMAIL=""
+   TEST_EVENT_NEW_PRE_EVENT_REMINDER=""
+   TEST_EVENT_ID_TO_DELETE=""
+   
+   # User Test Variables
+   TEST_USER_ID=""
+   TEST_USER_ID_1=""
+   TEST_USER_ID_2=""
+   TEST_USER_EMAIL=""
+   
+   # Teams Test Variables
+   TEST_CHAT_ID=""
+   ```
 
 ### Architecture Highlights
 
