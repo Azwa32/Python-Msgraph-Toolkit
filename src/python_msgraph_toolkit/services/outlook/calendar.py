@@ -119,7 +119,7 @@ class CalendarService:
                 time_zone = "Pacific Standard Time",
             ),
             location = Location(
-                display_name = location,
+                display_name = location, 
             ),
             attendees = attendees_list if attendees_list else None,
             reminder_minutes_before_start = pre_event_reminder if pre_event_reminder else None,

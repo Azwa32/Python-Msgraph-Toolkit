@@ -10,7 +10,7 @@ SRC_PATH = PROJECT_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from src.msgraph_api.client import GraphClient
+from src.python_msgraph_toolkit.client import GraphClient
 
 # to run tests: pytest test_outlook.py -W ignore::DeprecationWarning
 
