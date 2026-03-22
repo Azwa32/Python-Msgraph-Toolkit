@@ -8,11 +8,7 @@ from msgraph.generated.drives.item.items.item.children.children_request_builder 
 from msgraph.generated.drives.item.search_with_q.search_with_q_request_builder import SearchWithQRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 import logging
-from ..exceptions import graph_exception_handler
-
-from ..exceptions import (
-    ValidationError, 
-)
+from ..exceptions import ValidationError, graph_exception_handler
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +21,7 @@ class FileService:
     def _exceed_drive_query(self) -> RequestConfiguration:
         """For exceeding the return limit of the graph api without using pagenation"""
         drive_query_size = 1000
-        query_params = ItemsRequestBuilder .ItemsRequestBuilderGetQueryParameters(
+        query_params = ItemsRequestBuilder.ItemsRequestBuilderGetQueryParameters(
 		    top = drive_query_size          
             )
         request_configuration = RequestConfiguration(
@@ -67,8 +63,7 @@ class FileService:
             raise ValidationError("Parent folder ID is required, Enter the correct parent folder & try again")
         
         try:
-            response =  await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id)\
-                .children.get(request_configuration = self._exceed_drive_query()) 
+            response =  await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id).children.get(request_configuration = self._exceed_drive_query()) 
             return response.value if response and response.value else []             
         except Exception as e:
             graph_exception_handler(e, "SharePoint")
@@ -112,9 +107,7 @@ class FileService:
         if not item_name:
             raise ValidationError("Item name is required")
             
-        query_params = ChildrenRequestBuilder.ChildrenRequestBuilderGetQueryParameters(
-            filter=f"name eq '{item_name}'"
-        )
+        query_params = ChildrenRequestBuilder.ChildrenRequestBuilderGetQueryParameters(filter=f"name eq '{item_name}'")
         request_config = RequestConfiguration(query_parameters=query_params)                
         try:
             response = await self._msgraph_client.drives.by_drive_id(drive_id)\

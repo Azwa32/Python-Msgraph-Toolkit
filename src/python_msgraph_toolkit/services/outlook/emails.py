@@ -16,8 +16,7 @@ from msgraph.generated.models.body_type import BodyType
 from msgraph.generated.models.recipient import Recipient
 from msgraph.generated.models.email_address import EmailAddress
 from msgraph.generated.models.file_attachment import FileAttachment
-from ..exceptions import graph_exception_handler
-from ..exceptions import ValidationError
+from ..exceptions import ValidationError, graph_exception_handler
 
 class EmailsService:
     """Service for managing Email through Microsoft Graph API."""

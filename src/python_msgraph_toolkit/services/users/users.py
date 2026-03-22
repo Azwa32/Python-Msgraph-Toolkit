@@ -1,6 +1,5 @@
 import logging
 from msgraph.graph_service_client import GraphServiceClient
-
 from ..exceptions import ValidationError, graph_exception_handler
 
 class UserService:

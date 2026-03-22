@@ -6,12 +6,7 @@ from msgraph.generated.chats.item.messages.messages_request_builder import Messa
 from kiota_abstractions.base_request_configuration import RequestConfiguration
 from msgraph.generated.models.chat_message import ChatMessage
 from msgraph.generated.models.item_body import ItemBody
-
-
-from ..exceptions import (
-    ValidationError,
-    graph_exception_handler,
-)
+from ..exceptions import ValidationError, graph_exception_handler
 
 class ChatService:
     """Service for managing Teams Chat through Microsoft Graph API."""
@@ -103,9 +98,7 @@ class ChatService:
             raise ValidationError("top must be a positive integer")
         
         
-        query_params = MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters(
-		top = top,
-        )
+        query_params = MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters(top = top)
 
         request_configuration = RequestConfiguration(
         query_parameters = query_params,
