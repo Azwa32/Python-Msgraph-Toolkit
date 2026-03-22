@@ -11,9 +11,7 @@ import logging
 from ..exceptions import graph_exception_handler
 
 from ..exceptions import (
-    SharePointError, 
     ValidationError, 
-    AuthenticationError,
 )
 
 logger = logging.getLogger(__name__)
@@ -22,7 +20,7 @@ class FileService:
     def __init__(self, msgraph_client: GraphServiceClient):
         self._msgraph_client = msgraph_client
         if not msgraph_client:
-            raise ValueError("msgraph client must be supplied")
+            raise ValidationError("msgraph client must be supplied")
         
     def _exceed_drive_query(self) -> RequestConfiguration:
         """For exceeding the return limit of the graph api without using pagenation"""
@@ -125,19 +123,8 @@ class FileService:
                 return response.value[0]
             return None            
         except Exception as e:
-            logger.error(f"Failed to get item by name '{item_name}': {e}", exc_info=True)
-            error_str = str(e).lower()
-            
-            if any(auth_indicator in error_str for auth_indicator in [
-                'aadsts', 'invalid_client', 'unauthorized', 'authentication'
-            ]):
-                raise AuthenticationError(f"Authentication failed when searching for item '{item_name}'") from e
-            elif any(validation_indicator in error_str for validation_indicator in [
-                'malformed', 'invalid', 'invalidrequest', 'bad request'
-            ]):
-                raise ValidationError(f"Invalid parameters when searching for item '{item_name}'") from e
-            else:
-                raise SharePointError(f"Failed to get item '{item_name}': {str(e)}") from e
+            graph_exception_handler(e, "SharePoint")
+            return None
 
 
     async def get_item_by_path(self, **kwargs) -> Optional[DriveItem]:
@@ -174,7 +161,7 @@ class FileService:
             
             return item            
         except Exception as e:
-            print(f"Error getting item at path '{item_path}': {e}")
+            graph_exception_handler(e, "SharePoint")
             return None
         
     async def get_item_by_id(self, **kwargs) -> Optional[DriveItem]:
@@ -206,7 +193,7 @@ class FileService:
         try:
             return await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).get()
         except Exception as e:
-            print(f"Error getting item id: '{item_id}': {e}")
+            graph_exception_handler(e, "SharePoint")
             return None
 
 
@@ -251,7 +238,7 @@ class FileService:
             folder = await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(parent_folder_id).children.post(request_body)
             return folder
         except Exception as e:
-            print(f"Error creating folder: {e}")
+            graph_exception_handler(e, "SharePoint")
             return None
             
 
@@ -285,7 +272,7 @@ class FileService:
         try:
             await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).delete()
         except Exception as e:
-            print(f"Error deleting item id: '{item_id}': {e}")
+            graph_exception_handler(e, "SharePoint")
 
 
     async def move_item(self, **kwargs):
@@ -328,7 +315,7 @@ class FileService:
         try:
             await self._msgraph_client.drives.by_drive_id(drive_id).items.by_drive_item_id(item_id).patch(request_body)
         except Exception as e:
-            print(f"Error moving item id: '{item_id}': {e}")
+            graph_exception_handler(e, "SharePoint")
 
         
 

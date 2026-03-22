@@ -1,12 +1,7 @@
 import logging
 from msgraph.graph_service_client import GraphServiceClient
 
-from ..exceptions import (
-    SharePointError, 
-    ValidationError, 
-    AuthenticationError,
-    RateLimitError,
-)
+from ..exceptions import ValidationError, graph_exception_handler
 
 class UserService:
     """Service for managing Users through Microsoft Graph API."""
@@ -14,32 +9,7 @@ class UserService:
         self._msgraph_client = msgraph_client
         self.logger = logging.getLogger(__name__)
         if not msgraph_client:
-            raise ValueError("msgraph client must be supplied")
-        
-    def _exception_helper(self, exception : Exception) -> None:
-        self.logger.error(f"SharePoint operation failed: {exception}", exc_info=True)
-        error_str = str(exception).lower()
-        # Handle specific Azure AD errors
-        if '900023' in error_str or 'aadsts90002' in error_str:
-            raise AuthenticationError("Invalid Tenant ID. Verify MSGRAPH_TENANT_ID and try again") from exception
-        
-        elif '700016' in error_str or 'aadsts700016' in error_str:
-            raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again") from exception
-        
-        elif '7000215' in error_str or 'aadsts7000215' in error_str:
-            raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again") from exception
-        
-        elif 'not found' in error_str or '404' in error_str:
-            raise SharePointError("SharePoint resource not found") from exception
-        
-        elif 'forbidden' in error_str or '403' in error_str:
-            raise SharePointError("Access denied to SharePoint resource") from exception
-        
-        elif 'rate limit' in error_str or '429' in error_str:
-            raise RateLimitError("API rate limit exceeded") from exception
-        
-        else:
-            raise SharePointError(f"SharePoint operation failed: {exception}") from exception
+            raise ValidationError("msgraph client must be supplied")
         
     async def get_user(self, **kwargs):
             """Retrieve a user by their ID.
@@ -61,7 +31,7 @@ class UserService:
                 else:
                     return None
             except Exception as e:
-                self._exception_helper(e)
+                graph_exception_handler(e, "Users")
                 return None
             
             
@@ -78,7 +48,7 @@ class UserService:
                 else:
                     return None
             except Exception as e:
-                self._exception_helper(e)
+                graph_exception_handler(e, "Users")
                 return None
             
     async def get_user_by_email(self, **kwargs):
@@ -101,5 +71,5 @@ class UserService:
                 else:
                     return None
             except Exception as e:
-                self._exception_helper(e)
+                graph_exception_handler(e, "Users")
                 return None

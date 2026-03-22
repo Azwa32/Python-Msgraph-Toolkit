@@ -1,4 +1,3 @@
-import logging
 from msgraph.graph_service_client import GraphServiceClient
 from msgraph.generated.models.chat import Chat
 from msgraph.generated.models.chat_type import ChatType
@@ -10,43 +9,16 @@ from msgraph.generated.models.item_body import ItemBody
 
 
 from ..exceptions import (
-    SharePointError, 
-    AuthenticationError,
-    RateLimitError,
+    ValidationError,
+    graph_exception_handler,
 )
 
 class ChatService:
     """Service for managing Teams Chat through Microsoft Graph API."""
     def __init__(self, msgraph_client: GraphServiceClient):
         self._msgraph_client = msgraph_client
-        self.logger = logging.getLogger(__name__)
         if not msgraph_client:
-            raise ValueError("msgraph client must be supplied")
-        
-    def _exception_helper(self, exception : Exception) -> None:
-        self.logger.error(f"SharePoint operation failed: {exception}", exc_info=True)
-        error_str = str(exception).lower()
-        # Handle specific Azure AD errors
-        if '900023' in error_str or 'aadsts90002' in error_str:
-            raise AuthenticationError("Invalid Tenant ID. Verify MSGRAPH_TENANT_ID and try again") from exception
-        
-        elif '700016' in error_str or 'aadsts700016' in error_str:
-            raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again") from exception
-        
-        elif '7000215' in error_str or 'aadsts7000215' in error_str:
-            raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again") from exception
-        
-        elif 'not found' in error_str or '404' in error_str:
-            raise SharePointError("SharePoint resource not found") from exception
-        
-        elif 'forbidden' in error_str or '403' in error_str:
-            raise SharePointError("Access denied to SharePoint resource") from exception
-        
-        elif 'rate limit' in error_str or '429' in error_str:
-            raise RateLimitError("API rate limit exceeded") from exception
-        
-        else:
-            raise SharePointError(f"SharePoint operation failed: {exception}") from exception
+            raise ValidationError("msgraph client must be supplied")
         
     async def list_chats(self, **kwargs):
         """List chats for the authenticated user.
@@ -56,12 +28,16 @@ class ChatService:
         user = kwargs.get("user") # Required
         
         if not user:
-            raise ValueError("user is required to list chats")
-        
-        result = await self._msgraph_client.users.by_user_id(user).chats.get()
-        if result and result.value:
-            return result.value
-        return None
+            raise ValidationError("user is required to list chats")
+
+        try:
+            result = await self._msgraph_client.users.by_user_id(user).chats.get()
+            if result and result.value:
+                return result.value
+            return None
+        except Exception as e:
+            graph_exception_handler(e, "Teams")
+            return None
     
         
     async def create_chat(self, **kwargs):
@@ -76,7 +52,7 @@ class ChatService:
         members = kwargs.get("members", []) # min 2 members required        
 
         if len(members) < 2:
-            raise ValueError("At least two members are required to create a chat")
+            raise ValidationError("At least two members are required to create a chat")
         
         # build list of members
         members_list = []
@@ -105,7 +81,7 @@ class ChatService:
             chat = await self._msgraph_client.chats.post(request_body)
             return chat
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Teams")
             return None
         
     async def list_messages(self, **kwargs):
@@ -122,9 +98,9 @@ class ChatService:
         top = kwargs.get("top", 10)
 
         if not chat_id:
-            raise ValueError("chat_id is required to list messages in a chat")
+            raise ValidationError("chat_id is required to list messages in a chat")
         if top <= 0:
-            raise ValueError("top must be a positive integer")
+            raise ValidationError("top must be a positive integer")
         
         
         query_params = MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters(
@@ -138,8 +114,9 @@ class ChatService:
             result = await self._msgraph_client.chats.by_chat_id(chat_id).messages.get(request_configuration = request_configuration)
             if result and result.value:
                 return result.value
+            return None
         except Exception as e:
-            self._exception_helper(e)
+            graph_exception_handler(e, "Teams")
             return None
         
     async def send_message(self, **kwargs):
@@ -156,9 +133,9 @@ class ChatService:
         content = kwargs.get("content", None) # Required
 
         if not chat_id:
-            raise ValueError("chat_id is required to send a message in a chat")
+            raise ValidationError("chat_id is required to send a message in a chat")
         if not content:
-            raise ValueError("content is required to send a message in a chat")    
+            raise ValidationError("content is required to send a message in a chat")    
 
         request_body = ChatMessage(
             body = ItemBody(
@@ -170,5 +147,5 @@ class ChatService:
             result = await self._msgraph_client.chats.by_chat_id(chat_id).messages.post(request_body)
             return result
         except Exception as e:
-            self._exception_helper(e)
-            return False
+            graph_exception_handler(e, "Teams")
+            return None

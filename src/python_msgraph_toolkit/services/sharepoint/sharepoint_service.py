@@ -4,6 +4,7 @@ from msgraph.generated.models.folder import Folder
 from .sites import SitesService
 from .drives import DriveService
 from .files import FileService
+from ..exceptions import ValidationError
 import re
 
 
@@ -11,7 +12,7 @@ class SharepointService():
     def __init__(self, msgraph_client: GraphServiceClient):
         self._msgraph_client = msgraph_client
         if not msgraph_client:
-            raise ValueError("msgraph client must be supplied")
+            raise ValidationError("msgraph client must be supplied")
         
         # Initialize sub-services
         self.sites = SitesService(self._msgraph_client)
