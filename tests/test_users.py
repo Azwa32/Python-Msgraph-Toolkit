@@ -12,7 +12,7 @@ if str(SRC_PATH) not in sys.path:
 
 from src.python_msgraph_toolkit.client import GraphClient
 
-# to run tests: pytest test_users.py -W ignore::DeprecationWarning
+# to run tests: pytest tests/test_users.py -W ignore::DeprecationWarning
 # to run a single test from root folder (with print -s) eg: 
 # pytest tests/test_users.py::test_list_users -s -W ignore::DeprecationWarning
 

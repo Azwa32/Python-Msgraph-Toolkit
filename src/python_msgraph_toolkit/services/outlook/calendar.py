@@ -125,7 +125,7 @@ class CalendarService:
             reminder_minutes_before_start = pre_event_reminder if pre_event_reminder else None,
         )
         try:
-            event = await self._msgraph_client.users.by_user_id(user).calendars.by_calendar_id('calendar-id').events.post(request_body)
+            event = await self._msgraph_client.users.by_user_id(user).calendar.events.post(request_body)
             return event
         except Exception as e:
             graph_exception_handler(e, "Outlook")

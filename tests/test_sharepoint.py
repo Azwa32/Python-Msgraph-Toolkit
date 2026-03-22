@@ -13,9 +13,9 @@ if str(SRC_PATH) not in sys.path:
 # Now import after sys.path is configured
 from src.python_msgraph_toolkit.client import GraphClient
 
-# to run tests from root folder: pytest test_sharepoint.py -W ignore::DeprecationWarning
+# to run tests from root folder: pytest tests/test_sharepoint.py -W ignore::DeprecationWarning
 # to run a single test from root folder (with print -s) eg: 
-# pytest tests/test_sharepoint.py::test_sites_getsites -s -W ignore::DeprecationWarning
+# pytest tests/test_sharepoint.py::test_sites_get_sites -s -W ignore::DeprecationWarning
 
 @pytest.fixture
 def initialize_client():

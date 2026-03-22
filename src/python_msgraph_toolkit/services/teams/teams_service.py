@@ -3,7 +3,6 @@ from msgraph.generated.models.drive_item import DriveItem
 from msgraph.generated.models.folder import Folder
 from .chat import ChatService
 from ..exceptions import ValidationError
-import re
 
 
 class TeamsService():

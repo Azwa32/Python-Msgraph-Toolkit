@@ -5,7 +5,6 @@ from .sites import SitesService
 from .drives import DriveService
 from .files import FileService
 from ..exceptions import ValidationError
-import re
 
 
 class SharepointService():

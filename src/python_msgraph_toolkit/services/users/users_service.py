@@ -1,7 +1,6 @@
 from msgraph import GraphServiceClient
 from .users import UserService
 from ..exceptions import ValidationError
-import re
 
 
 class UsersService():

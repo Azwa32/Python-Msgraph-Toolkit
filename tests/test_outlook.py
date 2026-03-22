@@ -24,9 +24,9 @@ def initialize_client():
         )
     return client
 
-# to run tests from root folder: pytest test_sharepoint.py -W ignore::DeprecationWarning
+# to run tests from root folder: pytest tests/test_outlook.py -W ignore::DeprecationWarning
 # to run a single test from root folder (with print -s) eg: 
-# pytest tests/test_outlook.py::test_sites_getsites -s -W ignore::DeprecationWarning
+# pytest tests/test_outlook.py::test_list_child_folders -s -W ignore::DeprecationWarning
 
 @pytest.mark.asyncio
 async def test_list_root_mail_folders(initialize_client):
