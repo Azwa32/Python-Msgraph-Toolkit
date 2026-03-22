@@ -245,6 +245,8 @@ messages = await client.teams.chat.list_messages(
 
 **Type Safety**: Comprehensive type hints for better IDE support and fewer bugs
 
+**Kwargs**: kwargs used instead on typed dict to aid readability, use of arguments without extra class (TypedDict) and to reduce breaking changes if new args added.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
