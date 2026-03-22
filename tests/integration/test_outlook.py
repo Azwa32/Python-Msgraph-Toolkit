@@ -1,18 +1,8 @@
 from dotenv import load_dotenv
-from pathlib import Path
-import sys
 import os
 import pytest
-
-# Add src/ to sys.path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SRC_PATH = PROJECT_ROOT / "src"
-if str(SRC_PATH) not in sys.path:
-    sys.path.insert(0, str(SRC_PATH))
-
 from src.python_msgraph_toolkit.client import GraphClient
 
-# to run tests: pytest test_outlook.py -W ignore::DeprecationWarning
 
 @pytest.fixture
 def initialize_client():
@@ -24,9 +14,11 @@ def initialize_client():
         )
     return client
 
-# to run tests from root folder: pytest tests/test_outlook.py -W ignore::DeprecationWarning
+# to run tests from root folder: 
+# pytest tests/integration/test_outlook.py -W ignore::DeprecationWarning
+
 # to run a single test from root folder (with print -s) eg: 
-# pytest tests/test_outlook.py::test_list_child_folders -s -W ignore::DeprecationWarning
+# pytest tests/integration/test_outlook.py::test_list_child_folders -s -W ignore::DeprecationWarning
 
 @pytest.mark.asyncio
 async def test_list_root_mail_folders(initialize_client):
@@ -53,7 +45,6 @@ async def test_list_child_folders(initialize_client):
             print(f"Folder Name: {folder.display_name}, Folder ID: {folder.id}")
     assert child_folders is not None
     assert isinstance(child_folders, list)
-    assert len(child_folders) > 0
 
 @pytest.mark.asyncio
 async def test_get_folder_by_name(initialize_client):

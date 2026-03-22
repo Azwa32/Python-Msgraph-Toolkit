@@ -1,20 +1,13 @@
 from dotenv import load_dotenv
-from pathlib import Path
-import sys
 import os
 import pytest
-
-# Add src/ to sys.path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SRC_PATH = PROJECT_ROOT / "src"
-if str(SRC_PATH) not in sys.path:
-    sys.path.insert(0, str(SRC_PATH))
-
 from src.python_msgraph_toolkit.client import GraphClient
 
-# to run tests: pytest tests/test_users.py -W ignore::DeprecationWarning
+# to run tests: 
+# pytest tests/integration/test_users.py -W ignore::DeprecationWarning
+
 # to run a single test from root folder (with print -s) eg: 
-# pytest tests/test_users.py::test_list_users -s -W ignore::DeprecationWarning
+# pytest tests/integration/test_users.py::test_list_users -s -W ignore::DeprecationWarning
 
 @pytest.fixture
 def initialize_client():

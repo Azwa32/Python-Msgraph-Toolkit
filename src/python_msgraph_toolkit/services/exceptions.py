@@ -37,12 +37,6 @@ class TimeoutError(GraphAPIError):
 class RateLimitError(GraphAPIError):
     """API rate limit exceeded."""
 
-class Graph():
-    statucCodes = {
-        "400" : "Code: 400,	Bad Request, Can't process the request because it's malformed or incorrect.",
-        "500" : "500's desc"
-    }
-
 def graph_exception_handler(exception: Exception, service_name: str = "Graph API"):
     """Centralized exception handler for Microsoft Graph API errors."""
     import logging
