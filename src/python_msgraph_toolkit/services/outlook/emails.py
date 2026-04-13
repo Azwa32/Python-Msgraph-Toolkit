@@ -146,6 +146,7 @@ class EmailsService:
                 cc_recipients : Optional[List[str]] = None,
                 bcc_recipients : Optional[List[str]] = None,
                 reply_to : Optional[List[str]] = None,
+                from_address : Optional[str] = None,
                 priority : Optional[Importance] = Importance.Normal,
                 body_format : Optional[BodyType] = BodyType.Text,
                 request_read_receipt : Optional[bool] = False,
@@ -158,7 +159,9 @@ class EmailsService:
             if bcc_recipients is None:
                 bcc_recipients = []
             if reply_to is None:
-                reply_to = []
+                reply_to = [sender]
+            if from_address is None:
+                from_address = sender
             if attachments is None:
                 attachments = []        
 
@@ -348,3 +351,4 @@ class EmailsService:
         except Exception as e:
             graph_exception_handler(e, "Outlook")
             return False
+        
