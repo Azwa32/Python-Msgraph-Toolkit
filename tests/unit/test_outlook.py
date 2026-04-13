@@ -274,8 +274,8 @@ async def test_list_root_mail_folders_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="User is required"):
-        await service.list_root_mail_folders()
+    with pytest.raises(TypeError):
+        await service.list_root_mail_folders() # type: ignore
 
 
 @pytest.mark.asyncio
@@ -304,7 +304,7 @@ async def test_list_child_folders(initialise_mock):
         return_value=mock_response
     )
 
-    result = await service.list_child_folders(user="user1", folder_id="folder1")
+    result = await service.list_child_folders(user="user1", parent_folder_id="folder1")
 
     assert result == mock_folders
     mock_client.users.by_user_id.assert_called_once_with("user1")
@@ -320,7 +320,7 @@ async def test_list_child_folders_empty(initialise_mock):
         return_value=None
     )
 
-    result = await service.list_child_folders(user="user1", folder_id="folder1")
+    result = await service.list_child_folders(user="user1", parent_folder_id="folder1")
     assert result is None
 
 
@@ -329,8 +329,8 @@ async def test_list_child_folders_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="User is required"):
-        await service.list_child_folders(folder_id="folder1")
+    with pytest.raises(TypeError):
+        await service.list_child_folders(parent_folder_id="folder1") # type: ignore
 
 
 @pytest.mark.asyncio
@@ -338,8 +338,8 @@ async def test_list_child_folders_missing_folder_id(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Mail folder ID is required"):
-        await service.list_child_folders(user="user1")
+    with pytest.raises(TypeError):
+        await service.list_child_folders(user="user1") # type: ignore
 
 
 # ─── EmailsService: get_folder_by_name ───
@@ -394,8 +394,8 @@ async def test_get_folder_by_name_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="User is required"):
-        await service.get_folder_by_name(target_folder_name="Inbox")
+    with pytest.raises(TypeError):
+        await service.get_folder_by_name(target_folder_name="Inbox") # type: ignore
 
 
 @pytest.mark.asyncio
@@ -403,8 +403,8 @@ async def test_get_folder_by_name_missing_folder_name(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Folder name is required"):
-        await service.get_folder_by_name(user="user1")
+    with pytest.raises(TypeError):
+        await service.get_folder_by_name(user="user1") # type: ignore
 
 
 # ─── EmailsService: get_messages_in_folder ───
@@ -445,8 +445,8 @@ async def test_get_messages_in_folder_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="User is required"):
-        await service.get_messages_in_folder(parent_folder_id="folder1")
+    with pytest.raises(TypeError):
+        await service.get_messages_in_folder(parent_folder_id="folder1") # type: ignore
 
 
 @pytest.mark.asyncio
@@ -454,8 +454,8 @@ async def test_get_messages_in_folder_missing_folder_id(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Mail folder ID is required"):
-        await service.get_messages_in_folder(user="user1")
+    with pytest.raises(TypeError):
+        await service.get_messages_in_folder(user="user1") # type: ignore
 
 
 # ─── EmailsService: send ───
@@ -478,8 +478,8 @@ async def test_send_missing_sender(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Sender is required"):
-        await service.send(to_recipients=["recipient@test.com"])
+    with pytest.raises(TypeError):
+        await service.send(to_recipients=["recipient@test.com"]) # type: ignore
 
 
 @pytest.mark.asyncio
@@ -487,8 +487,8 @@ async def test_send_missing_recipients(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="At least one recipient is required"):
-        await service.send(sender="sender@test.com")
+    with pytest.raises(TypeError):
+        await service.send(sender="sender@test.com") # type: ignore
 
 
 @pytest.mark.asyncio
@@ -525,8 +525,8 @@ async def test_reply_missing_sender(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Sender is required"):
-        await service.reply(message_id="msg1")
+    with pytest.raises(TypeError):
+        await service.reply(message_id="msg1") # type: ignore
 
 
 @pytest.mark.asyncio
@@ -534,8 +534,8 @@ async def test_reply_missing_message_id(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Message Id is required"):
-        await service.reply(sender="sender@test.com")
+    with pytest.raises(TypeError):
+        await service.reply(sender="sender@test.com") # type: ignore
 
 
 # ─── EmailsService: reply_all ───
@@ -559,8 +559,8 @@ async def test_reply_all_missing_sender(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Sender is required"):
-        await service.reply_all(message_id="msg1")
+    with pytest.raises(TypeError):
+        await service.reply_all(message_id="msg1") # type: ignore
 
 
 @pytest.mark.asyncio
@@ -568,8 +568,8 @@ async def test_reply_all_missing_message_id(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Message Id is required"):
-        await service.reply_all(sender="sender@test.com")
+    with pytest.raises(TypeError):
+        await service.reply_all(sender="sender@test.com") # type: ignore
 
 
 # ─── EmailsService: forward ───
@@ -595,8 +595,8 @@ async def test_forward_missing_sender(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Sender is required"):
-        await service.forward(message_id="msg1", to_recipients=["forward@test.com"])
+    with pytest.raises(TypeError):
+        await service.forward(message_id="msg1", to_recipients=["forward@test.com"]) # type: ignore
 
 
 @pytest.mark.asyncio
@@ -604,8 +604,8 @@ async def test_forward_missing_message_id(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Message Id is required"):
-        await service.forward(sender="sender@test.com", to_recipients=["forward@test.com"])
+    with pytest.raises(TypeError):
+        await service.forward(sender="sender@test.com", to_recipients=["forward@test.com"]) # type: ignore
 
 
 @pytest.mark.asyncio
@@ -613,8 +613,8 @@ async def test_forward_missing_recipients(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="At least one recipient is required"):
-        await service.forward(sender="sender@test.com", message_id="msg1")
+    with pytest.raises(TypeError):
+        await service.forward(sender="sender@test.com", message_id="msg1") # type: ignore
 
 
 # ─── EmailsService: delete ───
@@ -638,8 +638,8 @@ async def test_delete_message_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="User is required"):
-        await service.delete(message_id="msg1")
+    with pytest.raises(TypeError):
+        await service.delete(message_id="msg1") # type: ignore
 
 
 @pytest.mark.asyncio
@@ -647,8 +647,8 @@ async def test_delete_message_missing_message_id(initialise_mock):
     mock_client = initialise_mock
     service = EmailsService(mock_client)
 
-    with pytest.raises(ValidationError, match="Message Id is required"):
-        await service.delete(user="user1")
+    with pytest.raises(TypeError):
+        await service.delete(user="user1") # type: ignore
 
 
 @pytest.mark.asyncio
