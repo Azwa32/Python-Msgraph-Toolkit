@@ -40,12 +40,10 @@ class EmailsService:
         return file_attachment
     
 
-    async def list_root_mail_folders(self, **kwargs) -> Optional[List]:
-        user = kwargs.get("user") # required
 
+    async def list_root_mail_folders(self, *, user: str) -> Optional[List]:
         if not user:
             raise ValidationError("User is required")
-
         try:
             result = await self._msgraph_client.users.by_user_id(user).mail_folders.get()
             if not result:
@@ -56,10 +54,8 @@ class EmailsService:
             return None
         
         
-    async def list_child_folders(self, **kwargs) -> Optional[List]:
-        user = kwargs.get("user") # required
-        folder_id = kwargs.get("folder_id") # required
 
+    async def list_child_folders(self, *, user: str, folder_id: str) -> Optional[List]:
         if not user:
             raise ValidationError("User is required")
         if not folder_id:
@@ -74,17 +70,13 @@ class EmailsService:
             return None
     
         
-    async def get_folder_by_name(self, **kwargs):
-        user = kwargs.get("user") # required
-        target_folder_name = kwargs.get("target_folder_name") # required
-        parent_folder_id = kwargs.get("parent_folder_id")
-        returned_folder = None
 
+    async def get_folder_by_name(self, *, user: str, target_folder_name: str, parent_folder_id: str = None):
+        returned_folder = None
         if not user:
             raise ValidationError("User is required")
         if not target_folder_name:
             raise ValidationError("Folder name is required")
-    
         try:
             if parent_folder_id:
                 child_folders = await self.list_child_folders(user=user, folder_id=parent_folder_id)
@@ -92,7 +84,7 @@ class EmailsService:
                     return None
                 for folder in child_folders:
                     if folder.display_name == target_folder_name:
-                        returned_folder = folder                    
+                        returned_folder = folder
             else:
                 child_folders = await self.list_root_mail_folders(user=user)
                 if not child_folders:
@@ -100,7 +92,6 @@ class EmailsService:
                 for folder in child_folders:
                     if folder.display_name == target_folder_name:
                         returned_folder = folder
-
             return returned_folder
         except Exception as e:
             graph_exception_handler(e, "Outlook")
@@ -108,10 +99,8 @@ class EmailsService:
     
             
         
-    async def get_messages_in_folder(self, **kwargs):
-        user = kwargs.get("user") # required
-        parent_folder_id = kwargs.get("parent_folder_id") # required
 
+    async def get_messages_in_folder(self, *, user: str, parent_folder_id: str):
         if not user:
             raise ValidationError("User is required")
         if not parent_folder_id:
@@ -209,27 +198,27 @@ class EmailsService:
                 return False
 
 
-    async def reply(self, **kwargs):
-        sender = kwargs.get("sender") # required
-        message_id = kwargs.get("message_id") # required
-        comment = kwargs.get("comment")
-        reply_to_recipients = kwargs.get("reply_to", [])
 
-        # Validate required parameters
+    async def reply(self, 
+                    *, 
+                    sender: str, 
+                    message_id: str, 
+                    comment: Optional[str] = None, 
+                    reply_to_recipients: list):
+        if reply_to_recipients is None:
+            reply_to_recipients = []
         if not sender:
             raise ValidationError("Sender is required")
         if not message_id:
             raise ValidationError("Message Id is required")
-        
-        # build list of recipient objects
-        if reply_to_recipients or len(reply_to_recipients) > 0:
-            reply_to_list = [] 
-            for recipient in reply_to_recipients:
-                reply_to_list.append(EmailAddress(address = recipient))
-
+        if not reply_to_recipients:
+            raise ValidationError("At least one recipient is required")
+        reply_to_list = []
+        for recipient in reply_to_recipients:
+            reply_to_list.append(EmailAddress(address=recipient))
         request_body = ReplyPostRequestBody(
-            message = Message(
-                to_recipients = reply_to_list if reply_to_recipients else None,
+            message=Message(
+                to_recipients=reply_to_list if reply_to_recipients else None,
             ),
             comment = comment if comment else None,        
         )
@@ -241,29 +230,22 @@ class EmailsService:
             return False
 
 
-    async def reply_all(self, **kwargs):
-        sender = kwargs.get("sender") # required
-        message_id = kwargs.get("message_id") # required
-        comment = kwargs.get("comment")
-        reply_to_recipients = kwargs.get("reply_to", [])
 
-        # Validate required parameters
+    async def reply_all(self, *, sender: str, message_id: str, comment: str = None, reply_to: list = None):
+        if reply_to is None:
+            reply_to = []
         if not sender:
             raise ValidationError("Sender is required")
         if not message_id:
             raise ValidationError("Message Id is required")
-        
-        # build list of recipient objects
-        if reply_to_recipients or len(reply_to_recipients) > 0:
-            reply_to_list = [] 
-            for recipient in reply_to_recipients:
-                reply_to_list.append(EmailAddress(address = recipient))
-        
+        reply_to_list = []
+        for recipient in reply_to:
+            reply_to_list.append(EmailAddress(address=recipient))
         request_body = ReplyAllPostRequestBody(
-            message = Message(
-                to_recipients = reply_to_list if reply_to_recipients else None,
+            message=Message(
+                to_recipients=reply_to_list if reply_to else None,
             ),
-            comment = comment if comment else None,        
+            comment=comment if comment else None,
         )
         try:
             await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).reply_all.post(request_body)
@@ -273,28 +255,20 @@ class EmailsService:
             return False
 
 
-    async def forward(self, **kwargs):
-        sender = kwargs.get("sender") # required
-        message_id = kwargs.get("message_id") # required
-        comment = kwargs.get("comment")
-        to_recipients = kwargs.get("to_recipients", []) # required
 
-        # Validate required parameters
+    async def forward(self, *, sender: str, message_id: str, to_recipients: list, comment: str = None):
         if not sender:
             raise ValidationError("Sender is required")
         if not message_id:
             raise ValidationError("Message Id is required")
         if not to_recipients or len(to_recipients) == 0:
             raise ValidationError("At least one recipient is required")
-
-        # build list of recipient objects
-        to_recipients_list = [] 
+        to_recipients_list = []
         for recipient in to_recipients:
-            to_recipients_list.append(EmailAddress(address = recipient))
-
+            to_recipients_list.append(EmailAddress(address=recipient))
         request_body = ForwardPostRequestBody(
-            to_recipients = to_recipients_list if to_recipients else None,
-            comment = comment if comment else None, 
+            to_recipients=to_recipients_list if to_recipients else None,
+            comment=comment if comment else None,
         )
         try:
             await self._msgraph_client.users.by_user_id(sender).messages.by_message_id(message_id).forward.post(request_body)
@@ -304,15 +278,13 @@ class EmailsService:
             return False
 
     
-    async def delete(self, **kwargs):
-        user = kwargs.get("user") # required
-        message_id = kwargs.get("message_id") # required
-        # Validate required parameters
+
+    async def delete(self, *, user: str, message_id: str):
         if not user:
             raise ValidationError("User is required")
         if not message_id:
             raise ValidationError("Message Id is required")
-        try:        
+        try:
             await self._msgraph_client.users.by_user_id(user).messages.by_message_id(message_id).delete()
             return True
         except Exception as e:
