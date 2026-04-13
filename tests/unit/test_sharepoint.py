@@ -40,8 +40,8 @@ async def test_list_folder_contents_missing_drive_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Drive ID is required"):
-        await service.list_folder_contents(parent_folder_id="folder1")
+    with pytest.raises(TypeError):
+        await service.list_folder_contents(parent_folder_id="folder1")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -49,8 +49,8 @@ async def test_list_folder_contents_missing_parent_folder_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Parent folder ID is required"):
-        await service.list_folder_contents(drive_id="drive1")
+    with pytest.raises(TypeError):
+        await service.list_folder_contents(drive_id="drive1")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -105,8 +105,8 @@ async def test_get_item_by_name_missing_drive_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Drive ID is required"):
-        await service.get_item_by_name(parent_folder_id="f1", item_name="test.txt")
+    with pytest.raises(TypeError):
+        await service.get_item_by_name(parent_folder_id="f1", item_name="test.txt")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -114,8 +114,8 @@ async def test_get_item_by_name_missing_item_name(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Item name is required"):
-        await service.get_item_by_name(drive_id="d1", parent_folder_id="f1")
+    with pytest.raises(TypeError):
+        await service.get_item_by_name(drive_id="d1", parent_folder_id="f1")  # type: ignore
 
 
 # ─── FileService: get_item_by_path ───
@@ -141,8 +141,8 @@ async def test_get_item_by_path_missing_drive_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Drive ID is required"):
-        await service.get_item_by_path(item_path="/docs/file.txt")
+    with pytest.raises(TypeError):
+        await service.get_item_by_path(item_path="/docs/file.txt")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -150,8 +150,8 @@ async def test_get_item_by_path_missing_item_path(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Item path is required"):
-        await service.get_item_by_path(drive_id="d1")
+    with pytest.raises(TypeError):
+        await service.get_item_by_path(drive_id="d1")  # type: ignore
 
 
 # ─── FileService: get_item_by_id ───
@@ -178,8 +178,8 @@ async def test_get_item_by_id_missing_drive_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Drive ID is required"):
-        await service.get_item_by_id(item_id="item1")
+    with pytest.raises(TypeError):
+        await service.get_item_by_id(item_id="item1")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -187,8 +187,8 @@ async def test_get_item_by_id_missing_item_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Item ID is required"):
-        await service.get_item_by_id(drive_id="d1")
+    with pytest.raises(TypeError):
+        await service.get_item_by_id(drive_id="d1")  # type: ignore
 
 
 # ─── FileService: create_folder ───
@@ -215,8 +215,8 @@ async def test_create_folder_missing_drive_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Drive ID is required"):
-        await service.create_folder(parent_folder_id="f1", new_folder_name="New")
+    with pytest.raises(TypeError):
+        await service.create_folder(parent_folder_id="f1", new_folder_name="New")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -224,8 +224,8 @@ async def test_create_folder_missing_folder_name(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="New folder name is required"):
-        await service.create_folder(drive_id="d1", parent_folder_id="f1")
+    with pytest.raises(TypeError):
+        await service.create_folder(drive_id="d1", parent_folder_id="f1")  # type: ignore
 
 
 # ─── FileService: delete_item ───
@@ -248,8 +248,8 @@ async def test_delete_item_missing_drive_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Drive ID is required"):
-        await service.delete_item(item_id="item1")
+    with pytest.raises(TypeError):
+        await service.delete_item(item_id="item1")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -257,8 +257,8 @@ async def test_delete_item_missing_item_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Item ID is required"):
-        await service.delete_item(drive_id="d1")
+    with pytest.raises(TypeError):
+        await service.delete_item(drive_id="d1")  # type: ignore
 
 
 # ─── FileService: move_item ───
@@ -281,8 +281,8 @@ async def test_move_item_missing_drive_id(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="Drive ID is required"):
-        await service.move_item(item_id="item1", new_location_id="loc1")
+    with pytest.raises(TypeError):
+        await service.move_item(item_id="item1", new_location_id="loc1")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -290,8 +290,8 @@ async def test_move_item_missing_new_location(initialise_mock):
     mock_client = initialise_mock
     service = FileService(mock_client)
 
-    with pytest.raises(ValidationError, match="New location ID is required"):
-        await service.move_item(drive_id="d1", item_id="item1")
+    with pytest.raises(TypeError):
+        await service.move_item(drive_id="d1", item_id="item1")  # type: ignore
 
 
 # ─── DriveService: get_drive_root_folder ───
@@ -315,8 +315,8 @@ async def test_get_drive_root_folder_missing_drive_id(initialise_mock):
     mock_client = initialise_mock
     service = DriveService(mock_client)
 
-    with pytest.raises(ValidationError, match="Drive ID is required"):
-        await service.get_drive_root_folder()
+    with pytest.raises(TypeError):
+        await service.get_drive_root_folder()  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -392,8 +392,8 @@ async def test_get_site_by_id_missing(initialise_mock):
     mock_client = initialise_mock
     service = SitesService(mock_client)
 
-    with pytest.raises(ValidationError, match="Site ID is required"):
-        await service.get_site_by_id()
+    with pytest.raises(TypeError):
+        await service.get_site_by_id()  # type: ignore
 
 
 # ─── SitesService: get_site_by_displayname ───
@@ -443,8 +443,8 @@ async def test_get_site_by_displayname_missing_name(initialise_mock):
     mock_client = initialise_mock
     service = SitesService(mock_client)
 
-    with pytest.raises(ValidationError, match="Site Name is required"):
-        await service.get_site_by_displayname()
+    with pytest.raises(TypeError):
+        await service.get_site_by_displayname()  # type: ignore
 
 
 # ─── SitesService: get_sub_sites ───
@@ -481,8 +481,8 @@ async def test_get_sub_sites_missing_id(initialise_mock):
     mock_client = initialise_mock
     service = SitesService(mock_client)
 
-    with pytest.raises(ValidationError, match="Parent site ID is required"):
-        await service.get_sub_sites()
+    with pytest.raises(TypeError):
+        await service.get_sub_sites()  # type: ignore
 
 
 # ─── SitesService: get_site_drive ───
@@ -506,8 +506,8 @@ async def test_get_site_drive_missing_id(initialise_mock):
     mock_client = initialise_mock
     service = SitesService(mock_client)
 
-    with pytest.raises(ValidationError, match="Site ID is required"):
-        await service.get_site_drive()
+    with pytest.raises(TypeError):
+        await service.get_site_drive()  # type: ignore
 
 
 @pytest.mark.asyncio

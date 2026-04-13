@@ -1,5 +1,4 @@
 from msgraph.graph_service_client import GraphServiceClient
-from functools import wraps
 import logging
 from typing import List, NoReturn, Optional
 from msgraph.generated.models.site import Site
@@ -45,23 +44,13 @@ class SitesService:
     
 
 
-    async def get_site_by_id(self, **kwargs) -> Optional[Site]:
-        """
-        #### Retrieve a specific SharePoint site by its ID.
-        
-        ##### Args:
-            site_id (str): The unique identifier for the SharePoint site
-            
-        ##### Returns:
-            Dict[str, str] if found, contains attributes such as name, id, url etc or None if not found
-            
-        Example:
-            >>> site = await sites_service.get_site_by_id("my_site_id")
-            >>> print(f"Site name: {site.display_name}")
-        """
-        site_id = kwargs.get("site_id", None)
+    async def get_site_by_id(
+                self,
+                *,
+                site_id : str,
+        ) -> Optional[Site]:
 
-        if not site_id:
+        if not site_id or not site_id.strip():
             raise ValidationError("Site ID is required")
         try:
             response = await self._msgraph_client.sites.by_site_id(site_id).get()
@@ -71,24 +60,13 @@ class SitesService:
             return None # This line will never be reached due to exception being raised, but is here to satisfy return type
     
 
-    async def get_site_by_displayname(self, **kwargs) -> Optional[Site]:
-        """
-        #### Retrieve a SharePoint site by its display name.
-        
-        ##### Args:
-            site_name (str): The display name of the SharePoint site
-            
-        ##### Returns:
-            Dict[str, str] first site matching the display name, or None if not found
-            
-        Example:
-            >>> site = await sites_service.get_site_by_displayname("Project Alpha")
-            >>> if site:
-            ...     print(f"Found site: {site.web_url}")
-        """
-        site_name = kwargs.get("site_name", None)
+    async def get_site_by_displayname(
+                self,
+                *,
+                site_name : str,
+        ) -> Optional[Site]:
 
-        if not site_name:
+        if not site_name or not site_name.strip():
             raise ValidationError("Site Name is required")
         try:
             all_sites = await self._msgraph_client.sites.get_all_sites.get()
@@ -103,23 +81,13 @@ class SitesService:
             return None # This line will never be reached due to exception being raised, but is here to satisfy return type
     
 
-    async def get_sub_sites(self, **kwargs) -> List[Site]:
-        """
-        #### Retrieve all subsites of a parent SharePoint site.
-        
-        ##### Args:
-            parent_site_id (str): The unique identifier of the parent site
-            
-        ##### Returns:
-            List of subsite Dict[str, str] or an empty list if none found
-            
-        Example:
-            >>> subsites = await sites_service.get_sub_sites(parent_site_id)
-            >>> print(f"Found {len(subsites)} subsites")
-        """
-        parent_site_id = kwargs.get("parent_site_id", None)
+    async def get_sub_sites(
+                self,
+                *,
+                parent_site_id : str,
+        ) -> List[Site]:
 
-        if not parent_site_id:
+        if not parent_site_id or not parent_site_id.strip():
             raise ValidationError("Parent site ID is required")
         try:
             response =  await self._msgraph_client.sites.by_site_id(parent_site_id).sites.get()
@@ -129,19 +97,13 @@ class SitesService:
             return [] # This line will never be reached due to exception being raised, but is here to satisfy return type
 
     
-    async def get_site_drive(self, **kwargs) -> Optional[Drive]:
-        """
-        #### Returns the drive object for the site
+    async def get_site_drive(
+                self,
+                *,
+                site_id : str,
+        ) -> Optional[Drive]:
 
-        ##### Args: 
-            site_id (str): The unique identifier for the parent site.
-
-        ##### Returns: 
-            Dict[str, str] or None if not found
-        """
-        site_id = kwargs.get("site_id", None)
-        
-        if not site_id:
+        if not site_id or not site_id.strip():
             raise ValidationError("Site ID is required")
         try:
             response = await self._msgraph_client.sites.by_site_id(site_id).drive.get()
