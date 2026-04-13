@@ -125,7 +125,9 @@ client = GraphClient(
 )
 
 async def main():
-    root = await client.sharepoint.drives.get_drive_root_folder()
+    root = await client.sharepoint.drives.get_drive_root_folder(
+        drive_id="your-drive-id"
+    )
     print(f"Root folder: {root.name}")
 
 asyncio.run(main())
@@ -150,7 +152,7 @@ site = await client.sharepoint.sites.get_site_by_displayname(site_name=str(os.ge
 ```python
 # Send an email
 await client.outlook.emails.send(
-    user="user@domain.com",
+    sender="user@domain.com",
     to_recipients=["recipient@domain.com"],
     subject="Hello from Python!",
     body="This is a test email"
@@ -245,7 +247,7 @@ messages = await client.teams.chat.list_messages(
 
 **Type Safety**: Comprehensive type hints for better IDE support and fewer bugs
 
-**Kwargs**: kwargs used instead on typed dict to aid readability, use of arguments without extra class (TypedDict) and to reduce breaking changes if new args added.
+**Keyword-only API**: Service methods use explicit named keyword-only arguments for better readability and stronger validation. Required parameters are enforced in method signatures, while optional parameters remain explicit.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
