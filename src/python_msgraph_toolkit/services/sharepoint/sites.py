@@ -1,4 +1,4 @@
-from msgraph import GraphServiceClient
+from msgraph.graph_service_client import GraphServiceClient
 from functools import wraps
 import logging
 from typing import List, NoReturn, Optional

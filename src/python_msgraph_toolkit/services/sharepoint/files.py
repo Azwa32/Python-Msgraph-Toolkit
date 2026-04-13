@@ -1,4 +1,4 @@
-from msgraph import GraphServiceClient
+from msgraph.graph_service_client import GraphServiceClient
 from msgraph.generated.models.drive_item import DriveItem
 from msgraph.generated.models.folder import Folder, Optional
 from msgraph.generated.models.item_reference import ItemReference

@@ -1,4 +1,4 @@
-from msgraph import GraphServiceClient
+from msgraph.graph_service_client import GraphServiceClient
 from ..exceptions import ValidationError, graph_exception_handler
 
 
