@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from ..src.msgraph_api.client import GraphClient
+from ..src.msgraph_api.client import GraphClient  # type: ignore
 from pathlib import Path
 import sys
 import os
@@ -12,7 +12,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 # Absolute imports from your package
-from ..src.msgraph_api.exceptions import (
+from ..src.msgraph_api.exceptions import (  # type: ignore
     ValidationError,
     AuthenticationError,
     SharePointError,
