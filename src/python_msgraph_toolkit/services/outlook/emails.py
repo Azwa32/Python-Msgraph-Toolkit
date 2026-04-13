@@ -124,82 +124,89 @@ class EmailsService:
             graph_exception_handler(e, "Outlook")
             return None
         
-    async def send(self, **kwargs):
-        subject = kwargs.get("subject", "No Subject")
-        body = kwargs.get("body", "")
-        sender = kwargs.get("sender") # required
-        to_recipients = kwargs.get("to_recipients", []) # required
-        cc_recipients = kwargs.get("cc_recipients", [])
-        bcc_recipients = kwargs.get("bcc_recipients", [])
-        reply_to = kwargs.get("reply_to", [])
-        priority = kwargs.get("priority", Importance.Normal)
-        body_format = kwargs.get("body_format", BodyType.Text)
-        request_read_receipt = kwargs.get("request_read_receipt", False)
-        attachments = kwargs.get("attachments", []) # file paths
+    async def send(
+                self, 
+                *, 
+                sender : str,
+                subject : Optional[str] = None,
+                body : Optional[str] = None,
+                to_recipients : List[str],
+                cc_recipients : Optional[List[str]] = None,
+                bcc_recipients : Optional[List[str]] = None,
+                reply_to : Optional[List[str]] = None,
+                priority : Optional[Importance] = Importance.Normal,
+                body_format : Optional[BodyType] = BodyType.Text,
+                request_read_receipt : Optional[bool] = False,
+                attachments : Optional[List[str]] = None,
+        ):
 
-        # Validate required parameters
-        if not sender:
-            raise ValidationError("Sender is required")
-        if not to_recipients or len(to_recipients) == 0:
-            raise ValidationError("At least one recipient is required")
+            # Validate required parameters
+            if cc_recipients is None:
+                cc_recipients = []
+            if bcc_recipients is None:
+                bcc_recipients = []
+            if reply_to is None:
+                reply_to = []
+            if attachments is None:
+                attachments = []        
 
-        
-        # build list of recipient objects
-        to_recipients_list = [] 
-        for recipient in to_recipients:
-            to_recipients_list.append(Recipient(email_address=EmailAddress(address=recipient)))
+            
+            # build list of recipient objects
+            to_recipients_list = [] 
+            for recipient in to_recipients:
+                to_recipients_list.append(Recipient(email_address=EmailAddress(address=recipient)))
 
-        # build list of cc recipient objects
-        cc_recipients_list = []
-        if cc_recipients:
-            for recipient in cc_recipients:
-                cc_recipients_list.append(Recipient(email_address=EmailAddress(address=recipient)))
+            # build list of cc recipient objects
+            cc_recipients_list = []
+            if cc_recipients:
+                for recipient in cc_recipients:
+                    cc_recipients_list.append(Recipient(email_address=EmailAddress(address=recipient)))
 
-        # build list of bcc recipient objects
-        bcc_recipients_list = []
-        if bcc_recipients:
-            for recipient in bcc_recipients:
-                bcc_recipients_list.append(Recipient(email_address=EmailAddress(address=recipient)))
+            # build list of bcc recipient objects
+            bcc_recipients_list = []
+            if bcc_recipients:
+                for recipient in bcc_recipients:
+                    bcc_recipients_list.append(Recipient(email_address=EmailAddress(address=recipient)))
 
-        # build list of reply_to recipient objects
-        reply_to_list = []
-        if reply_to:
-            for recipient in reply_to:
-                reply_to_list.append(Recipient(email_address=EmailAddress(address=recipient)))
+            # build list of reply_to recipient objects
+            reply_to_list = []
+            if reply_to:
+                for recipient in reply_to:
+                    reply_to_list.append(Recipient(email_address=EmailAddress(address=recipient)))
 
-        # build list of attachment objects
-        attachments_list = []
-        if attachments:
-            for attachment in attachments:
-                processed_attachment = await self._process_attachment(attachment)
-                attachments_list.append(processed_attachment)
-        
-        request_body = SendMailPostRequestBody(
-            message = Message(
-                subject = subject,
-                importance = priority,
-                body = ItemBody(
-                    content_type = body_format,
-                    content = body,
-                ),
-                from_ = Recipient(
-                    email_address = EmailAddress(
-                        address = sender,
+            # build list of attachment objects
+            attachments_list = []
+            if attachments:
+                for attachment in attachments:
+                    processed_attachment = await self._process_attachment(attachment)
+                    attachments_list.append(processed_attachment)
+            
+            request_body = SendMailPostRequestBody(
+                message = Message(
+                    subject = subject,
+                    importance = priority,
+                    body = ItemBody(
+                        content_type = body_format,
+                        content = body,
                     ),
-                ),
-                to_recipients = to_recipients_list if to_recipients else None,
-                cc_recipients = cc_recipients_list if cc_recipients else None,
-                bcc_recipients = bcc_recipients_list if bcc_recipients else None,
-                reply_to = reply_to_list if reply_to else None,
-                is_read_receipt_requested = request_read_receipt,
+                    from_ = Recipient(
+                        email_address = EmailAddress(
+                            address = sender,
+                        ),
+                    ),
+                    to_recipients = to_recipients_list if to_recipients else None,
+                    cc_recipients = cc_recipients_list if cc_recipients else None,
+                    bcc_recipients = bcc_recipients_list if bcc_recipients else None,
+                    reply_to = reply_to_list if reply_to else None,
+                    is_read_receipt_requested = request_read_receipt,
+                )
             )
-        )
-        try:
-            await self._msgraph_client.users.by_user_id(sender).send_mail.post(request_body)
-            return True
-        except Exception as e:
-            graph_exception_handler(e, "Outlook")
-            return False
+            try:
+                await self._msgraph_client.users.by_user_id(sender).send_mail.post(request_body)
+                return True
+            except Exception as e:
+                graph_exception_handler(e, "Outlook")
+                return False
 
 
     async def reply(self, **kwargs):
