@@ -15,14 +15,13 @@ class ChatService:
         if not msgraph_client:
             raise ValidationError("msgraph client must be supplied")
         
-    async def list_chats(self, **kwargs):
-        """List chats for the authenticated user.
+    async def list_chats(
+                self,
+                *,
+                user : str,
+        ):
 
-        Args:
-            user (str): The ID of the user whose chats to list."""
-        user = kwargs.get("user") # Required
-        
-        if not user:
+        if not user or not user.strip():
             raise ValidationError("user is required to list chats")
 
         try:
@@ -35,16 +34,11 @@ class ChatService:
             return None
     
         
-    async def create_chat(self, **kwargs):
-        """Create a new chat with specified participants.
-
-        Args:
-            members (List[str]): List of participant user IDs (minimum 2 required).
-            
-        Returns:
-            Chat: The created chat object, or None if creation failed.
-        """
-        members = kwargs.get("members", []) # min 2 members required        
+    async def create_chat(
+                self,
+                *,
+                members : list[str],
+        ):
 
         if len(members) < 2:
             raise ValidationError("At least two members are required to create a chat")
@@ -79,20 +73,14 @@ class ChatService:
             graph_exception_handler(e, "Teams")
             return None
         
-    async def list_messages(self, **kwargs):
-        """List messages in a specified chat.
+    async def list_messages(
+                self,
+                *,
+                chat_id : str,
+                top : int = 10,
+        ):
 
-        Args:
-            chat_id (str): The ID of the chat to list messages from.
-            top (int, optional): Maximum number of messages to return (default: 10).
-            
-        Returns:
-            List[ChatMessage]: List of messages in the chat, or None if retrieval failed.
-        """
-        chat_id = kwargs.get("chat_id", None) # Required
-        top = kwargs.get("top", 10)
-
-        if not chat_id:
+        if not chat_id or not chat_id.strip():
             raise ValidationError("chat_id is required to list messages in a chat")
         if top <= 0:
             raise ValidationError("top must be a positive integer")
@@ -112,22 +100,16 @@ class ChatService:
             graph_exception_handler(e, "Teams")
             return None
         
-    async def send_message(self, **kwargs):
-        """Send a message in a specified chat.
+    async def send_message(
+                self,
+                *,
+                chat_id : str,
+                content : str,
+        ):
 
-        Args:
-            chat_id (str): The ID of the chat to send the message to.
-            content (str): The content of the message to send.
-            
-        Returns:
-            ChatMessage: The sent message object, or False if sending failed.
-        """
-        chat_id = kwargs.get("chat_id", None) # Required
-        content = kwargs.get("content", None) # Required
-
-        if not chat_id:
+        if not chat_id or not chat_id.strip():
             raise ValidationError("chat_id is required to send a message in a chat")
-        if not content:
+        if not content or not content.strip():
             raise ValidationError("content is required to send a message in a chat")    
 
         request_body = ChatMessage(

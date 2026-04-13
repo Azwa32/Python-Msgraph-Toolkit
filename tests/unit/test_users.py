@@ -44,8 +44,8 @@ async def test_get_user_missing_user_id(initialise_mock):
     mock_client = initialise_mock
     service = UserService(mock_client)
 
-    with pytest.raises(ValidationError, match="user_id is required"):
-        await service.get_user()
+    with pytest.raises(TypeError):
+        await service.get_user()  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -143,8 +143,8 @@ async def test_get_user_by_email_missing_email(initialise_mock):
     mock_client = initialise_mock
     service = UserService(mock_client)
 
-    with pytest.raises(ValidationError, match="email is required"):
-        await service.get_user_by_email()
+    with pytest.raises(TypeError):
+        await service.get_user_by_email()  # type: ignore
 
 
 @pytest.mark.asyncio

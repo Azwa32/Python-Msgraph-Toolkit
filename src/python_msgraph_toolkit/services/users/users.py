@@ -10,17 +10,13 @@ class UserService:
         if not msgraph_client:
             raise ValidationError("msgraph client must be supplied")
         
-    async def get_user(self, **kwargs):
-            """Retrieve a user by their ID.
+    async def get_user(
+                self,
+                *,
+                user_id : str,
+        ):
 
-            Args:
-                user_id (str): The ID of the user to retrieve.
-                
-            Returns:
-                User: The retrieved user object, or None if not found.
-            """
-            user_id = kwargs.get("user_id") # required
-            if not user_id:
+            if not user_id or not user_id.strip():
                 raise ValidationError("user_id is required")
 
             try:
@@ -50,17 +46,13 @@ class UserService:
                 graph_exception_handler(e, "Users")
                 return None
             
-    async def get_user_by_email(self, **kwargs):
-            """Retrieve a user by their email address.
+    async def get_user_by_email(
+                self,
+                *,
+                email : str,
+        ):
 
-            Args:
-                email (str): The email address of the user to retrieve.
-                
-            Returns:
-                User: The retrieved user object, or None if not found.
-            """
-            email = kwargs.get("email") # required
-            if not email:
+            if not email or not email.strip():
                 raise ValidationError("email is required")
 
             try:

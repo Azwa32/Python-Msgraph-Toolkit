@@ -46,8 +46,8 @@ async def test_list_chats_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = ChatService(mock_client)
 
-    with pytest.raises(ValidationError, match="user is required to list chats"):
-        await service.list_chats()
+    with pytest.raises(TypeError):
+        await service.list_chats()  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -105,8 +105,8 @@ async def test_create_chat_no_members(initialise_mock):
     mock_client = initialise_mock
     service = ChatService(mock_client)
 
-    with pytest.raises(ValidationError, match="At least two members are required"):
-        await service.create_chat()
+    with pytest.raises(TypeError):
+        await service.create_chat()  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -154,8 +154,8 @@ async def test_list_messages_missing_chat_id(initialise_mock):
     mock_client = initialise_mock
     service = ChatService(mock_client)
 
-    with pytest.raises(ValidationError, match="chat_id is required"):
-        await service.list_messages()
+    with pytest.raises(TypeError):
+        await service.list_messages()  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -201,8 +201,8 @@ async def test_send_message_missing_chat_id(initialise_mock):
     mock_client = initialise_mock
     service = ChatService(mock_client)
 
-    with pytest.raises(ValidationError, match="chat_id is required"):
-        await service.send_message(content="Hello!")
+    with pytest.raises(TypeError):
+        await service.send_message(content="Hello!")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -210,8 +210,8 @@ async def test_send_message_missing_content(initialise_mock):
     mock_client = initialise_mock
     service = ChatService(mock_client)
 
-    with pytest.raises(ValidationError, match="content is required"):
-        await service.send_message(chat_id="chat1")
+    with pytest.raises(TypeError):
+        await service.send_message(chat_id="chat1")  # type: ignore
 
 
 @pytest.mark.asyncio
