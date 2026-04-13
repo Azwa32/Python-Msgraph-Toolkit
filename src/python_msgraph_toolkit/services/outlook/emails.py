@@ -130,6 +130,10 @@ class EmailsService:
         ):
 
             # Validate required parameters
+            if not sender:
+                raise ValidationError("Sender is required")
+            if not to_recipients:
+                raise ValidationError("At least one recipient is required")
             if cc_recipients is None:
                 cc_recipients = []
             if bcc_recipients is None:
@@ -207,6 +211,12 @@ class EmailsService:
                     reply_to_recipients: list):
         if reply_to_recipients is None:
             reply_to_recipients = []
+        if not sender:
+            raise ValidationError("Sender is required")
+        if not message_id:
+            raise ValidationError("Message Id is required")
+        if not reply_to_recipients:
+            raise ValidationError("At least one recipient is required")
         reply_to_list = []
         for recipient in reply_to_recipients:
             reply_to_list.append(EmailAddress(address=recipient))
