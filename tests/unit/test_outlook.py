@@ -62,8 +62,8 @@ async def test_get_events_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = CalendarService(mock_client)
 
-    with pytest.raises(GraphAPIError):
-        await service.get_events()
+    with pytest.raises(TypeError):
+        await service.get_events()  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -102,8 +102,8 @@ async def test_create_event_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = CalendarService(mock_client)
 
-    with pytest.raises(ValidationError, match="User is required"):
-        await service.create_event(subject="Meeting", start="2026-03-22T10:00:00Z", end="2026-03-22T11:00:00Z")
+    with pytest.raises(TypeError):
+        await service.create_event(subject="Meeting", start="2026-03-22T10:00:00Z", end="2026-03-22T11:00:00Z")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -111,8 +111,8 @@ async def test_create_event_missing_subject(initialise_mock):
     mock_client = initialise_mock
     service = CalendarService(mock_client)
 
-    with pytest.raises(ValidationError, match="Subject is required"):
-        await service.create_event(user="user1", start="2026-03-22T10:00:00Z", end="2026-03-22T11:00:00Z")
+    with pytest.raises(TypeError):
+        await service.create_event(user="user1", start="2026-03-22T10:00:00Z", end="2026-03-22T11:00:00Z")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -120,8 +120,8 @@ async def test_create_event_missing_start(initialise_mock):
     mock_client = initialise_mock
     service = CalendarService(mock_client)
 
-    with pytest.raises(ValidationError, match="Start date/time is required"):
-        await service.create_event(user="user1", subject="Meeting", end="2026-03-22T11:00:00Z")
+    with pytest.raises(TypeError):
+        await service.create_event(user="user1", subject="Meeting", end="2026-03-22T11:00:00Z")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -129,8 +129,8 @@ async def test_create_event_missing_end(initialise_mock):
     mock_client = initialise_mock
     service = CalendarService(mock_client)
 
-    with pytest.raises(ValidationError, match="End date/time is required"):
-        await service.create_event(user="user1", subject="Meeting", start="2026-03-22T10:00:00Z")
+    with pytest.raises(TypeError):
+        await service.create_event(user="user1", subject="Meeting", start="2026-03-22T10:00:00Z")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -168,8 +168,8 @@ async def test_update_event_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = CalendarService(mock_client)
 
-    with pytest.raises(ValidationError, match="User is required"):
-        await service.update_event(event_id="evt1", subject="Updated")
+    with pytest.raises(TypeError):
+        await service.update_event(event_id="evt1", subject="Updated")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -177,8 +177,8 @@ async def test_update_event_missing_event_id(initialise_mock):
     mock_client = initialise_mock
     service = CalendarService(mock_client)
 
-    with pytest.raises(ValidationError, match="Event ID is required"):
-        await service.update_event(user="user1", subject="Updated")
+    with pytest.raises(TypeError):
+        await service.update_event(user="user1", subject="Updated")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -215,8 +215,8 @@ async def test_delete_event_missing_user(initialise_mock):
     mock_client = initialise_mock
     service = CalendarService(mock_client)
 
-    with pytest.raises(ValidationError, match="User is required"):
-        await service.delete_event(event_id="evt1")
+    with pytest.raises(TypeError):
+        await service.delete_event(event_id="evt1")  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -224,8 +224,8 @@ async def test_delete_event_missing_event_id(initialise_mock):
     mock_client = initialise_mock
     service = CalendarService(mock_client)
 
-    with pytest.raises(ValidationError, match="Event ID is required"):
-        await service.delete_event(user="user1")
+    with pytest.raises(TypeError):
+        await service.delete_event(user="user1")  # type: ignore
 
 
 @pytest.mark.asyncio

@@ -1,3 +1,4 @@
+from typing import List, Optional
 from msgraph.graph_service_client import GraphServiceClient
 from msgraph.generated.users.item.calendar.events.events_request_builder import EventsRequestBuilder
 from kiota_abstractions.base_request_configuration import RequestConfiguration
@@ -20,25 +21,19 @@ class CalendarService:
         if not msgraph_client:
             raise ValidationError("msgraph client must be supplied")       
 
-    async def get_events(self, **kwargs):
-        """Get calendar events for a user within a specified date range.
+    async def get_events(
+                self,
+                *,
+                user : str,
+                start_date : Optional[str] = None,
+                end_date : Optional[str] = None,
+        ):
 
-        Args:
-            user (str): The user ID or email address.
-            start_date (str, optional): The start date in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
-            end_date (str, optional): The end date in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
-            
-        Returns:
-            Optional[List[dict]]: A list of calendar events or None if an error occurs.
-        """
-        user = kwargs.get("user") # required
-        start_date = kwargs.get("start_date")
-        end_date = kwargs.get("end_date")
+        if not user or not user.strip():
+            raise ValidationError("User is required")
+
         try:   
             events = None
-            if not user:
-                raise ValidationError("User is required")
-            
             if not start_date or not end_date:
                 events = await self._msgraph_client.users.by_user_id(user).calendar.events.get()
                 
@@ -59,42 +54,31 @@ class CalendarService:
             graph_exception_handler(e, "Outlook")
             return None
         
-    async def create_event(self, **kwargs):
-        """Create a new calendar event for a user.
+    async def create_event(
+                self,
+                *,
+                user : str,
+                subject : str,
+                start : str,
+                end : str,
+                location : Optional[str] = None,
+                body : Optional[str] = None,
+                attendees : Optional[List[str]] = None,
+                pre_event_reminder : Optional[int] = None,
+        ):
 
-        Args:
-            user (str): The user ID or email address.
-            subject (str): The subject of the event.
-            body (str, optional): The body content of the event.
-            start (str): The start date and time in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
-            end (str): The end date and time in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
-            location (str, optional): The location of the event.
-            attendees (List[str], optional): A list of attendee email addresses.
-            pre_event_reminder (int, optional): Reminder time in minutes before the event.
-
-        Returns:
-            Event object if successful, None otherwise.
-        """
-
-        user = kwargs.get("user") # required
-        subject = kwargs.get("subject") # required
-        start = kwargs.get("start") # required
-        end = kwargs.get("end") # required
-        location = kwargs.get("location")
-        body = kwargs.get("body")
-        attendees = kwargs.get("attendees", [])
-        pre_event_reminder = kwargs.get("pre_event_reminder")
-
-        if not user:
+        if not user or not user.strip():
             raise ValidationError("User is required")
-        if not subject:
+        if not subject or not subject.strip():
             raise ValidationError("Subject is required")
-        if not start:
+        if not start or not start.strip():
             raise ValidationError("Start date/time is required")
-        if not end:
+        if not end or not end.strip():
             raise ValidationError("End date/time is required")
         if not body:
             body = ""
+        if attendees is None:
+            attendees = []
 
         attendees_list = []
         if attendees:
@@ -131,36 +115,23 @@ class CalendarService:
             return None
         
 
-    async def update_event(self, **kwargs):
-        """Update an existing calendar event.
+    async def update_event(
+                self,
+                *,
+                user : str,
+                event_id : str,
+                subject : Optional[str] = None,
+                start : Optional[str] = None,
+                end : Optional[str] = None,
+                location : Optional[str] = None,
+                body : Optional[str] = None,
+                attendees : Optional[List[str]] = None,
+                pre_event_reminder : Optional[int] = None,
+        ):
 
-        Args:
-            user (str): The user ID or email address.
-            event_id (str): The ID of the event to update.
-            subject (str, optional): New subject for the event.
-            body (str, optional): New body content for the event.
-            start (str, optional): New start date and time in ISO 8601 format.
-            end (str, optional): New end date and time in ISO 8601 format.
-            location (str, optional): New location for the event.
-            attendees (List[str], optional): New list of attendee email addresses.
-            pre_event_reminder (int, optional): New reminder time in minutes before the event.
-            
-        Returns:
-            Updated event object if successful, None otherwise.
-        """
-        user = kwargs.get("user") # required
-        event_id = kwargs.get("event_id") # required
-        subject = kwargs.get("subject")
-        start = kwargs.get("start")
-        end = kwargs.get("end")
-        location = kwargs.get("location")
-        body = kwargs.get("body")
-        attendees = kwargs.get("attendees", [])
-        pre_event_reminder = kwargs.get("pre_event_reminder")
-
-        if not user:
+        if not user or not user.strip():
             raise ValidationError("User is required")
-        if not event_id:
+        if not event_id or not event_id.strip():
             raise ValidationError("Event ID is required")
         
         request_body = Event()
@@ -209,22 +180,16 @@ class CalendarService:
             return None
         
 
-    async def delete_event(self, **kwargs):
-        """Delete a calendar event.
+    async def delete_event(
+                self,
+                *,
+                user : str,
+                event_id : str,
+        ):
 
-        Args:
-            user (str): The user ID or email address.
-            event_id (str): The ID of the event to delete.
-            
-        Returns:
-            bool: True if deletion successful, False otherwise.
-        """
-        user = kwargs.get("user") # required
-        event_id = kwargs.get("event_id") # required
-
-        if not user:
+        if not user or not user.strip():
             raise ValidationError("User is required")
-        if not event_id:
+        if not event_id or not event_id.strip():
             raise ValidationError("Event ID is required")
         try:
             await self._msgraph_client.users.by_user_id(user).events.by_event_id(event_id).delete()
