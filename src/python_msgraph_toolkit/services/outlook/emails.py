@@ -124,7 +124,7 @@ class EmailsService:
                 *,
                 user : str,
                 parent_folder_id : str,
-                return_top : Optional[int] = 10,
+                top : Optional[int] = 10,
         ):
 
         if not user or not user.strip():
@@ -133,7 +133,7 @@ class EmailsService:
             raise ValidationError("Mail folder ID is required")
         try:
             query_params = MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters(
-		        top = return_top)
+		        top = top)
 
             request_configuration = RequestConfiguration(
                 query_parameters = query_params,

@@ -1,3 +1,4 @@
+from typing import List, Optional
 from msgraph.graph_service_client import GraphServiceClient
 from msgraph.generated.models.chat import Chat
 from msgraph.generated.models.chat_type import ChatType
@@ -77,12 +78,12 @@ class ChatService:
                 self,
                 *,
                 chat_id : str,
-                top : int = 10,
+                top : Optional[int] = 10,
         ):
 
         if not chat_id or not chat_id.strip():
             raise ValidationError("chat_id is required to list messages in a chat")
-        if top <= 0:
+        if top is not None and top <= 0:
             raise ValidationError("top must be a positive integer")
         
         
