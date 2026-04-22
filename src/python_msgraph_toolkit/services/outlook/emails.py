@@ -9,6 +9,8 @@ from msgraph.generated.users.item.send_mail.send_mail_post_request_body import S
 from msgraph.generated.users.item.messages.item.reply.reply_post_request_body import ReplyPostRequestBody
 from msgraph.generated.users.item.messages.item.reply_all.reply_all_post_request_body import ReplyAllPostRequestBody
 from msgraph.generated.users.item.messages.item.forward.forward_post_request_body import ForwardPostRequestBody
+from msgraph.generated.users.item.mail_folders.item.messages.messages_request_builder import MessagesRequestBuilder
+from kiota_abstractions.base_request_configuration import RequestConfiguration
 from msgraph.generated.models.message import Message
 from msgraph.generated.models.importance import Importance
 from msgraph.generated.models.item_body import ItemBody
@@ -122,6 +124,7 @@ class EmailsService:
                 *,
                 user : str,
                 parent_folder_id : str,
+                return_top : Optional[int] = 10,
         ):
 
         if not user or not user.strip():
@@ -129,7 +132,13 @@ class EmailsService:
         if not parent_folder_id or not parent_folder_id.strip():
             raise ValidationError("Mail folder ID is required")
         try:
-            result = await self._msgraph_client.users.by_user_id(user).mail_folders.by_mail_folder_id(parent_folder_id).messages.get()
+            query_params = MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters(
+		        top = return_top)
+
+            request_configuration = RequestConfiguration(
+                query_parameters = query_params,
+            )
+            result = await self._msgraph_client.users.by_user_id(user).mail_folders.by_mail_folder_id(parent_folder_id).messages.get(request_configuration = request_configuration)
             if result:
                 return result.value
         except Exception as e:
