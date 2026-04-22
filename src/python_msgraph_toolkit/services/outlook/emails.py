@@ -131,6 +131,8 @@ class EmailsService:
             raise ValidationError("User is required")
         if not parent_folder_id or not parent_folder_id.strip():
             raise ValidationError("Mail folder ID is required")
+        if top is not None and top <= 0:
+            raise ValidationError("top must be a positive integer")
         try:
             query_params = MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters(
 		        top = top)
