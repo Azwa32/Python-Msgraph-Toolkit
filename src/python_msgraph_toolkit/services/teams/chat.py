@@ -85,6 +85,8 @@ class ChatService:
             raise ValidationError("chat_id is required to list messages in a chat")
         if top is not None and top <= 0:
             raise ValidationError("top must be a positive integer")
+        if top is not None and top > 50:
+            raise ValidationError("top must be less than or equal to 50")
         
         
         query_params = MessagesRequestBuilder.MessagesRequestBuilderGetQueryParameters(top = top)
