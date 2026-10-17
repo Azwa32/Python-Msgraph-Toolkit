@@ -257,7 +257,7 @@ class EmailsService:
         reply_to_list = []
         if reply_to_recipients:
             for recipient in reply_to_recipients:
-                reply_to_list.append(EmailAddress(address = recipient))
+                reply_to_list.append(Recipient(email_address=EmailAddress(address = recipient)))
 
         request_body = ReplyPostRequestBody(
             message = Message(
@@ -295,7 +295,7 @@ class EmailsService:
         reply_to_list = []
         if reply_to_recipients:
             for recipient in reply_to_recipients:
-                reply_to_list.append(EmailAddress(address = recipient))
+                reply_to_list.append(Recipient(email_address=EmailAddress(address = recipient)))
         
         request_body = ReplyAllPostRequestBody(
             message = Message(
@@ -331,7 +331,7 @@ class EmailsService:
         # build list of recipient objects
         to_recipients_list = [] 
         for recipient in to_recipients:
-            to_recipients_list.append(EmailAddress(address = recipient))
+            to_recipients_list.append(Recipient(email_address=EmailAddress(address = recipient)))
 
         request_body = ForwardPostRequestBody(
             to_recipients = to_recipients_list if to_recipients else None,
