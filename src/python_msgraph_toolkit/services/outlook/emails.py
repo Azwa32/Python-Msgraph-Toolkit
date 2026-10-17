@@ -241,7 +241,7 @@ class EmailsService:
                 sender : str,
                 message_id : str,
                 comment : Optional[str] = None,
-                reply_to_recipient : Optional[List[str]] = None,
+                reply_to_recipients : Optional[List[str]] = None,
         ):
 
         # Validate required parameters
@@ -250,7 +250,7 @@ class EmailsService:
         if not message_id or not message_id.strip():
             raise ValidationError("Message Id is required")
 
-        if reply_to_recipient is None:
+        if reply_to_recipients is None:
             reply_to_recipients = []
         
         # build list of recipient objects
