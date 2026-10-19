@@ -58,7 +58,7 @@ def graph_exception_handler(exception: Exception, service_name: str = "Graph API
     # Resource errors
     elif 'not found' in error_str or '404' in error_str:
         raise GraphAPIError(f"{service_name} resource not found")
-    elif 'forbidden' in error_str or '403' in error_str:
+    elif 'forbidden' in error_str:
         raise GraphAPIError(f"Access denied to {service_name} resource")
     elif 'rate limit' in error_str or '429' in error_str:
         raise RateLimitError("API rate limit exceeded")
