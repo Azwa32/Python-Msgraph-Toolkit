@@ -52,15 +52,15 @@ def graph_exception_handler(exception: Exception, service_name: str = "Graph API
         raise AuthenticationError("Invalid Client ID. Verify MSGRAPH_CLIENT_ID and try again")
     elif '7000215' in error_str or 'aadsts7000215' in error_str:
         raise AuthenticationError("Invalid Client Secret. Verify MSGRAPH_API_KEY and try again")
-    elif 'erroraccessdenied' in error_str or '403' in error_str:
+    elif 'erroraccessdenied' in error_str:
         raise AuthenticationError("Access denied. Verify permissions for the application in Azure AD and ensure the user has access to the resource.")
     
     # Resource errors
-    elif 'not found' in error_str or '404' in error_str:
+    elif 'not found' in error_str:
         raise GraphAPIError(f"{service_name} resource not found")
     elif 'forbidden' in error_str:
         raise GraphAPIError(f"Access denied to {service_name} resource")
-    elif 'rate limit' in error_str or '429' in error_str:
+    elif 'rate limit' in error_str:
         raise RateLimitError("API rate limit exceeded")
     
     # Default
