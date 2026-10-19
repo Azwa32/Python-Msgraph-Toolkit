@@ -4,8 +4,6 @@ msgraph_wrapper.exceptions
 
 This module contains the set of MS Graph API wrapper exceptions.
 """
-from typing import Optional, Dict, Any
-from requests.exceptions import HTTPError
 class GraphAPIError(Exception):
     """Base class for all Graph API exceptions."""
     

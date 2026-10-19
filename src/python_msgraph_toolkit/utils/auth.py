@@ -11,19 +11,16 @@ class Auth:
         self.scopes = ['https://graph.microsoft.com/.default']
         if not tenant_id:
             raise ValueError("Tenant ID must be supplied")
-        self.tenant_id = tenant_id
         
         if not client_id:
             raise ValueError("Client ID must be supplied")
-        self.client_id = client_id
         
         if not secret:
             raise ValueError("Secret must be supplied")
-        self.secret = secret
 
         ## Initialize the authenticated Graph client 
         try: 
-            credendial = ClientSecretCredential(self.tenant_id, self.client_id, self.secret)
+            credendial = ClientSecretCredential(tenant_id, client_id, secret)
             self._msgraph_client = GraphServiceClient(credentials=credendial, scopes=self.scopes)
             self.authorised = True
         except Exception as e:
