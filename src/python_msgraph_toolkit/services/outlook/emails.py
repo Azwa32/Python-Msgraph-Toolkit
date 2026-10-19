@@ -1,4 +1,3 @@
-import base64
 from msgraph.graph_service_client import GraphServiceClient
 from functools import wraps
 import logging
@@ -29,15 +28,15 @@ class EmailsService:
             raise ValidationError("msgraph client must be supplied")        
         
     async def _process_attachment(self, attachment: str, ) -> FileAttachment:
+        if not os.path.isfile(attachment):
+            raise ValidationError(f"Attachment not found: {attachment}")
         with open(attachment, "rb") as att:
-            attachment_bytes = att.read().decode("utf-8")
-
+            content = att.read()
 
         file_attachment = FileAttachment(
-            odata_type = "#microsoft.graph.fileAttachment",
             name = os.path.basename(attachment),
-            content_type = mimetypes.guess_type(attachment, strict =False)[0],
-            content_bytes = base64.urlsafe_b64decode(attachment_bytes),
+            content_type = mimetypes.guess_type(attachment, strict =False)[0] or "application/octet-stream",
+            content_bytes = content,
         )
         return file_attachment
     
@@ -225,6 +224,7 @@ class EmailsService:
                     bcc_recipients = bcc_recipients_list if bcc_recipients else None,
                     reply_to = reply_to_list if reply_to else None,
                     is_read_receipt_requested = request_read_receipt,
+                    attachments = attachments_list if attachments_list else None
                 )
             )
             try:
