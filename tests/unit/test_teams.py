@@ -93,7 +93,6 @@ async def test_create_chat_group(initialise_mock):
 
 @pytest.mark.asyncio
 async def test_create_chat_binds_members_to_users(initialise_mock):
-    """Each member must be bound to its user with the "user@odata.bind" key, or graph rejects the chat."""
     mock_client = initialise_mock
     service = ChatService(mock_client)
 
