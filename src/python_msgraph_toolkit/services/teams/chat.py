@@ -53,6 +53,7 @@ class ChatService:
                     roles = [
                         "owner",
                     ],
+                    # key is sent verbatim, so it must be exactly "user@odata.bind" for graph to bind the member to the user
                     additional_data = {
                             "user@odata.bind" : f"https://graph.microsoft.com/v1.0/users('{member}')",
                     }
