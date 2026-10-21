@@ -54,7 +54,7 @@ class ChatService:
                         "owner",
                     ],
                     additional_data = {
-                            f"user@odata_bind" : f"https://graph.microsoft.com/v1.0/users('{member}')",
+                            "user@odata.bind" : f"https://graph.microsoft.com/v1.0/users('{member}')",
                     }
                 )
             )
