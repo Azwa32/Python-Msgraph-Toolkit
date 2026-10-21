@@ -96,7 +96,8 @@ async def test_create_chat_binds_members_to_users(initialise_mock):
     mock_client = initialise_mock
     service = ChatService(mock_client)
 
-    mock_client.chats.post = AsyncMock(return_value=MagicMock())
+    mock_chat = MagicMock()
+    mock_client.chats.post = AsyncMock(return_value=mock_chat)
 
     await service.create_chat(members=["user1", "user2"])
 
