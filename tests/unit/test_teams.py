@@ -92,6 +92,23 @@ async def test_create_chat_group(initialise_mock):
 
 
 @pytest.mark.asyncio
+async def test_create_chat_binds_members_to_users(initialise_mock):
+    mock_client = initialise_mock
+    service = ChatService(mock_client)
+
+    mock_client.chats.post = AsyncMock(return_value=MagicMock())
+
+    await service.create_chat(members=["user1", "user2"])
+
+    request_body = mock_client.chats.post.call_args.args[0]
+    bindings = [member.additional_data for member in request_body.members]
+    assert bindings == [
+        {"user@odata.bind": "https://graph.microsoft.com/v1.0/users('user1')"},
+        {"user@odata.bind": "https://graph.microsoft.com/v1.0/users('user2')"},
+    ]
+
+
+@pytest.mark.asyncio
 async def test_create_chat_too_few_members(initialise_mock):
     mock_client = initialise_mock
     service = ChatService(mock_client)
